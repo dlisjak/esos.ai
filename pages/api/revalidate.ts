@@ -5,7 +5,10 @@ export default async function handler(
 	res: NextApiResponse
 ) {
 	const { urlPath } = req.body;
-	res.setHeader('Access-Control-Allow-Origin', 'https://app.founder.si');
+	res.setHeader(
+		'Access-Control-Allow-Origin',
+		'https://app.esos-digital.vercel.app'
+	);
 	res.setHeader('Access-Control-Allow-Methods', 'POST');
 
 	try {

@@ -191,7 +191,9 @@ export default function DomainCard({ data }: DomainCardProps) {
 								<div>
 									<p className="text-sm font-bold">Value</p>
 									<p className="text-sm font-mono mt-2">
-										{recordType == 'CNAME' ? `cname.founder.si` : `76.76.21.21`}
+										{recordType == 'CNAME'
+											? `cname.esos-digital.vercel.app`
+											: `76.76.21.21`}
 									</p>
 								</div>
 							</div>

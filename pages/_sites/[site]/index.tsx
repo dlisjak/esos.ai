@@ -32,7 +32,7 @@ export default function Index({ stringifiedData }: IndexProps) {
 		ogImage: data.image,
 		ogUrl: data.customDomain
 			? data.customDomain
-			: `https://${data.subdomain}.founder.si`,
+			: `https://${data.subdomain}.esos-digital.vercel.app`,
 	} as Meta;
 
 	return (
