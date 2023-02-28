@@ -108,7 +108,7 @@ export default function SiteIndex() {
 												rel="noreferrer"
 												target="_blank"
 											>
-												{data.site?.subdomain}.$
+												{data.site?.subdomain}.
 												{process.env.NEXT_PUBLIC_DOMAIN_URL}/{post.slug} ↗
 											</a>
 										</div>
