@@ -19,6 +19,7 @@ export default async function middleware(req: NextRequest) {
 
 	// Get hostname of request (e.g. demo.vercel.pub, demo.localhost:3000)
 	const hostname = req.headers.get('host') || 'demo.founder.si';
+	console.log({ hostname });
 
 	// Get the pathname of the request (e.g. /, /about, /blog/first-post)
 	const path = url.pathname;
