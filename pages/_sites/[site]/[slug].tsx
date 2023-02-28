@@ -76,11 +76,7 @@ export default function Post({
 				</div>
 				<a
 					// if you are using Github OAuth, you can get rid of the Twitter option
-					href={
-						data.site?.user?.username
-							? `https://twitter.com/${data.site.user.username}`
-							: `https://github.com/${data.site?.user?.gh_username}`
-					}
+					href={`https://github.com/${data.site?.user?.gh_username}`}
 					rel="noreferrer"
 					target="_blank"
 				>
