@@ -7,7 +7,7 @@ export default async function handler(
 	const { urlPath } = req.body;
 	res.setHeader(
 		'Access-Control-Allow-Origin',
-		'https://app.esos-digital.vercel.app'
+		`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}`
 	);
 	res.setHeader('Access-Control-Allow-Methods', 'POST');
 

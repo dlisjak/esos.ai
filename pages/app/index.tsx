@@ -35,7 +35,9 @@ export default function AppIndex() {
 				if (available) {
 					setError(null);
 				} else {
-					setError(`${debouncedSubdomain}.esos-digital.vercel.app`);
+					setError(
+						`${debouncedSubdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`
+					);
 				}
 			}
 		}
@@ -109,7 +111,7 @@ export default function AppIndex() {
 								type="text"
 							/>
 							<span className="px-5 bg-gray-100 h-full flex items-center rounded-r-lg border-l border-gray-600">
-								.esos-digital.vercel.app
+								.{process.env.NEXT_PUBLIC_DOMAIN_URL}
 							</span>
 						</div>
 						{error && (
@@ -195,12 +197,12 @@ export default function AppIndex() {
 											</p>
 											<a
 												className="font-cal px-3 py-1 tracking-wide rounded bg-gray-200 text-gray-600 absolute bottom-5 left-10 whitespace-nowrap"
-												href={`https://${site.subdomain}.esos-digital.vercel.app`}
+												href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`}
 												onClick={(e) => e.stopPropagation()}
 												rel="noreferrer"
 												target="_blank"
 											>
-												{site.subdomain}.esos-digital.vercel.app ↗
+												{site.subdomain}.{process.env.NEXT_PUBLIC_DOMAIN_URL} ↗
 											</a>
 										</div>
 									</div>

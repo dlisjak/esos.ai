@@ -199,7 +199,7 @@ export async function deletePost(
 		if (response?.site?.subdomain) {
 			// revalidate for subdomain
 			await revalidate(
-				`https://${response.site?.subdomain}.esos-digital.vercel.app`, // hostname to be revalidated
+				`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${response.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
 				response.site.subdomain, // siteId
 				response.slug // slugname for the post
 			);
@@ -207,7 +207,7 @@ export async function deletePost(
 		if (response?.site?.customDomain)
 			// revalidate for custom domain
 			await revalidate(
-				`https://${response.site.customDomain}`, // hostname to be revalidated
+				`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${response.site.customDomain}`, // hostname to be revalidated
 				response.site.customDomain, // siteId
 				response.slug // slugname for the post
 			);
@@ -291,7 +291,7 @@ export async function updatePost(
 		if (subdomain) {
 			// revalidate for subdomain
 			await revalidate(
-				`https://${subdomain}.esos-digital.vercel.app`, // hostname to be revalidated
+				`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
 				subdomain, // siteId
 				slug // slugname for the post
 			);
@@ -299,7 +299,7 @@ export async function updatePost(
 		if (customDomain)
 			// revalidate for custom domain
 			await revalidate(
-				`https://${customDomain}`, // hostname to be revalidated
+				`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${customDomain}`, // hostname to be revalidated
 				customDomain, // siteId
 				slug // slugname for the post
 			);

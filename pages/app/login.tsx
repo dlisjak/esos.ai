@@ -66,7 +66,7 @@ export default function Login() {
 					Build multi-tenant applications with custom domains. <br /> Read the{' '}
 					<a
 						className="font-medium text-black hover:text-gray-800"
-						href="https://demo.esos-digital.vercel.app/platforms-starter-kit"
+						href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}/platforms-starter-kit`}
 						rel="noreferrer"
 						target="_blank"
 					>

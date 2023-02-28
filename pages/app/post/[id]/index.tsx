@@ -191,7 +191,7 @@ export default function Post() {
 			if (response.ok) {
 				mutate(`/api/post?postId=${postId}`);
 				router.push(
-					`https://${post?.site?.subdomain}.esos-digital.vercel.app/${post?.slug}`
+					`https://${post?.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}/${post?.slug}`
 				);
 			}
 		} catch (error) {

@@ -38,7 +38,9 @@ export const authOptions: NextAuthOptions = {
 				sameSite: 'lax',
 				path: '/',
 				// When working on localhost, the cookie domain must be omitted entirely (https://stackoverflow.com/a/1188145)
-				domain: VERCEL_DEPLOYMENT ? '.esos-digital.vercel.app' : undefined,
+				domain: VERCEL_DEPLOYMENT
+					? '.${process.env.NEXT_PUBLIC_DOMAIN_URL}'
+					: undefined,
 				secure: VERCEL_DEPLOYMENT,
 			},
 		},

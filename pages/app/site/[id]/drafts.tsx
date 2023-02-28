@@ -107,12 +107,12 @@ export default function SiteDrafts() {
 											</p>
 											<a
 												className="font-cal px-3 py-1 tracking-wide rounded bg-gray-200 text-gray-600 absolute bottom-5 left-10 whitespace-nowrap"
-												href={`https://${data.site?.subdomain}.esos-digital.vercel.app/${post.slug}`}
+												href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${data.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}/${post.slug}`}
 												rel="noreferrer"
 												target="_blank"
 											>
-												{data.site?.subdomain}.esos-digital.vercel.app/
-												{post.slug} ↗
+												{data.site?.subdomain}.$
+												{process.env.NEXT_PUBLIC_DOMAIN_URL}/{post.slug} ↗
 											</a>
 										</div>
 									</div>

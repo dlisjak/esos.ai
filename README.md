@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://demo.esos-digital.vercel.app">
+  <a href="https://demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}">
     <img src="https://assets.vercel.com/image/upload/v1588805858/repositories/vercel/logo.png" height="96">
     <h3 align="center">Platforms Starter Kit</h3>
   </a>
@@ -13,8 +13,8 @@
 <p align="center">
   <a href="#introduction"><strong>Introduction</strong></a> ·
   <a href="https://vercel.com/guides/nextjs-multi-tenant-application"><strong>Guide</strong></a> ·
-  <a href="https://demo.esos-digital.vercel.app/"><strong>Demo</strong></a> ·
-  <a href="https://steven.esos-digital.vercel.app/kitchen-sink"><strong>Kitchen Sink</strong></a> ·
+  <a href="https://demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}/"><strong>Demo</strong></a> ·
+  <a href="https://steven.${process.env.NEXT_PUBLIC_DOMAIN_URL}/kitchen-sink"><strong>Kitchen Sink</strong></a> ·
   <a href="#contributing"><strong>Contributing</strong></a>
 </p>
 <br/>
@@ -29,9 +29,9 @@ Multi-tenant applications serve multiple customers across different subdomains/c
 
 For example, our demo is a multi-tenant application:
 
-- Subdomain: [demo.esos-digital.vercel.app](http://demo.esos-digital.vercel.app)
-- Custom domain: [platformize.co](http://platformize.co) (maps to [demo.esos-digital.vercel.app](http://demo.esos-digital.vercel.app))
-- Build your own: [app.esos-digital.vercel.app](http://app.esos-digital.vercel.app)
+- Subdomain: [demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}](http://demo.${process.env.NEXT_PUBLIC_DOMAIN_URL})
+- Custom domain: [platformize.co](http://platformize.co) (maps to [demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}](http://demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}))
+- Build your own: [app.${process.env.NEXT_PUBLIC_DOMAIN_URL}](http://app.${process.env.NEXT_PUBLIC_DOMAIN_URL})
 
 Another example is [Hashnode](https://vercel.com/customers/hashnode), a popular blogging platform. Each writer has their own unique `.hashnode.dev` subdomain for their blog:
 

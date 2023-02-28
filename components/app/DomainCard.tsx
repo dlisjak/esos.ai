@@ -192,7 +192,7 @@ export default function DomainCard({ data }: DomainCardProps) {
 									<p className="text-sm font-bold">Value</p>
 									<p className="text-sm font-mono mt-2">
 										{recordType == 'CNAME'
-											? `cname.esos-digital.vercel.app`
+											? `cname.${process.env.NEXT_PUBLIC_DOMAIN_URL}`
 											: `76.76.21.21`}
 									</p>
 								</div>

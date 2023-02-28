@@ -121,7 +121,9 @@ export default function SiteSettings() {
 				const available = await response.json();
 
 				setSubdomainError(
-					available ? null : `${debouncedSubdomain}.esos-digital.vercel.app`
+					available
+						? null
+						: `${debouncedSubdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`
 				);
 			} catch (error) {
 				console.error(error);
@@ -246,7 +248,7 @@ export default function SiteSettings() {
 								value={data.subdomain || ''}
 							/>
 							<div className="w-1/2 h-12 flex justify-center items-center font-cal rounded-r-lg border-l border-gray-600 bg-gray-100">
-								esos-digital.vercel.app
+								{process.env.NEXT_PUBLIC_DOMAIN_URL}
 							</div>
 						</div>
 						{subdomainError && (

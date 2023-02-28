@@ -32,7 +32,7 @@ export default function Index({ stringifiedData }: IndexProps) {
 		ogImage: data.image,
 		ogUrl: data.customDomain
 			? data.customDomain
-			: `https://${data.subdomain}.esos-digital.vercel.app`,
+			: `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${data.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`,
 	} as Meta;
 
 	return (

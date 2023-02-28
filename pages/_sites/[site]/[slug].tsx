@@ -56,7 +56,7 @@ export default function Post({
 		description: data.description,
 		logo: '/logo.png',
 		ogImage: data.image,
-		ogUrl: `https://${data.site?.subdomain}.esos-digital.vercel.app/${data.slug}`,
+		ogUrl: `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${data.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}/${data.slug}`,
 		title: data.title,
 	} as Meta;
 
@@ -76,7 +76,7 @@ export default function Post({
 				</div>
 				<a
 					// if you are using Github OAuth, you can get rid of the Twitter option
-					href={`https://github.com/${data.site?.user?.gh_username}`}
+					href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://github.com/${data.site?.user?.gh_username}`}
 					rel="noreferrer"
 					target="_blank"
 				>
