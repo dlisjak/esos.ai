@@ -1,5 +1,6 @@
-import prisma from '@/lib/prisma';
+import type { Metadata } from 'next';
 
+import prisma from '@/lib/prisma';
 import { toDateString } from '@/lib/utils';
 import BlogCard from '@/components/BlogCard';
 import Loader from '@/components/app/Loader';
@@ -104,14 +105,13 @@ const getData = async (params) => {
 	};
 };
 
+export async function generateMetadata({ params }): Promise<Metadata> {
+	const data = await getData(params);
+	return { title: data.title };
+}
+
 export default async function Post({ params }) {
 	const data = await getData(params);
-
-	const meta = {
-		logo: '/logo.png',
-		title: data.title,
-	};
-
 	if (!data) return <Loader />;
 
 	return (
