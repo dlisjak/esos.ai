@@ -38,7 +38,7 @@ export default function SiteIndex() {
 	const posts = data?.posts;
 	const site = data?.site;
 
-	async function createPost(subdomain: string) {
+	async function createPost(subdomain: string | string[]) {
 		setCreatingPost(true);
 		if (!postTitleRef.current || !postSlugRef.current) return;
 		const title = postTitleRef.current.value;
