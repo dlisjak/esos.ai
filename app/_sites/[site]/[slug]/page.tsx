@@ -1,5 +1,4 @@
 import prisma from '@/lib/prisma';
-import { MDXRemote } from 'next-mdx-remote/rsc';
 
 import { toDateString } from '@/lib/utils';
 import BlogCard from '@/components/BlogCard';
@@ -129,9 +128,7 @@ export default async function Post({ params }) {
 			<article
 				className="w-11/12 sm:w-3/4 m-auto prose prose-md sm:prose-lg"
 				suppressHydrationWarning={true}
-			>
-				<MDXRemote source={data?.content} />
-			</article>
+			></article>
 
 			{data?.adjacentPosts.length > 0 && (
 				<div className="relative mt-10 sm:mt-20 mb-20">
