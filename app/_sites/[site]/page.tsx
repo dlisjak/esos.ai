@@ -1,11 +1,10 @@
 import Link from 'next/link';
 
-import Layout from '@/components/sites/Layout';
 import BlurImage from '@/components/BlurImage';
 import BlogCard from '@/components/BlogCard';
 import prisma from '@/lib/prisma';
 
-import type { _SiteData, Meta } from '@/types';
+import type { _SiteData } from '@/types';
 import { placeholderBlurhash, toDateString } from '@/lib/utils';
 import Loader from '@/components/app/Loader';
 import { Metadata } from 'next';
@@ -174,90 +173,3 @@ export default async function Index({ params }) {
 		</>
 	);
 }
-
-// export const getStaticPaths: GetStaticPaths<PathProps> = async () => {
-// 	const [subdomains, customDomains] = await Promise.all([
-// 		prisma.site.findMany({
-// 			// you can remove this if you want to generate all sites at build time
-// 			where: {
-// 				subdomain: 'demo',
-// 			},
-// 			select: {
-// 				subdomain: true,
-// 			},
-// 		}),
-// 		prisma.site.findMany({
-// 			where: {
-// 				NOT: {
-// 					customDomain: null,
-// 				},
-// 				// you can remove this if you want to generate all sites at build time
-// 				customDomain: 'platformize.co',
-// 			},
-// 			select: {
-// 				customDomain: true,
-// 			},
-// 		}),
-// 	]);
-
-// 	const allPaths = [
-// 		...subdomains.map(({ subdomain }) => subdomain),
-// 		...customDomains.map(({ customDomain }) => customDomain),
-// 	].filter((path) => path) as Array<string>;
-
-// 	return {
-// 		paths: allPaths.map((path) => ({
-// 			params: {
-// 				site: path,
-// 			},
-// 		})),
-// 		fallback: true,
-// 	};
-// };
-
-// export const getStaticProps: GetStaticProps<IndexProps, PathProps> = async ({
-// 	params,
-// }) => {
-// 	if (!params) throw new Error('No path parameters found');
-
-// 	const { site } = params;
-
-// 	let filter: {
-// 		subdomain?: string;
-// 		customDomain?: string;
-// 	} = {
-// 		subdomain: site,
-// 	};
-
-// 	if (site.includes('.')) {
-// 		filter = {
-// 			customDomain: site,
-// 		};
-// 	}
-
-// 	const data = (await prisma.site.findUnique({
-// 		where: filter,
-// 		include: {
-// 			user: true,
-// 			posts: {
-// 				where: {
-// 					published: true,
-// 				},
-// 				orderBy: [
-// 					{
-// 						createdAt: 'desc',
-// 					},
-// 				],
-// 			},
-// 		},
-// 	})) as _SiteData;
-
-// 	if (!data) return { notFound: true, revalidate: 10 };
-
-// 	return {
-// 		props: {
-// 			stringifiedData: JSON.stringify(data),
-// 		},
-// 		revalidate: 3600,
-// 	};
-// };
