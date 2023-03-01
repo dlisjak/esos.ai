@@ -93,7 +93,7 @@ const getData = async (params) => {
 				},
 				published: true,
 				NOT: {
-					id: data.id,
+					id: data?.id,
 				},
 			},
 			select: {
