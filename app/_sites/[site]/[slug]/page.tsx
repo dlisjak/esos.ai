@@ -1,4 +1,6 @@
 import prisma from '@/lib/prisma';
+import { MDXRemote } from 'next-mdx-remote';
+import { serialize } from 'next-mdx-remote/serialize';
 
 import { toDateString } from '@/lib/utils';
 import BlogCard from '@/components/BlogCard';
