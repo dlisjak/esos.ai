@@ -120,7 +120,6 @@ export default async function Post({ params }) {
 	const data = await getData(params);
 
 	const meta = {
-		description: data.description,
 		logo: '/logo.png',
 		ogImage: data.image,
 		ogUrl: `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${data.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}/${data.slug}`,
