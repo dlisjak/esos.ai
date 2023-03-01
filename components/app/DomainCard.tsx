@@ -9,13 +9,7 @@ import Link from 'next/link';
 
 type DomainData = Pick<
 	Site,
-	| 'customDomain'
-	| 'description'
-	| 'id'
-	| 'image'
-	| 'imageBlurhash'
-	| 'name'
-	| 'subdomain'
+	'customDomain' | 'id' | 'image' | 'imageBlurhash' | 'name' | 'subdomain'
 >;
 
 interface DomainCardProps<T = DomainData> {

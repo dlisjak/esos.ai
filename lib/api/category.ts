@@ -150,7 +150,7 @@ export async function updateCategory(
 	res: NextApiResponse,
 	session: Session
 ): Promise<void | NextApiResponse<Category>> {
-	const { id, title, description, slug } = req.body;
+	const { id, title, description, slug, image } = req.body;
 
 	if (!id || typeof id !== 'string' || !session?.user?.id) {
 		return res
@@ -181,7 +181,8 @@ export async function updateCategory(
 				title,
 				description,
 				slug,
-				// imageBlurhash: (await getBlurDataURL(image)) ?? undefined,
+				image,
+				imageBlurhash: (await getBlurDataURL(image)) ?? undefined,
 			},
 		});
 

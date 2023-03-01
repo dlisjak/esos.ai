@@ -25,6 +25,7 @@ interface CategoryData {
 	description: string;
 	slug: string;
 	image: string;
+	imageBlurhash: string;
 }
 
 const CONTENT_PLACEHOLDER = `Write some content. Markdown supported:
@@ -71,6 +72,7 @@ export default function Category() {
 		description: '',
 		slug: '',
 		image: '',
+		imageBlurhash: '',
 	});
 
 	useEffect(() => {
@@ -81,6 +83,7 @@ export default function Category() {
 				description: category.description ?? '',
 				slug: category.slug ?? '',
 				image: category.image ?? '',
+				imageBlurhash: category.imageBlurhash ?? '',
 			});
 	}, [categoryId, category]);
 

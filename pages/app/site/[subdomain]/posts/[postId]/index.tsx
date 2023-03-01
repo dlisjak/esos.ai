@@ -23,6 +23,7 @@ interface PostData {
 	slug: string;
 	content: string;
 	image: string;
+	imageBlurhash: string;
 }
 
 const CONTENT_PLACEHOLDER = `Write some content. Markdown supported:
@@ -90,6 +91,7 @@ export default function Post() {
 		slug: '',
 		content: '',
 		image: '',
+		imageBlurhash: '',
 	});
 
 	useEffect(() => {
@@ -99,6 +101,7 @@ export default function Post() {
 				slug: post.slug ?? '',
 				content: post.content ?? '',
 				image: post.image ?? '',
+				imageBlurhash: post.imageBlurhash ?? '',
 			});
 	}, [post]);
 
@@ -120,6 +123,7 @@ export default function Post() {
 						slug: data.slug,
 						content: data.content,
 						image: data.image,
+						imageBlurhash: data.imageBlurhash,
 					}),
 				});
 

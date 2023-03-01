@@ -43,7 +43,7 @@ export default function SiteSettings() {
 		}
 	);
 
-	const { data: themes } = useSWR<Theme | null>(
+	const { data: themes } = useSWR<Theme[] | null>(
 		subdomain && `/api/theme`,
 		fetcher,
 		{
