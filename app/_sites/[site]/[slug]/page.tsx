@@ -1,6 +1,3 @@
-import { serialize } from 'next-mdx-remote/serialize';
-import { MDXRemote } from 'next-mdx-remote/rsc';
-
 import prisma from '@/lib/prisma';
 
 import { toDateString } from '@/lib/utils';
@@ -11,7 +8,9 @@ export const dynamicParams = true;
 
 async function getMdxSource(postContents: string) {
 	// Serialize the content string into MDX
-	const mdxSource = await serialize(postContents);
+	const mdxSource = await serialize(postContents, {
+		mdxOptions: { development: process.env.NODE_ENV !== 'production' },
+	});
 
 	return mdxSource;
 }
