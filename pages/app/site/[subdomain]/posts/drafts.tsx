@@ -37,7 +37,8 @@ export default function Drafts() {
 
 	const posts = data?.posts;
 
-	async function createPost(subdomain: string | string[]) {
+	async function createPost(subdomain: string | string[] | undefined) {
+		if (!subdomain) return;
 		setCreatingPost(true);
 		if (!postTitleRef.current || !postSlugRef.current) return;
 		const title = postTitleRef.current.value;
