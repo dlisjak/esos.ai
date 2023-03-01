@@ -1,7 +1,7 @@
-import { useRouter } from 'next/router';
-import { useState } from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 import BlurImage from '@/components/BlurImage';
 import Layout from '@/components/app/Layout';
@@ -16,14 +16,14 @@ interface SitePostData {
 	site: Site | null;
 }
 
-export default function SiteIndex() {
+export default function SiteDrafts() {
 	const [creatingPost, setCreatingPost] = useState(false);
 
 	const router = useRouter();
 	const { id: siteId } = router.query;
 
 	const { data } = useSWR<SitePostData>(
-		siteId && `/api/post?siteId=${siteId}&published=true`,
+		siteId && `/api/post?siteId=${siteId}&published=false`,
 		fetcher,
 		{
 			onSuccess: (data) => !data?.site && router.push('/'),
@@ -52,8 +52,9 @@ export default function SiteIndex() {
 		<Layout>
 			<div className="py-20 max-w-screen-xl mx-auto px-10 sm:px-20">
 				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
-					<h1 className="font-cal text-5xl">
-						Posts for {data ? data?.site?.name : '...'}
+					<h1 className=" text-5xl">
+						{' '}
+						Drafts for {data ? data?.site?.name : '...'}
 					</h1>
 					<button
 						onClick={() => {
@@ -64,13 +65,13 @@ export default function SiteIndex() {
 							creatingPost
 								? 'cursor-not-allowed bg-gray-300 border-gray-300'
 								: 'text-white bg-black hover:bg-white hover:text-black border-black'
-						} font-cal text-lg w-3/4 sm:w-40 tracking-wide border-2 px-5 py-3 transition-all ease-in-out duration-150`}
+						}  text-lg w-3/4 sm:w-40 tracking-wide border-2 px-5 py-3 transition-all ease-in-out duration-150`}
 					>
 						{creatingPost ? (
 							<LoadingDots />
 						) : (
 							<>
-								New Post <span className="ml-2">＋</span>
+								New Draft <span className="ml-2">＋</span>
 							</>
 						)}
 					</button>
@@ -97,20 +98,22 @@ export default function SiteIndex() {
 											)}
 										</div>
 										<div className="relative p-10">
-											<h2 className="font-cal text-3xl">{post.title}</h2>
-											<p className="text-base my-5 line-clamp-3">
-												{post.description}
+											<h2 className=" text-3xl">
+												{post.title || 'Untitled Post'}
+											</h2>
+											<p className="text-base my-5">
+												{post.description ||
+													'No description provided. Click to edit.'}
 											</p>
-											<a
-												className="font-cal px-3 py-1 tracking-wide rounded bg-gray-200 text-gray-600 absolute bottom-5 left-10 whitespace-nowrap"
+											<Link
+												className=" px-3 py-1 tracking-wide rounded bg-gray-200 text-gray-600 absolute bottom-5 left-10 whitespace-nowrap"
 												href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${data.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}/${post.slug}`}
-												onClick={(e) => e.stopPropagation()}
 												rel="noreferrer"
 												target="_blank"
 											>
-												{data.site?.subdomain}.
+												{data.site?.subdomain}.$
 												{process.env.NEXT_PUBLIC_DOMAIN_URL}/{post.slug} ↗
-											</a>
+											</Link>
 										</div>
 									</div>
 								</Link>
@@ -127,8 +130,8 @@ export default function SiteIndex() {
 									</div>
 								</div>
 								<div className="text-center">
-									<p className="text-2xl font-cal text-gray-600">
-										No posts yet. Click &quot;New Post&quot; to create one.
+									<p className="text-2xl  text-gray-600">
+										No drafts yet. Click &quot;New Draft&quot; to create one.
 									</p>
 								</div>
 							</>

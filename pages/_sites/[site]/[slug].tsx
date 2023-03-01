@@ -67,39 +67,10 @@ export default function Post({
 					<p className="text-sm md:text-base font-light text-gray-500 w-10/12 m-auto my-5">
 						{toDateString(data.createdAt)}
 					</p>
-					<h1 className="font-bold text-3xl font-cal md:text-6xl mb-10 text-gray-800">
+					<h1 className="font-bold text-3xl  md:text-6xl mb-10 text-gray-800">
 						{data.title}
 					</h1>
-					<p className="text-md md:text-lg text-gray-600 w-10/12 m-auto">
-						{data.description}
-					</p>
 				</div>
-				<a
-					// if you are using Github OAuth, you can get rid of the Twitter option
-					href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://github.com/${data.site?.user?.gh_username}`}
-					rel="noreferrer"
-					target="_blank"
-				>
-					<div className="my-8">
-						<div className="relative w-8 h-8 md:w-12 md:h-12 rounded-full overflow-hidden inline-block align-middle">
-							{data.site?.user?.image ? (
-								<BlurImage
-									alt={data.site?.user?.name ?? 'User Avatar'}
-									height={80}
-									src={data.site.user.image}
-									width={80}
-								/>
-							) : (
-								<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-4xl select-none">
-									?
-								</div>
-							)}
-						</div>
-						<div className="inline-block text-md md:text-lg align-middle ml-3">
-							by <span className="font-semibold">{data.site?.user?.name}</span>
-						</div>
-					</div>
-				</a>
 			</div>
 			<div className="relative h-80 md:h-150 w-full max-w-screen-lg lg:w-2/3 md:w-5/6 m-auto mb-10 md:mb-20 md:rounded-2xl overflow-hidden">
 				{data.image ? (
@@ -239,8 +210,6 @@ export const getStaticProps: GetStaticProps<PostProps, PathProps> = async ({
 			},
 		},
 	})) as _SiteSlugData | null;
-
-	console.log(data);
 
 	if (!data) return { notFound: true, revalidate: 10 };
 

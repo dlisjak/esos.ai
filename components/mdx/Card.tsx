@@ -1,6 +1,7 @@
 import BlurImage from '../BlurImage';
 
 import type { MdxCardData } from '@/types';
+import Link from 'next/link';
 
 interface CardProps {
 	data: MdxCardData;
@@ -8,7 +9,7 @@ interface CardProps {
 
 export default function Card({ data }: CardProps) {
 	return (
-		<a
+		<Link
 			href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${data.url}`}
 			target="_blank"
 			rel="noreferrer"
@@ -26,7 +27,7 @@ export default function Card({ data }: CardProps) {
 					/>
 				</div>
 				<div className="py-6 px-5 h-36">
-					<h3 className="font-cal text-2xl font-bold tracking-wide truncate">
+					<h3 className=" text-2xl font-bold tracking-wide truncate">
 						{data.name}
 					</h3>
 					<p className="mt-3 text-gray-800 italic text-base leading-snug">
@@ -47,7 +48,7 @@ export default function Card({ data }: CardProps) {
 					/>
 				</div>
 				<div className="py-6 px-5 w-3/5">
-					<h3 className="font-cal my-0 text-xl font-bold tracking-wide truncate">
+					<h3 className=" my-0 text-xl font-bold tracking-wide truncate">
 						{data.name}
 					</h3>
 					<p className="mt-3 text-gray-800 italic text-sm leading-snug font-normal">
@@ -55,6 +56,6 @@ export default function Card({ data }: CardProps) {
 					</p>
 				</div>
 			</div>
-		</a>
+		</Link>
 	);
 }

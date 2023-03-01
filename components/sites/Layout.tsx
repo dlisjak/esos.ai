@@ -119,41 +119,19 @@ export default function Layout({ meta, children, subdomain }: LayoutProps) {
 							<path d="M6 9l6 6 6-6" />
 						</svg>
 					</button>
-					<div className="text-center lg:text-left">
-						<p className="font-cal text-lg sm:text-2xl text-black">
-							Platforms Starter Kit Demo
-						</p>
-						<p
-							className={`${
-								closeModal ? 'lg:block hidden' : ''
-							} text-sm text-gray-700 mt-2 lg:mt-0`}
-						>
-							This is a demo site showcasing how to build a multi-tenant
-							application with{' '}
-							<a
-								className="text-black font-semibold underline"
-								href="${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://platformize.co"
-								rel="noreferrer"
-								target="_blank"
-							>
-								custom domain
-							</a>{' '}
-							support.
-						</p>
-					</div>
 					<div
 						className={`${
 							closeModal ? 'lg:flex hidden' : ''
 						} flex space-y-3 sm:space-y-0 sm:space-x-3 sm:flex-row flex-col lg:w-auto w-full text-center`}
 					>
-						<a
-							className="flex-auto font-cal text-lg rounded-md py-1 sm:py-3 px-5 text-black border border-gray-200 hover:border-black transition-all ease-in-out duration-150 whitespace-no-wrap"
+						<Link
+							className="flex-auto text-lg rounded-md py-1 sm:py-3 px-5 text-black border border-gray-200 hover:border-black transition-all ease-in-out duration-150 whitespace-no-wrap"
 							href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}`}
 							rel="noreferrer"
 							target="_blank"
 						>
 							Create your publication
-						</a>
+						</Link>
 					</div>
 				</div>
 			)}

@@ -19,9 +19,13 @@ export default function Layout({ siteId, children }: LayoutProps) {
 		'Create a fullstack application with multi-tenancy and custom domains support using Next.js, Prisma, and PostgreSQL';
 	const logo = '/favicon.ico';
 	const router = useRouter();
-	const sitePage = router.pathname.startsWith('/app/site/[id]');
-	const postPage = router.pathname.startsWith('/app/post/[id]');
-	const rootPage = !sitePage && !postPage;
+	const { subdomain } = router.query;
+	const sitePage = router.pathname.startsWith('/app/site/[subdomain]');
+	const postPage = router.pathname.startsWith('/app/site/[subdomain]/posts');
+	const categoryPage = router.pathname.startsWith(
+		'/app/site/[subdomain]/categories'
+	);
+	const rootPage = !sitePage && !postPage && !categoryPage;
 	const tab = rootPage
 		? router.asPath.split('/')[1]
 		: router.asPath.split('/')[3];
@@ -86,89 +90,43 @@ export default function Layout({ siteId, children }: LayoutProps) {
 						</div>
 					</div>
 				</div>
-				{rootPage && (
-					<div className="absolute left-0 right-0 top-16 flex justify-center items-center font-cal space-x-16 border-b bg-white border-gray-200">
-						<Link
-							href="/"
-							className={`border-b-2 ${
-								tab == '' ? 'border-black' : 'border-transparent'
-							} py-3`}
-						>
-							My Sites
-						</Link>
-						<Link
-							href="/settings"
-							className={`border-b-2 ${
-								tab == 'settings' ? 'border-black' : 'border-transparent'
-							} py-3`}
-						>
-							Settings
-						</Link>
-					</div>
-				)}
 				{sitePage && (
-					<div className="absolute left-0 right-0 top-16 font-cal border-b bg-white border-gray-200">
+					<div className="absolute left-0 right-0 top-16  border-b bg-white border-gray-200">
 						<div className="flex justify-between items-center space-x-16 max-w-screen-xl mx-auto px-10 sm:px-20">
 							<Link href="/" className="md:inline-block ml-3 hidden">
 								← All Sites
 							</Link>
 							<div className="flex justify-between items-center space-x-10 md:space-x-16">
 								<Link
-									href={`/site/${router.query.id}`}
+									href={`/site/${subdomain}/posts`}
 									className={`border-b-2 ${
-										!tab ? 'border-black' : 'border-transparent'
+										tab == 'posts' || postPage
+											? 'border-black'
+											: 'border-transparent'
 									} py-3`}
 								>
 									Posts
 								</Link>
 								<Link
-									href={`/site/${router.query.id}/drafts`}
+									href={`/site/${subdomain}/categories`}
 									className={`border-b-2 ${
-										tab == 'drafts' ? 'border-black' : 'border-transparent'
+										tab == 'categories' || categoryPage
+											? 'border-black'
+											: 'border-transparent'
 									} py-3`}
 								>
-									Drafts
+									Categories
 								</Link>
 								<Link
-									href={`/site/${router.query.id}/settings`}
+									href={`/site/${subdomain}/themes`}
 									className={`border-b-2 ${
-										tab == 'settings' ? 'border-black' : 'border-transparent'
+										tab == 'themes' ? 'border-black' : 'border-transparent'
 									} py-3`}
 								>
-									Settings
-								</Link>
-							</div>
-							<div />
-						</div>
-					</div>
-				)}
-				{postPage && (
-					<div className="absolute left-0 right-0 top-16 font-cal border-b bg-white border-gray-200">
-						<div className="flex justify-between items-center space-x-16 max-w-screen-xl mx-auto px-10 sm:px-20">
-							{siteId ? (
-								<Link
-									href={`/site/${siteId}`}
-									className="md:inline-block ml-3 hidden"
-								>
-									← All Posts
-								</Link>
-							) : (
-								<div>
-									←<p className="md:inline-block ml-3 hidden">All Posts</p>
-								</div>
-							)}
-
-							<div className="flex justify-between items-center space-x-10 md:space-x-16">
-								<Link
-									href={`/post/${router.query.id}`}
-									className={`border-b-2 ${
-										!tab ? 'border-black' : 'border-transparent'
-									} py-3`}
-								>
-									Editor
+									Themes
 								</Link>
 								<Link
-									href={`/post/${router.query.id}/settings`}
+									href={`/site/${subdomain}/settings`}
 									className={`border-b-2 ${
 										tab == 'settings' ? 'border-black' : 'border-transparent'
 									} py-3`}

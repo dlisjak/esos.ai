@@ -61,7 +61,7 @@ export default function Index({ stringifiedData }: IndexProps) {
 								)}
 							</div>
 							<div className="mt-10 w-5/6 mx-auto lg:w-full">
-								<h2 className="font-cal text-4xl md:text-6xl my-10">
+								<h2 className=" text-4xl md:text-6xl my-10">
 									{data.posts[0].title}
 								</h2>
 								<p className="text-base md:text-lg w-full lg:w-2/3">
@@ -104,14 +104,14 @@ export default function Index({ stringifiedData }: IndexProps) {
 							placeholder="blur"
 							blurDataURL={placeholderBlurhash}
 						/>
-						<p className="text-2xl font-cal text-gray-600">No posts yet.</p>
+						<p className="text-2xl  text-gray-600">No posts yet.</p>
 					</div>
 				)}
 			</div>
 
 			{data.posts.length > 1 && (
 				<div className="mx-5 lg:mx-24 2xl:mx-auto mb-20 max-w-screen-xl">
-					<h2 className="font-cal text-4xl md:text-5xl mb-10">More stories</h2>
+					<h2 className=" text-4xl md:text-5xl mb-10">More stories</h2>
 					<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-8 w-full">
 						{data.posts.slice(1).map((metadata, index) => (
 							<BlogCard key={index} data={metadata} />

@@ -43,7 +43,6 @@ export default async function middleware(req: NextRequest) {
 			url.pathname = '/';
 			return NextResponse.redirect(url);
 		}
-
 		url.pathname = `/app${url.pathname}`;
 		return NextResponse.rewrite(url);
 	}

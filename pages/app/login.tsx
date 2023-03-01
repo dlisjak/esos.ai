@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import LoadingDots from '@/components/app/loading-dots';
 import toast, { Toaster } from 'react-hot-toast';
+import Link from 'next/link';
 
 const pageTitle = 'Login';
 const logo = '/favicon.ico';
@@ -60,19 +61,8 @@ export default function Login() {
 					src="/logo.png"
 				/>
 				<h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-					Platforms Starter Kit
+					ESOS AI
 				</h2>
-				<p className="mt-2 text-center text-sm text-gray-600">
-					Build multi-tenant applications with custom domains. <br /> Read the{' '}
-					<a
-						className="font-medium text-black hover:text-gray-800"
-						href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}/platforms-starter-kit`}
-						rel="noreferrer"
-						target="_blank"
-					>
-						blog post
-					</a>
-				</p>
 			</div>
 
 			<div className="mt-8 mx-auto sm:w-full w-11/12 sm:max-w-md">

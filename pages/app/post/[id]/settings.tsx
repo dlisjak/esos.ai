@@ -121,17 +121,17 @@ export default function PostSettings() {
 					}}
 				/>
 				<div className="max-w-screen-xl mx-auto px-10 sm:px-20 mt-20 mb-16">
-					<h1 className="font-cal text-5xl mb-12">Post Settings</h1>
+					<h1 className=" text-5xl mb-12">Post Settings</h1>
 					<div className="mb-28 flex flex-col space-y-12">
 						<div className="space-y-6">
-							<h2 className="font-cal text-2xl">Post Slug</h2>
+							<h2 className=" text-2xl">Post Slug</h2>
 							<div className="border border-gray-700 rounded-lg flex items-center max-w-lg">
-								<span className="px-5 font-cal rounded-l-lg border-r border-gray-600 whitespace-nowrap">
-									{settings?.site?.subdomain}.$
+								<span className="px-5  rounded-l-lg border-r border-gray-600 whitespace-nowrap">
+									{settings?.site?.subdomain}.
 									{process.env.NEXT_PUBLIC_DOMAIN_URL}/
 								</span>
 								<input
-									className="w-full px-5 py-3 font-cal text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-r-lg placeholder-gray-400"
+									className="w-full px-5 py-3  text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-r-lg placeholder-gray-400"
 									type="text"
 									name="slug"
 									placeholder="post-slug"
@@ -143,7 +143,7 @@ export default function PostSettings() {
 							</div>
 						</div>
 						<div className="space-y-6">
-							<h2 className="font-cal text-2xl">Thumbnail Image</h2>
+							<h2 className=" text-2xl">Thumbnail Image</h2>
 							<div
 								className={`${
 									data.image ? '' : 'animate-pulse bg-gray-300 h-150'
@@ -190,7 +190,7 @@ export default function PostSettings() {
 
 							<div className="w-full h-10" />
 							<div className="flex flex-col space-y-6 max-w-lg">
-								<h2 className="font-cal text-2xl">Delete Post</h2>
+								<h2 className=" text-2xl">Delete Post</h2>
 								<p>
 									Permanently delete your post and all of its contents from our
 									platform. This action is not reversible – please continue with
@@ -200,7 +200,7 @@ export default function PostSettings() {
 									onClick={() => {
 										setShowDeleteModal(true);
 									}}
-									className="bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white px-5 py-3 max-w-max font-cal border-solid border rounded-md focus:outline-none transition-all ease-in-out duration-150"
+									className="bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white px-5 py-3 max-w-max  border-solid border rounded-md focus:outline-none transition-all ease-in-out duration-150"
 								>
 									Delete Post
 								</button>
@@ -216,7 +216,7 @@ export default function PostSettings() {
 						}}
 						className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
 					>
-						<h2 className="font-cal text-2xl mb-6">Delete Post</h2>
+						<h2 className=" text-2xl mb-6">Delete Post</h2>
 						<div className="grid gap-y-5 w-5/6 mx-auto">
 							<p className="text-gray-600 mb-3">
 								Are you sure you want to delete your post? This action is not

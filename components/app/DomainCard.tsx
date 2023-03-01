@@ -5,6 +5,7 @@ import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
 import type { Site } from '@prisma/client';
+import Link from 'next/link';
 
 type DomainData = Pick<
 	Site,
@@ -37,7 +38,7 @@ export default function DomainCard({ data }: DomainCardProps) {
 	return (
 		<div className="w-full max-w-2xl mt-10 border border-black rounded-lg py-10">
 			<div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 justify-between px-10">
-				<a
+				<Link
 					className="text-xl font-semibold flex justify-center sm:justify-start items-center"
 					href={`http://${data.customDomain}`}
 					rel="noreferrer"
@@ -61,7 +62,7 @@ export default function DomainCard({ data }: DomainCardProps) {
 							<path d="M10 14L21 3" />
 						</svg>
 					</span>
-				</a>
+				</Link>
 				<div className="flex space-x-3">
 					<button
 						onClick={() => {

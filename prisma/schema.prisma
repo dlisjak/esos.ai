@@ -14,7 +14,6 @@ generator client {
 model User {
   id            String    @id @default(cuid())
   name          String?
-  // if you are using Github OAuth, you can get rid of the username attribute (that is for Twitter OAuth)
   gh_username   String?
   email         String?   @unique
   emailVerified DateTime?
@@ -68,21 +67,40 @@ model VerificationToken {
 }
 
 model Post {
-  id            String   @id @default(cuid())
-  title         String?  @db.Text
-  description   String?  @db.Text
-  content       String?  @db.LongText
-  slug          String   @default(cuid())
-  image         String?  @db.Text
-  imageBlurhash String?  @db.LongText
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  published     Boolean  @default(false)
-  site          Site?    @relation(fields: [siteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id            String    @id @default(cuid())
+  title         String?   @db.Text
+  description   String?   @db.Text
+  content       String?   @db.LongText
+  slug          String    @default(cuid())
+  image         String?   @db.Text
+  imageBlurhash String?   @db.LongText
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  published     Boolean   @default(false)
+  category      Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  categoryId    String?
+  site          Site?     @relation(fields: [siteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   siteId        String?
 
   @@unique([id, siteId], name: "post_site_constraint")
-  @@index([siteId])
+  @@unique([id, categoryId], name: "post_category_constraint")
+  @@index([siteId, categoryId])
+}
+
+model Category {
+  id            String   @id @default(cuid())
+  title         String?  @db.Text
+  description   String?  @db.Text
+  slug          String   @default(cuid())
+  image         String?  @db.Text
+  imageBlurhash String?  @db.LongText
+  site          Site?    @relation(fields: [siteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  siteId        String?
+  posts         Post[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([id, siteId], name: "category_site_constraint")
 }
 
 model Site {
@@ -100,8 +118,21 @@ model Site {
   user          User?    @relation(fields: [userId], references: [id])
   userId        String?
   posts         Post[]
+  categories    Category[]
+  theme         Theme?   @relation(fields: [themeId], references: [id])
+  themeId       String?
 
   @@index([userId])
+}
+
+model Theme {
+  id            String    @id @default(cuid())
+  name          String?
+  description   String?   @db.Text
+  url           String?
+  image         String?   @db.Text
+  sites         Site[]
+  live          Boolean   @default(true)
 }
 
 model Example {

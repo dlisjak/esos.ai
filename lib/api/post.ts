@@ -30,11 +30,11 @@ export async function getPost(
 	res: NextApiResponse,
 	session: Session
 ): Promise<void | NextApiResponse<AllPosts | (WithSitePost | null)>> {
-	const { postId, siteId, published } = req.query;
+	const { postId, subdomain, published } = req.query;
 
 	if (
 		Array.isArray(postId) ||
-		Array.isArray(siteId) ||
+		Array.isArray(subdomain) ||
 		Array.isArray(published) ||
 		!session.user.id
 	)
@@ -61,7 +61,7 @@ export async function getPost(
 
 		const site = await prisma.site.findFirst({
 			where: {
-				id: siteId,
+				subdomain: subdomain,
 				user: {
 					id: session.user.id,
 				},
@@ -73,7 +73,7 @@ export async function getPost(
 			: await prisma.post.findMany({
 					where: {
 						site: {
-							id: siteId,
+							subdomain: subdomain,
 						},
 						published: JSON.parse(published || 'true'),
 					},
@@ -109,9 +109,10 @@ export async function createPost(
 ): Promise<void | NextApiResponse<{
 	postId: string;
 }>> {
-	const { siteId } = req.query;
+	const { subdomain } = req.query;
+	const { title, slug } = req.body;
 
-	if (!siteId || typeof siteId !== 'string' || !session?.user?.id) {
+	if (!subdomain || typeof subdomain !== 'string' || !session?.user?.id) {
 		return res
 			.status(400)
 			.json({ error: 'Missing or misconfigured site ID or session ID' });
@@ -119,7 +120,7 @@ export async function createPost(
 
 	const site = await prisma.site.findFirst({
 		where: {
-			id: siteId,
+			subdomain: subdomain,
 			user: {
 				id: session.user.id,
 			},
@@ -130,11 +131,13 @@ export async function createPost(
 	try {
 		const response = await prisma.post.create({
 			data: {
+				title,
+				slug,
 				image: `/placeholder.png`,
 				imageBlurhash: placeholderBlurhash,
 				site: {
 					connect: {
-						id: siteId,
+						subdomain: subdomain,
 					},
 				},
 			},
@@ -199,7 +202,7 @@ export async function deletePost(
 		if (response?.site?.subdomain) {
 			// revalidate for subdomain
 			await revalidate(
-				`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${response.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
+				`https://${response.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
 				response.site.subdomain, // siteId
 				response.slug // slugname for the post
 			);
@@ -207,7 +210,7 @@ export async function deletePost(
 		if (response?.site?.customDomain)
 			// revalidate for custom domain
 			await revalidate(
-				`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${response.site.customDomain}`, // hostname to be revalidated
+				`https://${response.site.customDomain}`, // hostname to be revalidated
 				response.site.customDomain, // siteId
 				response.slug // slugname for the post
 			);
@@ -244,7 +247,6 @@ export async function updatePost(
 	const {
 		id,
 		title,
-		description,
 		content,
 		slug,
 		image,
@@ -280,7 +282,6 @@ export async function updatePost(
 			},
 			data: {
 				title,
-				description,
 				content,
 				slug,
 				image,
@@ -291,7 +292,7 @@ export async function updatePost(
 		if (subdomain) {
 			// revalidate for subdomain
 			await revalidate(
-				`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
+				`https://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
 				subdomain, // siteId
 				slug // slugname for the post
 			);
@@ -299,7 +300,7 @@ export async function updatePost(
 		if (customDomain)
 			// revalidate for custom domain
 			await revalidate(
-				`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${customDomain}`, // hostname to be revalidated
+				`https://${customDomain}`, // hostname to be revalidated
 				customDomain, // siteId
 				slug // slugname for the post
 			);
