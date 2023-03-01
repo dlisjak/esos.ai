@@ -95,7 +95,7 @@ export default function Drafts() {
 					</button>
 				</div>
 				<div className="my-10 grid gap-y-10">
-					{posts?.length > 0 ? (
+					{posts && posts?.length > 0 ? (
 						posts?.map((post) => (
 							<Link href={`/site/${subdomain}/posts/${post.id}`} key={post.id}>
 								<div className="flex flex-col md:flex-row md:h-60 rounded-lg overflow-hidden border border-gray-200">
