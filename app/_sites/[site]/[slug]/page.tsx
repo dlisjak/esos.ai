@@ -85,7 +85,7 @@ const getData = async (params) => {
 	});
 
 	const [mdxSource, adjacentPosts] = await Promise.all([
-		getMdxSource(data.content ?? ''),
+		getMdxSource(data?.content ?? ''),
 		prisma.post.findMany({
 			where: {
 				site: {
