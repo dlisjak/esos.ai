@@ -20,6 +20,7 @@ import { placeholderBlurhash } from '@/lib/utils';
 import getSlug from 'speakingurl';
 
 interface CategoryData {
+	id: string;
 	title: string;
 	description: string;
 	slug: string;
@@ -65,6 +66,7 @@ export default function Category() {
 	);
 
 	const [data, setData] = useState<CategoryData>({
+		id: '',
 		title: '',
 		description: '',
 		slug: '',
@@ -74,12 +76,13 @@ export default function Category() {
 	useEffect(() => {
 		if (category)
 			setData({
+				id: category.id ?? '',
 				title: category.title ?? '',
 				description: category.description ?? '',
 				slug: category.slug ?? '',
 				image: category.image ?? '',
 			});
-	}, [category]);
+	}, [categoryId, category]);
 
 	const [debouncedData] = useDebounce(data, 1000);
 
@@ -291,7 +294,7 @@ export default function Category() {
 								height={500}
 								placeholder="blur"
 								className="rounded-md w-full h-full object-cover"
-								blurDataURL={data.imageBlurhash || placeholderBlurhash}
+								blurDataURL={data.image || placeholderBlurhash}
 							/>
 						)}
 					</div>

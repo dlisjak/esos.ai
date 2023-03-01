@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import getSlug from 'speakingurl';
-import toast, { Toaster } from 'react-hot-toast';
-import useSWR, { mutate } from 'swr';
+import { Toaster } from 'react-hot-toast';
+import useSWR from 'swr';
 
 import Layout from '@/components/app/Layout';
 import LoadingDots from '@/components/app/loading-dots';
@@ -11,7 +11,7 @@ import Modal from '@/components/Modal';
 import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
-import type { Site, Category } from '@prisma/client';
+import type { Category } from '@prisma/client';
 import Link from 'next/link';
 import BlurImage from '@/components/BlurImage';
 
