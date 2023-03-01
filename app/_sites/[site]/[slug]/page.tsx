@@ -121,7 +121,6 @@ export default async function Post({ params }) {
 
 	const meta = {
 		logo: '/logo.png',
-		ogImage: data.image,
 		ogUrl: `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${data.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}/${data.slug}`,
 		title: data.title,
 	};
