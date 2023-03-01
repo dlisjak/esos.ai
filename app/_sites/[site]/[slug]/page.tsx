@@ -127,10 +127,10 @@ export default async function Post({ params }) {
 			<div className="flex flex-col justify-center items-center">
 				<div className="text-center w-full m-auto">
 					<p className="text-sm md:text-base font-light text-gray-500 w-10/12 m-auto my-5">
-						{toDateString(data.createdAt)}
+						{toDateString(data?.createdAt)}
 					</p>
 					<h1 className="font-bold text-3xl  md:text-6xl mb-10 text-gray-800">
-						{data.title}
+						{data?.title}
 					</h1>
 				</div>
 			</div>
@@ -138,10 +138,10 @@ export default async function Post({ params }) {
 				className="w-11/12 sm:w-3/4 m-auto prose prose-md sm:prose-lg"
 				suppressHydrationWarning={true}
 			>
-				<MDXRemote source={data.content} />
+				<MDXRemote source={data?.content} />
 			</article>
 
-			{data.adjacentPosts.length > 0 && (
+			{data?.adjacentPosts.length > 0 && (
 				<div className="relative mt-10 sm:mt-20 mb-20">
 					<div
 						className="absolute inset-0 flex items-center"
@@ -156,9 +156,9 @@ export default async function Post({ params }) {
 					</div>
 				</div>
 			)}
-			{data.adjacentPosts && (
+			{data?.adjacentPosts && (
 				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-8 mx-5 lg:mx-12 2xl:mx-auto mb-20 max-w-screen-xl">
-					{data.adjacentPosts.map((data, index) => (
+					{data?.adjacentPosts.map((data, index) => (
 						<BlogCard key={index} data={data} />
 					))}
 				</div>
