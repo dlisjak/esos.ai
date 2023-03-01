@@ -79,6 +79,7 @@ const getData = async (site) => {
 
 export async function generateMetadata({ params }): Promise<Metadata> {
 	const data = await getData(params);
+	if (!data) return { title: 'ESOS AI', description: 'ESOS AI App' };
 	return { title: data.name, description: data.description };
 }
 

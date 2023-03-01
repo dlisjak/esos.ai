@@ -107,6 +107,7 @@ const getData = async (params) => {
 
 export async function generateMetadata({ params }): Promise<Metadata> {
 	const data = await getData(params);
+	if (!data) return { title: 'ESOS AI' };
 	return { title: data.title };
 }
 
