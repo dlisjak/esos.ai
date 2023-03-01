@@ -26,9 +26,14 @@ export async function getCategory(
 	res: NextApiResponse,
 	session: Session
 ): Promise<void | NextApiResponse<Array<Theme> | (Theme | null)>> {
-	const { siteId, categoryId } = req.query;
+	const { subdomain, siteId, categoryId } = req.query;
 
-	if (Array.isArray(categoryId) || Array.isArray(siteId) || !session.user.id)
+	if (
+		Array.isArray(categoryId) ||
+		Array.isArray(subdomain) ||
+		Array.isArray(siteId) ||
+		!session.user.id
+	)
 		return res.status(400).end('Bad request. Query parameters are not valid.');
 
 	try {
@@ -49,7 +54,7 @@ export async function getCategory(
 
 		const site = await prisma.site.findFirst({
 			where: {
-				id: siteId,
+				subdomain: subdomain,
 				user: {
 					id: session.user.id,
 				},
@@ -60,7 +65,7 @@ export async function getCategory(
 			? []
 			: await prisma.category.findMany({
 					where: {
-						siteId: `${siteId}`,
+						siteId: site.id,
 					},
 					orderBy: {
 						createdAt: 'desc',
@@ -89,10 +94,10 @@ export async function createCategory(
 	res: NextApiResponse,
 	session: Session
 ): Promise<void | NextApiResponse<Array<Theme> | (Theme | null)>> {
-	const { siteId } = req.query;
+	const { subdomain } = req.query;
 	const { title, slug } = req.body;
 
-	if (!siteId || typeof siteId !== 'string' || !session?.user?.id) {
+	if (!subdomain || typeof subdomain !== 'string' || !session?.user?.id) {
 		return res
 			.status(400)
 			.json({ error: 'Missing or misconfigured site ID or session ID' });
@@ -100,7 +105,7 @@ export async function createCategory(
 
 	const site = await prisma.site.findFirst({
 		where: {
-			id: siteId,
+			subdomain: subdomain,
 			user: {
 				id: session.user.id,
 			},
@@ -117,7 +122,7 @@ export async function createCategory(
 				slug,
 				site: {
 					connect: {
-						id: siteId,
+						id: site.id,
 					},
 				},
 			},
@@ -126,6 +131,63 @@ export async function createCategory(
 		return res.status(201).json({
 			categoryId: response.id,
 		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).end(error);
+	}
+}
+
+/**
+ * Delete Category
+ *
+ * Deletes a category from the database using a provided `categoryId` query
+ * parameter.
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+export async function deleteCategory(
+	req: NextApiRequest,
+	res: NextApiResponse,
+	session: Session
+): Promise<void | NextApiResponse> {
+	const { categoryId } = req.query;
+
+	if (!categoryId || typeof categoryId !== 'string' || !session?.user?.id) {
+		return res
+			.status(400)
+			.json({ error: 'Missing or misconfigured site ID or session ID' });
+	}
+
+	try {
+		const response = await prisma.category.delete({
+			where: {
+				id: categoryId,
+			},
+			include: {
+				site: {
+					select: { subdomain: true, customDomain: true },
+				},
+			},
+		});
+
+		if (response?.site?.subdomain) {
+			// revalidate for subdomain
+			await revalidate(
+				`https://${response.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
+				response.site.subdomain, // siteId
+				response.slug // slugname for the post
+			);
+		}
+		if (response?.site?.customDomain)
+			// revalidate for custom domain
+			await revalidate(
+				`https://${response.site.customDomain}`, // hostname to be revalidated
+				response.site.customDomain, // siteId
+				response.slug // slugname for the post
+			);
+
+		return res.status(200).end();
 	} catch (error) {
 		console.error(error);
 		return res.status(500).end(error);

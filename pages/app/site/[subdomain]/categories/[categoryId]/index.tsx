@@ -8,6 +8,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Layout from '@/components/app/Layout';
 import Loader from '@/components/app/Loader';
 import LoadingDots from '@/components/app/loading-dots';
+import Modal from '@/components/Modal';
+
 import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
@@ -39,9 +41,11 @@ Paragraphs are separated by a blank line.
 export default function Category() {
 	const router = useRouter();
 	const categorySlugRef = useRef<HTMLInputElement | null>(null);
+	const [deletingCategory, setDeletingCategory] = useState(false);
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
 
 	// TODO: Undefined check redirects to error
-	const { categoryId } = router.query;
+	const { subdomain, categoryId } = router.query;
 
 	const { data: category, isValidating } = useSWR<WithSiteCategory>(
 		router.isReady && `/api/category?categoryId=${categoryId}`,
@@ -65,6 +69,24 @@ export default function Category() {
 			  }).format(new Date(category?.updatedAt))}`
 			: 'Saving changes...'
 	);
+
+	async function deleteCategory(categoryId: string) {
+		setDeletingCategory(true);
+
+		try {
+			const res = await fetch(`/api/category?categoryId=${categoryId}`, {
+				method: HttpMethod.DELETE,
+			});
+
+			if (res.ok) {
+				router.push(`/site/${subdomain}/categories`);
+			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setDeletingCategory(false);
+		}
+	}
 
 	const [data, setData] = useState<CategoryData>({
 		id: '',
@@ -180,7 +202,7 @@ export default function Category() {
 			if (response.ok) {
 				mutate(`/api/category?categoryId=${categoryId}`);
 				router.push(
-					`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}/site/${category?.siteId}/categories`
+					`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}/site/${subdomain}/categories`
 				);
 			}
 		} catch (error) {
@@ -257,49 +279,69 @@ export default function Category() {
 							value={data.description}
 						/>
 					</div>
-
-					<div
-						className={`${
-							data.image ? '' : 'animate-pulse bg-gray-300 h-150'
-						} relative mt-5 w-full border-2 border-gray-800 border-dashed rounded max-w-lg overflow-hidden`}
-					>
-						<CloudinaryUploadWidget
-							callback={(e) =>
-								setData({
-									...data,
-									image: e.secure_url,
-								})
-							}
-						>
-							{({ open }) => (
-								<button
-									onClick={open}
-									className="absolute w-full h-full rounded-md bg-gray-200 z-10 flex flex-col justify-center items-center opacity-0 hover:opacity-100 transition-all ease-linear duration-200"
+					<div className="flex space-x-6 items-end">
+						<div className="w-full max-w-lg">
+							<p>Category Image</p>
+							<div
+								className={`${
+									data.image ? '' : 'animate-pulse bg-gray-300 h-150'
+								} relative w-full border-2 border-gray-800 border-dashed rounded overflow-hidden`}
+							>
+								<CloudinaryUploadWidget
+									callback={(e) =>
+										setData({
+											...data,
+											image: e.secure_url,
+										})
+									}
 								>
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="100"
-										height="100"
-										viewBox="0 0 24 24"
-									>
-										<path d="M16 16h-3v5h-2v-5h-3l4-4 4 4zm3.479-5.908c-.212-3.951-3.473-7.092-7.479-7.092s-7.267 3.141-7.479 7.092c-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h3.5v-2h-3.5c-1.93 0-3.5-1.57-3.5-3.5 0-2.797 2.479-3.833 4.433-3.72-.167-4.218 2.208-6.78 5.567-6.78 3.453 0 5.891 2.797 5.567 6.78 1.745-.046 4.433.751 4.433 3.72 0 1.93-1.57 3.5-3.5 3.5h-3.5v2h3.5c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408z" />
-									</svg>
-									<p>Upload category image</p>
-								</button>
-							)}
-						</CloudinaryUploadWidget>
+									{({ open }) => (
+										<button
+											onClick={open}
+											className="absolute w-full h-full rounded-md bg-gray-200 z-10 flex flex-col justify-center items-center opacity-0 hover:opacity-100 transition-all ease-linear duration-200"
+										>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												width="100"
+												height="100"
+												viewBox="0 0 24 24"
+											>
+												<path d="M16 16h-3v5h-2v-5h-3l4-4 4 4zm3.479-5.908c-.212-3.951-3.473-7.092-7.479-7.092s-7.267 3.141-7.479 7.092c-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h3.5v-2h-3.5c-1.93 0-3.5-1.57-3.5-3.5 0-2.797 2.479-3.833 4.433-3.72-.167-4.218 2.208-6.78 5.567-6.78 3.453 0 5.891 2.797 5.567 6.78 1.745-.046 4.433.751 4.433 3.72 0 1.93-1.57 3.5-3.5 3.5h-3.5v2h3.5c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408z" />
+											</svg>
+											<p>Upload category image</p>
+										</button>
+									)}
+								</CloudinaryUploadWidget>
 
-						{data.image && (
-							<BlurImage
-								src={data.image}
-								alt="Cover Photo"
-								width={800}
-								height={500}
-								placeholder="blur"
-								className="rounded-md w-full h-full object-cover"
-								blurDataURL={data.image || placeholderBlurhash}
-							/>
-						)}
+								{data.image && (
+									<BlurImage
+										src={data.image}
+										alt="Cover Photo"
+										width={800}
+										height={500}
+										placeholder="blur"
+										className="rounded-md w-full h-full object-cover"
+										blurDataURL={data.image || placeholderBlurhash}
+									/>
+								)}
+							</div>
+						</div>
+						<div className="space-y-2 w-full">
+							<h2 className="text-2xl">Delete Site</h2>
+							<p>
+								Permanently delete your site and all of its contents from our
+								platform. This action is not reversible – please continue with
+								caution.
+							</p>
+							<button
+								onClick={() => {
+									setShowDeleteModal(true);
+								}}
+								className="bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white px-5 py-3 max-w-max  border-solid border rounded-md focus:outline-none transition-all ease-in-out duration-150"
+							>
+								Delete Site
+							</button>
+						</div>
 					</div>
 				</div>
 				<footer className="h-20 z-5 fixed bottom-0 inset-x-0 border-solid border-t border-gray-500 bg-white">
@@ -324,6 +366,54 @@ export default function Category() {
 						</button>
 					</div>
 				</footer>
+				<Modal showModal={showDeleteModal} setShowModal={setShowDeleteModal}>
+					<form
+						onSubmit={async (event) => {
+							event.preventDefault();
+							await deleteCategory(data?.id as string);
+						}}
+						className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
+					>
+						<h2 className=" text-2xl mb-6">Delete Category</h2>
+						<div className="grid gap-y-5 w-5/6 mx-auto">
+							<p className="text-gray-600 mb-3">
+								Are you sure you want to delete your category? This action is
+								not reversible. Type in the full title of your category (
+								<b>{data.title}</b>) to confirm.
+							</p>
+							<div className="border border-gray-700 rounded-lg flex flex-start items-center overflow-hidden">
+								<input
+									className="w-full px-5 py-3 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-r-lg placeholder-gray-400"
+									type="text"
+									name="name"
+									placeholder={data.title ?? ''}
+									pattern={data.title ?? 'Category Name'}
+								/>
+							</div>
+						</div>
+						<div className="flex justify-between items-center mt-10 w-full">
+							<button
+								type="button"
+								className="w-full px-5 py-5 text-sm text-gray-400 hover:text-black border-t border-gray-300 rounded-bl focus:outline-none focus:ring-0 transition-all ease-in-out duration-150"
+								onClick={() => setShowDeleteModal(false)}
+							>
+								CANCEL
+							</button>
+
+							<button
+								type="submit"
+								disabled={deletingCategory}
+								className={`${
+									deletingCategory
+										? 'cursor-not-allowed text-gray-400 bg-gray-50'
+										: 'bg-white text-gray-600 hover:text-black'
+								} w-full px-5 py-5 text-sm border-t border-l border-gray-300 rounded-br focus:outline-none focus:ring-0 transition-all ease-in-out duration-150`}
+							>
+								{deletingCategory ? <LoadingDots /> : 'DELETE CATEGORY'}
+							</button>
+						</div>
+					</form>
+				</Modal>
 			</Layout>
 		</>
 	);

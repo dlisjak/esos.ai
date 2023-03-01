@@ -230,7 +230,7 @@ export default function Post() {
 								title: (e.target as HTMLTextAreaElement).value,
 							})
 						}
-						className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 mt-6 text-5xl resize-none border-none focus:outline-none focus:ring-0"
+						className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b mt-6 text-5xl resize-none focus:outline-none focus:ring-0 mb-2"
 						placeholder="Untitled Post"
 						value={data.title}
 					/>

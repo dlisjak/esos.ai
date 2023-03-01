@@ -19,7 +19,7 @@ interface SitePostData {
 	site: Site | null;
 }
 
-export default function SiteIndex() {
+export default function Posts() {
 	const [showModal, setShowModal] = useState<boolean>(false);
 	const [creatingPost, setCreatingPost] = useState(false);
 	const postTitleRef = useRef<HTMLInputElement | null>(null);
@@ -75,7 +75,7 @@ export default function SiteIndex() {
 		<Layout>
 			<div className="py-20 max-w-screen-xl mx-auto px-10 sm:px-20">
 				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
-					<h1 className="text-5xl">Posts</h1>
+					<h1 className="text-5xl">Published</h1>
 					<button
 						onClick={() => {
 							setShowModal(true);

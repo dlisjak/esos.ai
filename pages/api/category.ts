@@ -2,6 +2,7 @@ import {
 	getCategory,
 	createCategory,
 	updateCategory,
+	deleteCategory,
 } from '@/lib/api/category';
 import { unstable_getServerSession } from 'next-auth/next';
 
@@ -22,15 +23,15 @@ export default async function category(
 			return getCategory(req, res, session);
 		case HttpMethod.POST:
 			return createCategory(req, res, session);
-		// case HttpMethod.DELETE:
-		//   return deleteCategory(req, res, session);
+		case HttpMethod.DELETE:
+			return deleteCategory(req, res, session);
 		case HttpMethod.PUT:
 			return updateCategory(req, res, session);
 		default:
 			res.setHeader('Allow', [
 				HttpMethod.GET,
 				HttpMethod.POST,
-				// HttpMethod.DELETE,
+				HttpMethod.DELETE,
 				HttpMethod.PUT,
 			]);
 			return res.status(405).end(`Method ${req.method} Not Allowed`);

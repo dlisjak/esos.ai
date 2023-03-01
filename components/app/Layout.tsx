@@ -20,6 +20,9 @@ export default function Layout({ children }: LayoutProps) {
 	const logo = '/favicon.ico';
 	const sitePage = router.pathname.startsWith('/app/site/[subdomain]');
 	const postPage = router.pathname.startsWith('/app/site/[subdomain]/posts');
+	const draftsPage = router.pathname.startsWith(
+		'/app/site/[subdomain]/posts/drafts'
+	);
 	const categoryPage = router.pathname.startsWith(
 		'/app/site/[subdomain]/categories'
 	);
@@ -145,6 +148,30 @@ export default function Layout({ children }: LayoutProps) {
 								</Link>
 							</div>
 							<div>{subdomain}</div>
+						</div>
+					</div>
+				)}
+				{postPage && (
+					<div className="absolute left-0 right-0 top-[7.2rem] border-b bg-white border-gray-200">
+						<div className="flex justify-center items-center space-x-16 max-w-screen-xl mx-auto px-10 sm:px-20">
+							<Link
+								href={`/site/${subdomain}/posts`}
+								className={`border-b-2 ${
+									postPage && !draftsPage
+										? 'border-black'
+										: 'border-transparent'
+								} py-3`}
+							>
+								Published
+							</Link>
+							<Link
+								href={`/site/${subdomain}/posts/drafts`}
+								className={`border-b-2 ${
+									draftsPage ? 'border-black' : 'border-transparent'
+								} py-3`}
+							>
+								Drafts
+							</Link>
 						</div>
 					</div>
 				)}
