@@ -32,11 +32,10 @@ interface SettingsData
 
 export default function SiteSettings() {
 	const router = useRouter();
-	const { id } = router.query;
-	const siteId = id;
+	const { subdomain } = router.query;
 
 	const { data: settings } = useSWR<Site | null>(
-		siteId && `/api/site?siteId=${siteId}`,
+		subdomain && `/api/site?subdomain=${subdomain}`,
 		fetcher,
 		{
 			onError: () => router.push('/'),
@@ -45,7 +44,7 @@ export default function SiteSettings() {
 	);
 
 	const { data: themes } = useSWR<Theme | null>(
-		siteId && `/api/theme`,
+		subdomain && `/api/theme`,
 		fetcher,
 		{
 			revalidateOnFocus: false,
@@ -77,7 +76,7 @@ export default function SiteSettings() {
 		setSaving(true);
 
 		try {
-			const response = await fetch('/api/site', {
+			const res = await fetch('/api/site', {
 				method: HttpMethod.PUT,
 				headers: {
 					'Content-Type': 'application/json',
@@ -85,13 +84,16 @@ export default function SiteSettings() {
 				body: JSON.stringify({
 					currentSubdomain: settings?.subdomain ?? undefined,
 					...data,
-					id: siteId,
+					id: data.id,
 				}),
 			});
 
-			if (response.ok) {
-				setSaving(false);
-				mutate(`/api/site?siteId=${siteId}`);
+			if (res.ok) {
+				const data = await res.json();
+				mutate(`/api/site?subdomain=${settings?.subdomain}`);
+				mutate(`/api/site?subdomain=${data?.subdomain}`);
+				router.push(`/site/${data.subdomain}/settings`);
+
 				toast.success(`Changes Saved`);
 			}
 		} catch (error) {
@@ -154,7 +156,7 @@ export default function SiteSettings() {
 
 		try {
 			const response = await fetch(
-				`/api/domain?domain=${customDomain}&siteId=${siteId}`,
+				`/api/domain?domain=${customDomain}&subdomain=${subdomain}`,
 				{
 					method: HttpMethod.POST,
 				}
@@ -166,7 +168,7 @@ export default function SiteSettings() {
 					domain: customDomain,
 				};
 			setError(null);
-			mutate(`/api/site?siteId=${siteId}`);
+			mutate(`/api/site?subdomain=${subdomain}`);
 		} catch (error) {
 			setError(error);
 		} finally {
@@ -245,7 +247,7 @@ export default function SiteSettings() {
 									{process.env.NEXT_PUBLIC_DOMAIN_URL}
 								</div>
 							</div>
-							{subdomainError && (
+							{data.subdomain !== subdomain && subdomainError && (
 								<p className="px-5 text-left text-red-500">
 									<b>{subdomainError}</b> is not available. Please choose
 									another subdomain.
@@ -441,7 +443,7 @@ export default function SiteSettings() {
 				<form
 					onSubmit={async (event) => {
 						event.preventDefault();
-						await deleteSite(siteId as string);
+						await deleteSite(data?.id as string);
 					}}
 					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
 				>

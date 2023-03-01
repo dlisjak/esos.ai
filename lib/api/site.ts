@@ -105,6 +105,7 @@ export async function createSite(
 
 		return res.status(201).json({
 			siteId: response.id,
+			subdomain: response.subdomain,
 		});
 	} catch (error) {
 		console.error(error);

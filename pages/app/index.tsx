@@ -24,7 +24,6 @@ export default function AppIndex() {
 
 	const siteNameRef = useRef<HTMLInputElement | null>(null);
 	const siteSubdomainRef = useRef<HTMLInputElement | null>(null);
-	const siteDescriptionRef = useRef<HTMLTextAreaElement | null>(null);
 
 	useEffect(() => {
 		async function checkSubDomain() {
@@ -72,8 +71,9 @@ export default function AppIndex() {
 		}
 
 		const data = await res.json();
+		console.log(data);
+		router.push(`/site/${data.subdomain}/settings`);
 		setCreatingSite(false);
-		router.push(`/site/${data.siteId}/settings`);
 	}
 
 	return (
