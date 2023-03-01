@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
+import { markdown } from 'markdown';
 
 import prisma from '@/lib/prisma';
 import { toDateString } from '@/lib/utils';
 import BlogCard from '@/components/BlogCard';
 import Loader from '@/components/app/Loader';
-import MDXRemoteWrapper from '@/components/MDXRemote';
 
 export const dynamicParams = true;
 
@@ -130,9 +130,8 @@ export default async function Post({ params }) {
 			<article
 				className="w-11/12 sm:w-3/4 m-auto prose prose-md sm:prose-lg"
 				suppressHydrationWarning={true}
-			>
-				<MDXRemoteWrapper source={data?.content} />
-			</article>
+				dangerouslySetInnerHTML={{ __html: markdown.toHTML(data?.content) }}
+			/>
 
 			{data?.adjacentPosts.length > 0 && (
 				<div className="relative mt-10 sm:mt-20 mb-20">
