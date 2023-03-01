@@ -32,7 +32,7 @@ export default function SiteCategories() {
 		}
 	);
 
-	async function createCategory(siteId: string) {
+	async function createCategory(siteId: string | string[]) {
 		setCreatingCategory(true);
 		if (!categoryTitleRef.current || !categorySlugRef.current) return;
 		const title = categoryTitleRef.current.value;
