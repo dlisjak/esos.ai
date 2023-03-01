@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 
 import { toDateString } from '@/lib/utils';
 import BlogCard from '@/components/BlogCard';
+import Loader from '@/components/app/Loader';
 
 export const dynamicParams = true;
 
@@ -122,12 +123,14 @@ export default async function Post({ params }) {
 		title: data.title,
 	};
 
+	if (!data) return <Loader />;
+
 	return (
 		<>
 			<div className="flex flex-col justify-center items-center">
 				<div className="text-center w-full m-auto">
 					<p className="text-sm md:text-base font-light text-gray-500 w-10/12 m-auto my-5">
-						{toDateString(data?.createdAt || Date.now())}
+						{toDateString(data?.createdAt)}
 					</p>
 					<h1 className="font-bold text-3xl  md:text-6xl mb-10 text-gray-800">
 						{data?.title}
