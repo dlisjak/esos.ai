@@ -84,8 +84,6 @@ const getData = async (params) => {
 		},
 	});
 
-	if (!data) return { notFound: true, revalidate: 10 };
-
 	const [mdxSource, adjacentPosts] = await Promise.all([
 		getMdxSource(data.content ?? ''),
 		prisma.post.findMany({
@@ -121,7 +119,6 @@ export default async function Post({ params }) {
 
 	const meta = {
 		logo: '/logo.png',
-		ogUrl: `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${data.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}/${data.slug}`,
 		title: data.title,
 	};
 
