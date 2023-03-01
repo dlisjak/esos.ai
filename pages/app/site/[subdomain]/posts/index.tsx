@@ -38,7 +38,8 @@ export default function Posts() {
 	const posts = data?.posts;
 	const site = data?.site;
 
-	async function createPost(subdomain: string | string[]) {
+	async function createPost(subdomain: string | string[] | undefined) {
+		if (!subdomain) return;
 		setCreatingPost(true);
 		if (!postTitleRef.current || !postSlugRef.current) return;
 		const title = postTitleRef.current.value;
