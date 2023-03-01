@@ -71,7 +71,6 @@ export default function AppIndex() {
 		}
 
 		const data = await res.json();
-		console.log(data);
 		router.push(`/site/${data.subdomain}/settings`);
 		setCreatingSite(false);
 	}
