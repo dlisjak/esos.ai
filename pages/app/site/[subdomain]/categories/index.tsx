@@ -31,7 +31,8 @@ export default function SiteCategories() {
 		}
 	);
 
-	async function createCategory(subdomain: string | string[]) {
+	async function createCategory(subdomain: string | string[] | undefined) {
+		if (!subdomain) return;
 		setCreatingCategory(true);
 		if (!categoryTitleRef.current || !categorySlugRef.current) return;
 		const title = categoryTitleRef.current.value;
@@ -97,7 +98,7 @@ export default function SiteCategories() {
 					</button>
 				</div>
 				<div className="my-10 grid gap-y-4">
-					{categories?.length > 0 ? (
+					{categories && categories?.length > 0 ? (
 						categories?.map((category) => (
 							<Link
 								href={`/site/${subdomain}/categories/${category.id}`}
