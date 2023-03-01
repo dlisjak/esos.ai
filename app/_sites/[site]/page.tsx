@@ -7,6 +7,8 @@ import prisma from '@/lib/prisma';
 
 import type { _SiteData, Meta } from '@/types';
 import { placeholderBlurhash, toDateString } from '@/lib/utils';
+import Loader from '@/components/app/Loader';
+import { Metadata } from 'next';
 
 export const dynamicParams = true;
 
@@ -75,18 +77,14 @@ const getData = async (site) => {
 	return data;
 };
 
+export async function generateMetadata({ params }): Promise<Metadata> {
+	const data = await getData(params);
+	return { title: data.name, description: data.description };
+}
+
 export default async function Index({ params }) {
 	const data = await getData(params.site);
-
-	const meta = {
-		title: data.name,
-		description: data.description,
-		logo: '/logo.png',
-		ogImage: data.image,
-		ogUrl: data.customDomain
-			? data.customDomain
-			: `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${data.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`,
-	} as Meta;
+	if (!data) return <Loader />;
 
 	return (
 		<>
