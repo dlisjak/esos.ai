@@ -242,7 +242,7 @@ export default function Category() {
 								title: (e.target as HTMLTextAreaElement).value,
 							})
 						}
-						className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 mt-6 text-5xl  resize-none border-none focus:outline-none focus:ring-0"
+						className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b mt-6 text-5xl resize-none focus:outline-none focus:ring-0 mb-2"
 						placeholder="Untitled Category"
 						value={data.title}
 						onBlur={generateSlug}
@@ -326,22 +326,26 @@ export default function Category() {
 								)}
 							</div>
 						</div>
-						<div className="space-y-2 w-full">
-							<h2 className="text-2xl">Delete Site</h2>
-							<p>
-								Permanently delete your site and all of its contents from our
-								platform. This action is not reversible – please continue with
-								caution.
-							</p>
-							<button
-								onClick={() => {
-									setShowDeleteModal(true);
-								}}
-								className="bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white px-5 py-3 max-w-max  border-solid border rounded-md focus:outline-none transition-all ease-in-out duration-150"
-							>
-								Delete Site
-							</button>
+						<div className="w-full h-full">
+							<h2 className="text-2xl">Meta</h2>
+							<div className="w-full border rounded my-auto"></div>
 						</div>
+					</div>
+					<div className="space-y-2 w-full mt-4">
+						<h2 className="text-2xl">Delete Category</h2>
+						<p>
+							Permanently delete your site and all of its contents. This will
+							also remove all the corresponding posts. This action is not
+							reversible – please continue with caution.
+						</p>
+						<button
+							onClick={() => {
+								setShowDeleteModal(true);
+							}}
+							className="bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white px-5 py-3 max-w-max  border-solid border rounded-md focus:outline-none transition-all ease-in-out duration-150"
+						>
+							Delete Site
+						</button>
 					</div>
 				</div>
 				<footer className="h-20 z-5 fixed bottom-0 inset-x-0 border-solid border-t border-gray-500 bg-white">
