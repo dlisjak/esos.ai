@@ -1,21 +1,11 @@
 import prisma from '@/lib/prisma';
-import { MDXRemote } from 'next-mdx-remote';
-import { serialize } from 'next-mdx-remote/serialize';
+import { MDXRemote } from 'next-mdx-remote/rsc';
 
 import { toDateString } from '@/lib/utils';
 import BlogCard from '@/components/BlogCard';
 import Loader from '@/components/app/Loader';
 
 export const dynamicParams = true;
-
-async function getMdxSource(postContents: string) {
-	// Serialize the content string into MDX
-	const mdxSource = await serialize(postContents, {
-		mdxOptions: { development: process.env.NODE_ENV !== 'production' },
-	});
-
-	return mdxSource;
-}
 
 export async function generateStaticParams() {
 	const posts = await prisma.post.findMany({
@@ -86,8 +76,7 @@ const getData = async (params) => {
 		},
 	});
 
-	const [mdxSource, adjacentPosts] = await Promise.all([
-		getMdxSource(data?.content ?? ''),
+	const [adjacentPosts] = await Promise.all([
 		prisma.post.findMany({
 			where: {
 				site: {
@@ -111,7 +100,6 @@ const getData = async (params) => {
 
 	return {
 		...data,
-		mdxSource,
 		adjacentPosts,
 	};
 };
