@@ -1,7 +1,6 @@
-/**
- * @type {import('next').NextConfig}
- */
-module.exports = {
+const withMDX = require('@next/mdx')()
+
+module.exports = withMDX({
   images: {
     domains: [
       "res.cloudinary.com",
@@ -12,4 +11,8 @@ module.exports = {
   },
   reactStrictMode: true,
   swcMinify: false, // Required to fix: https://nextjs.org/docs/messages/failed-loading-swc
-};
+  experimental: {
+    appDir: true,
+    mdxRs: true,
+  },
+});

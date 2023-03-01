@@ -1,29 +1,82 @@
-import Layout from '@/components/sites/Layout';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+
+import Layout from '@/components/sites/Layout';
 import BlurImage from '@/components/BlurImage';
 import BlogCard from '@/components/BlogCard';
-import Loader from '@/components/sites/Loader';
 import prisma from '@/lib/prisma';
 
-import type { GetStaticPaths, GetStaticProps } from 'next';
 import type { _SiteData, Meta } from '@/types';
-import type { ParsedUrlQuery } from 'querystring';
 import { placeholderBlurhash, toDateString } from '@/lib/utils';
 
-interface PathProps extends ParsedUrlQuery {
-	site: string;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+	const [subdomains, customDomains] = await Promise.all([
+		prisma.site.findMany({
+			select: {
+				subdomain: true,
+			},
+		}),
+		prisma.site.findMany({
+			where: {
+				NOT: {
+					customDomain: null,
+				},
+			},
+			select: {
+				customDomain: true,
+			},
+		}),
+	]);
+
+	const allPaths = [
+		...subdomains.map(({ subdomain }) => subdomain),
+		...customDomains.map(({ customDomain }) => customDomain),
+	].filter((path) => path) as Array<string>;
+
+	const paths = allPaths.map((path) => ({
+		site: path,
+	}));
+
+	return paths;
 }
 
-interface IndexProps {
-	stringifiedData: string;
-}
+const getData = async (site) => {
+	let filter: {
+		subdomain?: string;
+		customDomain?: string;
+	} = {
+		subdomain: site,
+	};
 
-export default function Index({ stringifiedData }: IndexProps) {
-	const router = useRouter();
-	if (router.isFallback) return <Loader />;
+	if (site.includes('.')) {
+		filter = {
+			customDomain: site,
+		};
+	}
 
-	const data = JSON.parse(stringifiedData) as _SiteData;
+	const data = await prisma.site.findUnique({
+		where: filter,
+		include: {
+			user: true,
+			posts: {
+				where: {
+					published: true,
+				},
+				orderBy: [
+					{
+						createdAt: 'desc',
+					},
+				],
+			},
+		},
+	});
+
+	return data;
+};
+
+export default async function Index({ params }) {
+	const data = await getData(params.site);
 
 	const meta = {
 		title: data.name,
@@ -36,7 +89,7 @@ export default function Index({ stringifiedData }: IndexProps) {
 	} as Meta;
 
 	return (
-		<Layout meta={meta} subdomain={data.subdomain ?? undefined}>
+		<>
 			<div className="w-full mb-20">
 				{data.posts.length > 0 ? (
 					<div className="w-full max-w-screen-xl lg:w-5/6 mx-auto md:mb-28">
@@ -119,93 +172,93 @@ export default function Index({ stringifiedData }: IndexProps) {
 					</div>
 				</div>
 			)}
-		</Layout>
+		</>
 	);
 }
 
-export const getStaticPaths: GetStaticPaths<PathProps> = async () => {
-	const [subdomains, customDomains] = await Promise.all([
-		prisma.site.findMany({
-			// you can remove this if you want to generate all sites at build time
-			where: {
-				subdomain: 'demo',
-			},
-			select: {
-				subdomain: true,
-			},
-		}),
-		prisma.site.findMany({
-			where: {
-				NOT: {
-					customDomain: null,
-				},
-				// you can remove this if you want to generate all sites at build time
-				customDomain: 'platformize.co',
-			},
-			select: {
-				customDomain: true,
-			},
-		}),
-	]);
+// export const getStaticPaths: GetStaticPaths<PathProps> = async () => {
+// 	const [subdomains, customDomains] = await Promise.all([
+// 		prisma.site.findMany({
+// 			// you can remove this if you want to generate all sites at build time
+// 			where: {
+// 				subdomain: 'demo',
+// 			},
+// 			select: {
+// 				subdomain: true,
+// 			},
+// 		}),
+// 		prisma.site.findMany({
+// 			where: {
+// 				NOT: {
+// 					customDomain: null,
+// 				},
+// 				// you can remove this if you want to generate all sites at build time
+// 				customDomain: 'platformize.co',
+// 			},
+// 			select: {
+// 				customDomain: true,
+// 			},
+// 		}),
+// 	]);
 
-	const allPaths = [
-		...subdomains.map(({ subdomain }) => subdomain),
-		...customDomains.map(({ customDomain }) => customDomain),
-	].filter((path) => path) as Array<string>;
+// 	const allPaths = [
+// 		...subdomains.map(({ subdomain }) => subdomain),
+// 		...customDomains.map(({ customDomain }) => customDomain),
+// 	].filter((path) => path) as Array<string>;
 
-	return {
-		paths: allPaths.map((path) => ({
-			params: {
-				site: path,
-			},
-		})),
-		fallback: true,
-	};
-};
+// 	return {
+// 		paths: allPaths.map((path) => ({
+// 			params: {
+// 				site: path,
+// 			},
+// 		})),
+// 		fallback: true,
+// 	};
+// };
 
-export const getStaticProps: GetStaticProps<IndexProps, PathProps> = async ({
-	params,
-}) => {
-	if (!params) throw new Error('No path parameters found');
+// export const getStaticProps: GetStaticProps<IndexProps, PathProps> = async ({
+// 	params,
+// }) => {
+// 	if (!params) throw new Error('No path parameters found');
 
-	const { site } = params;
+// 	const { site } = params;
 
-	let filter: {
-		subdomain?: string;
-		customDomain?: string;
-	} = {
-		subdomain: site,
-	};
+// 	let filter: {
+// 		subdomain?: string;
+// 		customDomain?: string;
+// 	} = {
+// 		subdomain: site,
+// 	};
 
-	if (site.includes('.')) {
-		filter = {
-			customDomain: site,
-		};
-	}
+// 	if (site.includes('.')) {
+// 		filter = {
+// 			customDomain: site,
+// 		};
+// 	}
 
-	const data = (await prisma.site.findUnique({
-		where: filter,
-		include: {
-			user: true,
-			posts: {
-				where: {
-					published: true,
-				},
-				orderBy: [
-					{
-						createdAt: 'desc',
-					},
-				],
-			},
-		},
-	})) as _SiteData;
+// 	const data = (await prisma.site.findUnique({
+// 		where: filter,
+// 		include: {
+// 			user: true,
+// 			posts: {
+// 				where: {
+// 					published: true,
+// 				},
+// 				orderBy: [
+// 					{
+// 						createdAt: 'desc',
+// 					},
+// 				],
+// 			},
+// 		},
+// 	})) as _SiteData;
 
-	if (!data) return { notFound: true, revalidate: 10 };
+// 	if (!data) return { notFound: true, revalidate: 10 };
 
-	return {
-		props: {
-			stringifiedData: JSON.stringify(data),
-		},
-		revalidate: 3600,
-	};
-};
+// 	return {
+// 		props: {
+// 			stringifiedData: JSON.stringify(data),
+// 		},
+// 		revalidate: 3600,
+// 	};
+// };
