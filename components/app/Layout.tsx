@@ -13,13 +13,11 @@ interface LayoutProps extends WithChildren {
 	siteId?: string;
 }
 
-export default function Layout({ siteId, children }: LayoutProps) {
-	const title = 'Platforms on Vercel';
-	const description =
-		'Create a fullstack application with multi-tenancy and custom domains support using Next.js, Prisma, and PostgreSQL';
-	const logo = '/favicon.ico';
+export default function Layout({ children }: LayoutProps) {
 	const router = useRouter();
 	const { subdomain } = router.query;
+
+	const logo = '/favicon.ico';
 	const sitePage = router.pathname.startsWith('/app/site/[subdomain]');
 	const postPage = router.pathname.startsWith('/app/site/[subdomain]/posts');
 	const categoryPage = router.pathname.startsWith(
@@ -29,6 +27,10 @@ export default function Layout({ siteId, children }: LayoutProps) {
 	const tab = rootPage
 		? router.asPath.split('/')[1]
 		: router.asPath.split('/')[3];
+
+	const title = `${subdomain || 'Dashboard'} | ESOS AI`;
+	const description =
+		'Create a fullstack application with multi-tenancy and custom domains support using Next.js, Prisma, and PostgreSQL';
 
 	const session = useRequireAuth();
 	if (!session) return <Loader />;
@@ -98,6 +100,14 @@ export default function Layout({ siteId, children }: LayoutProps) {
 							</Link>
 							<div className="flex justify-between items-center space-x-10 md:space-x-16">
 								<Link
+									href={`/site/${subdomain}`}
+									className={`border-b-2 ${
+										!tab ? 'border-black' : 'border-transparent'
+									} py-3`}
+								>
+									Overview
+								</Link>
+								<Link
 									href={`/site/${subdomain}/posts`}
 									className={`border-b-2 ${
 										tab == 'posts' || postPage
@@ -134,7 +144,7 @@ export default function Layout({ siteId, children }: LayoutProps) {
 									Settings
 								</Link>
 							</div>
-							<div />
+							<div>{subdomain}</div>
 						</div>
 					</div>
 				)}

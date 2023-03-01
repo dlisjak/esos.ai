@@ -74,9 +74,9 @@ export default function SiteCategories() {
 					duration: 10000,
 				}}
 			/>
-			<div className="max-w-screen-xl mx-auto px-10 sm:px-20 mt-20 mb-16">
-				<div className="flex justify-between items-center">
-					<h1 className="text-5xl mb-12">Categories</h1>
+			<div className="py-20 max-w-screen-xl mx-auto px-10 sm:px-20">
+				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
+					<h1 className="text-5xl">Categories</h1>
 					<button
 						onClick={() => {
 							setShowModal(true);
@@ -97,36 +97,44 @@ export default function SiteCategories() {
 					</button>
 				</div>
 				<div className="my-10 grid gap-y-4">
-					{categories?.map((category) => (
-						<Link
-							href={`/site/${category.siteId}/categories/${category.id}`}
-							key={category.id}
-						>
-							<div className="flex flex-col md:flex-row md:h-60 rounded-lg overflow-hidden border border-gray-200">
-								<div className="relative w-full h-60 md:h-auto md:w-1/3 md:flex-none">
-									{category.image ? (
-										<BlurImage
-											alt={category.title ?? 'Unknown Thumbnail'}
-											width={500}
-											height={400}
-											className="h-full object-cover"
-											src={category.image}
-										/>
-									) : (
-										<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-4xl">
-											?
-										</div>
-									)}
+					{categories?.length > 0 ? (
+						categories?.map((category) => (
+							<Link
+								href={`/site/${category.siteId}/categories/${category.id}`}
+								key={category.id}
+							>
+								<div className="flex flex-col md:flex-row md:h-60 rounded-lg overflow-hidden border border-gray-200">
+									<div className="relative w-full h-60 md:h-auto md:w-1/3 md:flex-none">
+										{category.image ? (
+											<BlurImage
+												alt={category.title ?? 'Unknown Thumbnail'}
+												width={500}
+												height={400}
+												className="h-full object-cover"
+												src={category.image}
+											/>
+										) : (
+											<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-4xl">
+												?
+											</div>
+										)}
+									</div>
+									<div className="relative p-10">
+										<h2 className=" text-3xl">{category.title}</h2>
+										<p className="text-base my-5 line-clamp-3">
+											{category.description}
+										</p>
+									</div>
 								</div>
-								<div className="relative p-10">
-									<h2 className=" text-3xl">{category.title}</h2>
-									<p className="text-base my-5 line-clamp-3">
-										{category.description}
-									</p>
-								</div>
-							</div>
-						</Link>
-					))}
+							</Link>
+						))
+					) : (
+						<div className="text-center">
+							<p className="text-2xl  text-gray-600">
+								No categories yet. Click &quot;New Category&quot; to create one.
+							</p>
+						</div>
+					)}
 				</div>
 			</div>
 			<Modal showModal={showModal} setShowModal={setShowModal}>

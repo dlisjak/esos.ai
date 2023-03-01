@@ -75,7 +75,7 @@ export default function SiteIndex() {
 		<Layout>
 			<div className="py-20 max-w-screen-xl mx-auto px-10 sm:px-20">
 				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
-					<h1 className=" text-5xl">Posts for {site?.name || '...'}</h1>
+					<h1 className="text-5xl">Posts</h1>
 					<button
 						onClick={() => {
 							setShowModal(true);
@@ -135,22 +135,11 @@ export default function SiteIndex() {
 							</Link>
 						))
 					) : (
-						<>
-							<div className="flex flex-col md:flex-row md:h-60 rounded-lg overflow-hidden border border-gray-200">
-								<div className="relative w-full h-60 md:h-auto md:w-1/3 md:flex-none bg-gray-300" />
-								<div className="relative p-10 grid gap-5">
-									<div className="w-28 h-10 rounded-md bg-gray-300" />
-									<div className="w-48 h-6 rounded-md bg-gray-300" />
-									<div className="w-48 h-6 rounded-md bg-gray-300" />
-									<div className="w-48 h-6 rounded-md bg-gray-300" />
-								</div>
-							</div>
-							<div className="text-center">
-								<p className="text-2xl  text-gray-600">
-									No posts yet. Click &quot;New Post&quot; to create one.
-								</p>
-							</div>
-						</>
+						<div className="text-center">
+							<p className="text-2xl  text-gray-600">
+								No posts yet. Click &quot;New Post&quot; to create one.
+							</p>
+						</div>
 					)}
 				</div>
 			</div>
