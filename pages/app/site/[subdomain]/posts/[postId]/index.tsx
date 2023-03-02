@@ -108,7 +108,7 @@ export default function Post() {
 				title: post.title ?? '',
 				slug: post.slug ?? '',
 				content: post.content ?? '',
-				categoryId: post.categoryId ?? '',
+				categoryId: typeof categoryId === 'string' ? categoryId : '',
 				image: post.image ?? '',
 				imageBlurhash: post.imageBlurhash ?? '',
 			});
