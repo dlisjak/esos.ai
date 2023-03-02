@@ -320,7 +320,7 @@ export default function Post() {
 						</div>
 						<div className="flex flex-col w-full">
 							<p>Category</p>
-							<div className="border border-gray-700 rounded-lg overflow-hidden w-full flex items-center max-w-lg">
+							<div className="border border-gray-700 rounded overflow-hidden w-full flex items-center max-w-lg">
 								<select
 									onChange={(e) =>
 										setData((data) => ({
@@ -376,7 +376,7 @@ export default function Post() {
 							{({ open }) => (
 								<button
 									onClick={open}
-									className="absolute w-full h-full rounded-md bg-gray-200 z-10 flex flex-col justify-center items-center opacity-0 hover:opacity-100 transition-all ease-linear duration-200"
+									className="absolute w-full h-full rounded bg-gray-200 z-10 flex flex-col justify-center items-center opacity-0 hover:opacity-100 transition-all ease-linear duration-200"
 								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -398,7 +398,7 @@ export default function Post() {
 								width={800}
 								height={500}
 								placeholder="blur"
-								className="rounded-md w-full h-full object-cover"
+								className="rounded w-full h-full object-cover"
 								blurDataURL={data.imageBlurhash || placeholderBlurhash}
 							/>
 						)}

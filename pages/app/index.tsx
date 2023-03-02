@@ -104,11 +104,11 @@ export default function AppIndex() {
 						event.preventDefault();
 						createSite();
 					}}
-					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
+					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded"
 				>
 					<h2 className="text-2xl mb-6">Create a New Site</h2>
 					<div className="grid gap-y-4 w-5/6 mx-auto">
-						<div className="border border-gray-700 rounded-lg flex flex-start items-center">
+						<div className="border border-gray-700 rounded flex flex-start items-center">
 							<span className="pl-5 pr-1">📌</span>
 							<input
 								className="w-full px-5 py-3 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-r-lg placeholder-gray-400"
@@ -119,7 +119,7 @@ export default function AppIndex() {
 								type="text"
 							/>
 						</div>
-						<div className="border border-gray-700 rounded-lg flex flex-start items-center">
+						<div className="border border-gray-700 rounded flex flex-start items-center">
 							<span className="pl-5 pr-1">🪧</span>
 							<input
 								className="w-full px-5 py-3 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-l-lg placeholder-gray-400"

@@ -7,7 +7,7 @@ import useSWR from 'swr';
 import Layout from '@/components/app/Layout';
 import LoadingDots from '@/components/app/loading-dots';
 import Modal from '@/components/Modal';
-import CategoryCard from '@/components/app/CategoryCard';
+import CategoryCard, { CategoryList } from '@/components/app/CategoryCard';
 
 import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
@@ -32,16 +32,8 @@ export default function SiteCategories() {
 	const router = useRouter();
 	const { subdomain } = router.query;
 
-	const { data: parentCategories } = useSWR<Array<CategoryWithPosts> | null>(
-		`/api/category/parents?subdomain=${subdomain}`,
-		fetcher,
-		{
-			revalidateOnFocus: false,
-		}
-	);
-
-	const { data: childCategories } = useSWR<Array<CategoryWithPosts> | null>(
-		`/api/category/children?subdomain=${subdomain}`,
+	const { data: categories } = useSWR<Array<CategoryWithPosts> | null>(
+		`/api/category?subdomain=${subdomain}`,
 		fetcher,
 		{
 			revalidateOnFocus: false,
@@ -136,14 +128,10 @@ export default function SiteCategories() {
 		setShowPostModal(true);
 	};
 
+	console.log({ categories });
+
 	return (
 		<Layout>
-			<Toaster
-				position="top-right"
-				toastOptions={{
-					duration: 10000,
-				}}
-			/>
 			<div className="pt-4 max-w-screen-lg">
 				<div className="flex justify-between items-center">
 					<h1 className="text-4xl">Categories</h1>
@@ -152,29 +140,12 @@ export default function SiteCategories() {
 					</AddNewButton>
 				</div>
 				<div className="my-4 grid gap-y-4">
-					{parentCategories && parentCategories?.length > 0 ? (
-						parentCategories?.map((category) => (
-							<div className="flex flex-col" key={category.id}>
-								<CategoryCard
-									subdomain={subdomain}
-									category={category}
-									addPostClick={handleAddPostClick}
-								/>
-								{childCategories &&
-									childCategories?.map((child) => {
-										if (category.id !== child.parentId) return;
-										return (
-											<CategoryCard
-												subdomain={subdomain}
-												category={child}
-												addPostClick={handleAddPostClick}
-												isChild={true}
-												key={child.id}
-											/>
-										);
-									})}
-							</div>
-						))
+					{categories && categories?.length > 0 ? (
+						<CategoryList
+							categories={categories}
+							subdomain={subdomain}
+							addPostClick={handleAddPostClick}
+						/>
 					) : (
 						<div className="text-center">
 							<p className="text-2xl  text-gray-600">
@@ -190,7 +161,7 @@ export default function SiteCategories() {
 						event.preventDefault();
 						createCategory(subdomain);
 					}}
-					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
+					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded"
 				>
 					<div className="px-8">
 						<h2 className="text-2xl mb-6">Create a New Category</h2>
@@ -245,7 +216,7 @@ export default function SiteCategories() {
 						event.preventDefault();
 						createPost(subdomain, creatingPostCategoryId);
 					}}
-					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
+					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded"
 				>
 					<div className="px-8">
 						<h2 className="text-2xl mb-6">Create a New Post</h2>

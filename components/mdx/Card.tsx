@@ -35,7 +35,7 @@ export default function Card({ data }: CardProps) {
 					</p>
 				</div>
 			</div>
-			<div className="lg:hidden overflow-hidden rounded-xl flex items-center md:h-48 h-36 border-2 border-gray-100 focus:border-black active:border-black bg-white transition-all ease duration-200">
+			<div className="lg:hidden overflow-hidden rounded flex items-center md:h-48 h-36 border-2 border-gray-100 focus:border-black active:border-black bg-white transition-all ease duration-200">
 				<div className="w-2/5 relative h-full">
 					<BlurImage
 						alt={data.name ?? 'Card thumbnail'}

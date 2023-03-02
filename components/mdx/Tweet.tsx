@@ -42,7 +42,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
 	if (!parsedMetadata) {
 		return (
 			<div
-				className={`${className} tweet rounded-lg flex justify-center items-center my-4 w-full h-[36rem] text-sm text-gray-500 border border-gray-300 bg-gray-50 hover:bg-gray-100 transition-all`}
+				className={`${className} tweet rounded flex justify-center items-center my-4 w-full h-[36rem] text-sm text-gray-500 border border-gray-300 bg-gray-50 hover:bg-gray-100 transition-all`}
 			>
 				There was an error loading this tweet.
 			</div>
@@ -110,7 +110,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
 		<div
 			className={`${
 				className || ''
-			} rounded-lg border border-gray-300 bg-white px-8 pt-6 pb-2 my-4 w-full`}
+			} rounded border border-gray-300 bg-white px-8 pt-6 pb-2 my-4 w-full`}
 		>
 			<div className="flex items-center">
 				<a href={authorUrl} target="_blank" rel="noopener noreferrer">
@@ -308,7 +308,7 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
 													option.position == 1
 														? 'font-bold bg-[#1da1f2]'
 														: 'bg-gray-300',
-													'absolute top-0 left-0 rounded-md w-full h-full'
+													'absolute top-0 left-0 rounded w-full h-full'
 												)}
 												style={{
 													width: `${Math.round(

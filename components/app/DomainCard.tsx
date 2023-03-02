@@ -30,7 +30,7 @@ export default function DomainCard({ data }: DomainCardProps) {
 			: '';
 
 	return (
-		<div className="w-full max-w-2xl mt-10 border border-black rounded-lg py-10">
+		<div className="w-full max-w-2xl mt-10 border border-black rounded py-10">
 			<div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 justify-between px-10">
 				<Link
 					className="text-xl font-semibold flex justify-center sm:justify-start items-center"
@@ -67,7 +67,7 @@ export default function DomainCard({ data }: DomainCardProps) {
 							isValidating
 								? 'cursor-not-allowed bg-gray-100'
 								: 'bg-white hover:text-black hover:border-black'
-						} text-gray-500 border-gray-200 py-1.5 w-24 text-sm border-solid border rounded-md focus:outline-none transition-all ease-in-out duration-150`}
+						} text-gray-500 border-gray-200 py-1.5 w-24 text-sm border-solid border rounded focus:outline-none transition-all ease-in-out duration-150`}
 					>
 						{isValidating ? <LoadingDots /> : 'Refresh'}
 					</button>
@@ -91,7 +91,7 @@ export default function DomainCard({ data }: DomainCardProps) {
 						disabled={removing}
 						className={`${
 							removing ? 'cursor-not-allowed bg-gray-100' : ''
-						}bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white py-1.5 w-24 text-sm border-solid border rounded-md focus:outline-none transition-all ease-in-out duration-150`}
+						}bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white py-1.5 w-24 text-sm border-solid border rounded focus:outline-none transition-all ease-in-out duration-150`}
 					>
 						{removing ? <LoadingDots /> : 'Remove'}
 					</button>
@@ -167,7 +167,7 @@ export default function DomainCard({ data }: DomainCardProps) {
 							<p className="my-5 text-sm">
 								Set the following record on your DNS provider to continue:
 							</p>
-							<div className="flex justify-start items-center space-x-10 bg-gray-50 p-2 rounded-md">
+							<div className="flex justify-start items-center space-x-10 bg-gray-50 p-2 rounded">
 								<div>
 									<p className="text-sm font-bold">Type</p>
 									<p className="text-sm font-mono mt-2">{recordType}</p>

@@ -66,7 +66,7 @@ export default function Login() {
 			</div>
 
 			<div className="mt-8 mx-auto sm:w-full w-11/12 sm:max-w-md">
-				<div className="bg-white py-8 px-4 shadow-md sm:rounded-lg sm:px-10">
+				<div className="bg-white py-8 px-4 shadow-md sm:rounded sm:px-10">
 					<button
 						disabled={loading}
 						onClick={() => {
@@ -75,7 +75,7 @@ export default function Login() {
 						}}
 						className={`${
 							loading ? 'cursor-not-allowed bg-gray-600' : 'bg-black'
-						} group flex justify-center items-center space-x-5 w-full sm:px-4 h-16 my-2 rounded-md focus:outline-none`}
+						} group flex justify-center items-center space-x-5 w-full sm:px-4 h-16 my-2 rounded focus:outline-none`}
 					>
 						{loading ? (
 							<LoadingDots color="#fff" />

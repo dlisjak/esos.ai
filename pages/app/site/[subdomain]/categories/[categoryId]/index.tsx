@@ -6,7 +6,6 @@ import { useRouter } from 'next/router';
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 import Layout from '@/components/app/Layout';
-import Loader from '@/components/app/Loader';
 import LoadingDots from '@/components/app/loading-dots';
 import Modal from '@/components/Modal';
 
@@ -32,21 +31,12 @@ interface CategoryData {
 	imageBlurhash: string;
 }
 
-const CONTENT_PLACEHOLDER = `Write some content. Markdown supported:
-# A H1 header
-## A H2 header
-
-Paragraphs are separated by a blank line.
-
-2nd paragraph. *Italic*, and **bold**.`;
-
 export default function CategoryPage() {
 	const router = useRouter();
 	const categorySlugRef = useRef<HTMLInputElement | null>(null);
 	const [deletingCategory, setDeletingCategory] = useState(false);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-	// TODO: Undefined check redirects to error
 	const { subdomain, categoryId } = router.query;
 
 	const { data: category } = useSWR<WithSiteCategory>(
@@ -298,7 +288,7 @@ export default function CategoryPage() {
 						</div>
 						<div className="flex flex-col w-full">
 							<p>Parent Category</p>
-							<div className="border border-gray-700 rounded-lg overflow-hidden w-full flex items-center max-w-lg">
+							<div className="border border-gray-700 rounded overflow-hidden w-full flex items-center max-w-lg">
 								<select
 									onChange={(e) =>
 										setData((data) => ({
@@ -311,11 +301,14 @@ export default function CategoryPage() {
 								>
 									<option value="">None</option>
 									{categories &&
-										categories?.map((category) => (
-											<option value={category.id} key={category.id}>
-												{category.title}
-											</option>
-										))}
+										categories?.map((category) => {
+											if (category.id === categoryId) return;
+											return (
+												<option value={category.id} key={category.id}>
+													{category.title}
+												</option>
+											);
+										})}
 								</select>
 							</div>
 						</div>
@@ -355,7 +348,7 @@ export default function CategoryPage() {
 									{({ open }) => (
 										<button
 											onClick={open}
-											className="absolute w-full h-full rounded-md bg-gray-200 z-10 flex flex-col justify-center items-center opacity-0 hover:opacity-100 transition-all ease-linear duration-200"
+											className="absolute w-full h-full rounded bg-gray-200 z-10 flex flex-col justify-center items-center opacity-0 hover:opacity-100 transition-all ease-linear duration-200"
 										>
 											<svg
 												xmlns="http://www.w3.org/2000/svg"
@@ -377,7 +370,7 @@ export default function CategoryPage() {
 										width={800}
 										height={500}
 										placeholder="blur"
-										className="rounded-md w-full h-full object-cover"
+										className="rounded w-full h-full object-cover"
 										blurDataURL={data.image || placeholderBlurhash}
 									/>
 								)}
@@ -399,7 +392,7 @@ export default function CategoryPage() {
 							onClick={() => {
 								setShowDeleteModal(true);
 							}}
-							className="bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white px-5 py-3 max-w-max  border-solid border rounded-md focus:outline-none transition-all ease-in-out duration-150"
+							className="bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white px-5 py-3 max-w-max  border-solid border rounded focus:outline-none transition-all ease-in-out duration-150"
 						>
 							Delete Site
 						</button>
@@ -433,7 +426,7 @@ export default function CategoryPage() {
 							event.preventDefault();
 							await deleteCategory(data?.id as string);
 						}}
-						className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
+						className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded"
 					>
 						<h2 className=" text-2xl mb-6">Delete Category</h2>
 						<div className="grid gap-y-4 w-5/6 mx-auto">
@@ -442,7 +435,7 @@ export default function CategoryPage() {
 								not reversible. Type in the full title of your category (
 								<b>{data.title}</b>) to confirm.
 							</p>
-							<div className="border border-gray-700 rounded-lg flex flex-start items-center overflow-hidden">
+							<div className="border border-gray-700 rounded flex flex-start items-center overflow-hidden">
 								<input
 									className="w-full px-5 py-3 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-r-lg placeholder-gray-400"
 									type="text"

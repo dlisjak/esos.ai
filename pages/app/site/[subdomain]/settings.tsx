@@ -191,7 +191,7 @@ export default function SiteSettings() {
 					<div className="flex w-full  space-x-8">
 						<div className="flex flex-col space-y-2 w-full">
 							<h2 className=" text-2xl">Name</h2>
-							<div className="border border-gray-700 rounded-lg overflow-hidden flex items-center max-w-lg">
+							<div className="border border-gray-700 rounded overflow-hidden flex items-center max-w-lg">
 								<input
 									className="w-full px-5 py-3  text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none placeholder-gray-400"
 									name="name"
@@ -209,7 +209,7 @@ export default function SiteSettings() {
 						</div>
 						<div className="flex flex-col space-y-2 w-full">
 							<h2 className="text-2xl">Font</h2>
-							<div className="border border-gray-700 rounded-lg overflow-hidden w-full flex items-center max-w-lg">
+							<div className="border border-gray-700 rounded overflow-hidden w-full flex items-center max-w-lg">
 								<select
 									onChange={(e) =>
 										setData((data) => ({
@@ -230,7 +230,7 @@ export default function SiteSettings() {
 					<div className="flex w-full  space-x-8">
 						<div className="flex flex-col space-y-2 w-full">
 							<h2 className=" text-2xl">Subdomain</h2>
-							<div className="border border-gray-700 rounded-lg flex items-center max-w-lg">
+							<div className="border border-gray-700 rounded flex items-center max-w-lg">
 								<input
 									className="w-1/2 px-5 py-3  text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-l-lg placeholder-gray-400"
 									name="subdomain"
@@ -267,7 +267,7 @@ export default function SiteSettings() {
 									}}
 									className="flex justify-start items-center space-x-3 max-w-lg"
 								>
-									<div className="border border-gray-700 flex-auto rounded-lg overflow-hidden">
+									<div className="border border-gray-700 flex-auto rounded overflow-hidden">
 										<input
 											autoComplete="off"
 											className="w-full px-5 py-3  text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none placeholder-gray-400"
@@ -286,7 +286,7 @@ export default function SiteSettings() {
 									</div>
 									<button
 										type="submit"
-										className="bg-black text-white border-black hover:text-black hover:bg-white px-5 py-3 w-28  border-solid border rounded-md focus:outline-none transition-all ease-in-out duration-150"
+										className="bg-black text-white border-black hover:text-black hover:bg-white px-5 py-3 w-28  border-solid border rounded focus:outline-none transition-all ease-in-out duration-150"
 									>
 										{adding ? <LoadingDots /> : 'Add'}
 									</button>
@@ -352,7 +352,7 @@ export default function SiteSettings() {
 								<div
 									className={`${
 										data.image ? '' : 'animate-pulse bg-gray-300 h-150'
-									} relative mt-5 w-full border-2 border-gray-800 border-dashed rounded-md overflow-hidden`}
+									} relative mt-5 w-full border-2 border-gray-800 border-dashed rounded overflow-hidden`}
 								>
 									<CloudinaryUploadWidget
 										callback={(e) =>
@@ -365,7 +365,7 @@ export default function SiteSettings() {
 										{({ open }) => (
 											<button
 												onClick={open}
-												className="absolute w-full h-full rounded-md bg-gray-200 z-10 flex flex-col justify-center items-center opacity-0 hover:opacity-100 transition-all ease-linear duration-200"
+												className="absolute w-full h-full rounded bg-gray-200 z-10 flex flex-col justify-center items-center opacity-0 hover:opacity-100 transition-all ease-linear duration-200"
 											>
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
@@ -384,7 +384,7 @@ export default function SiteSettings() {
 										<BlurImage
 											alt="Cover Photo"
 											blurDataURL={data.imageBlurhash ?? undefined}
-											className="rounded-md w-full object-cover"
+											className="rounded w-full object-cover"
 											height={500}
 											placeholder="blur"
 											src={data.image}
@@ -397,7 +397,7 @@ export default function SiteSettings() {
 						<div className="flex flex-col justify-between w-full">
 							<div className="flex flex-col w-full mb-auto">
 								<h2 className="text-2xl">Theme</h2>
-								<div className="border border-gray-700 rounded-lg overflow-hidden w-full flex items-center max-w-lg">
+								<div className="border border-gray-700 rounded overflow-hidden w-full flex items-center max-w-lg">
 									<select
 										onChange={(e) =>
 											setData((data) => ({
@@ -430,7 +430,7 @@ export default function SiteSettings() {
 									onClick={() => {
 										setShowDeleteModal(true);
 									}}
-									className="bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white px-5 py-3 max-w-max  border-solid border rounded-md focus:outline-none transition-all ease-in-out duration-150"
+									className="bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white px-5 py-3 max-w-max  border-solid border rounded focus:outline-none transition-all ease-in-out duration-150"
 								>
 									Delete Site
 								</button>
@@ -445,7 +445,7 @@ export default function SiteSettings() {
 						event.preventDefault();
 						await deleteSite(data?.id as string);
 					}}
-					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
+					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded"
 				>
 					<h2 className=" text-2xl mb-6">Delete Site</h2>
 					<div className="grid gap-y-4 w-5/6 mx-auto">
@@ -454,7 +454,7 @@ export default function SiteSettings() {
 							reversible. Type in the full name of your site (<b>{data.name}</b>
 							) to confirm.
 						</p>
-						<div className="border border-gray-700 rounded-lg flex flex-start items-center overflow-hidden">
+						<div className="border border-gray-700 rounded flex flex-start items-center overflow-hidden">
 							<input
 								className="w-full px-5 py-3 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-r-lg placeholder-gray-400"
 								type="text"
@@ -499,7 +499,7 @@ export default function SiteSettings() {
 							saving || subdomainError
 								? 'cursor-not-allowed bg-gray-300 border-gray-300'
 								: 'bg-black hover:bg-white hover:text-black border-black'
-						} mx-2 rounded-md w-36 h-12 text-lg text-white border-2 focus:outline-none transition-all ease-in-out duration-150`}
+						} mx-2 rounded w-36 h-12 text-lg text-white border-2 focus:outline-none transition-all ease-in-out duration-150`}
 					>
 						{saving ? <LoadingDots /> : 'Save Changes'}
 					</button>

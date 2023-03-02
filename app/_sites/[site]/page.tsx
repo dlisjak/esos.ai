@@ -92,7 +92,7 @@ export default async function Index({ params }) {
 				{data.posts.length > 0 ? (
 					<div className="w-full max-w-screen-lg lg:w-5/6 mx-auto md:mb-28">
 						<Link href={`/${data.posts[0].slug}`}>
-							<div className="relative group h-80 sm:h-150 w-full mx-auto overflow-hidden lg:rounded-xl">
+							<div className="relative group h-80 sm:h-150 w-full mx-auto overflow-hidden lg:rounded">
 								{data.posts[0].image ? (
 									<BlurImage
 										alt={data.posts[0].title ?? ''}

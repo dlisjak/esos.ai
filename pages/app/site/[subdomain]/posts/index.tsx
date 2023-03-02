@@ -111,7 +111,7 @@ export default function Posts() {
 						event.preventDefault();
 						createPost(subdomain);
 					}}
-					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
+					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded"
 				>
 					<div className="px-8">
 						<h2 className="text-2xl mb-6">Create a New Post</h2>
