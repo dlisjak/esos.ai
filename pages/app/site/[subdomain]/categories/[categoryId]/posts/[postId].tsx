@@ -109,7 +109,7 @@ export default function Post() {
 				title: post.title ?? '',
 				slug: post.slug ?? '',
 				content: post.content ?? '',
-				categoryId: categoryId,
+				categoryId: post.categoryId ?? '',
 				image: post.image ?? '',
 				imageBlurhash: post.imageBlurhash ?? '',
 			});
@@ -308,7 +308,7 @@ export default function Post() {
 											categoryId: (e.target as HTMLSelectElement).value,
 										}))
 									}
-									value={data.categoryId || categoryId}
+									value={data.categoryId || categoryId || ''}
 									className="w-full px-5 py-3  text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none placeholder-gray-400"
 								>
 									<option value="" disabled>
