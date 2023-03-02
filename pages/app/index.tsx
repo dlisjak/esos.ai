@@ -12,6 +12,8 @@ import { HttpMethod } from '@/types';
 import type { Site } from '@prisma/client';
 import SiteCard from '@/components/app/SiteCard';
 import AddNewButton from '@/components/app/AddNewButton';
+import Header from '@/components/Layout/Header';
+import Container from '@/components/Layout/Container';
 
 export default function AppIndex() {
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -76,13 +78,15 @@ export default function AppIndex() {
 
 	return (
 		<Layout>
-			<div className="pt-4 max-w-screen-lg">
+			<Header>
 				<div className="flex justify-between items-center">
-					<h1 className="text-4xl mb-8">Dashboard</h1>
+					<h1 className="text-4xl">Dashboard</h1>
 					<AddNewButton onClick={() => setShowModal(true)}>
 						New Site <span className="ml-2">＋</span>
 					</AddNewButton>
 				</div>
+			</Header>
+			<Container>
 				<div className="my-4 grid gap-y-4">
 					{sites && sites.length > 0 ? (
 						sites.map((site) => <SiteCard site={site} key={site.id} />)
@@ -96,7 +100,7 @@ export default function AppIndex() {
 						</>
 					)}
 				</div>
-			</div>
+			</Container>
 
 			<Modal showModal={showModal} setShowModal={setShowModal}>
 				<form

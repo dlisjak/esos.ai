@@ -85,7 +85,7 @@ export default function Layout({ children }: LayoutProps) {
 					<meta name="twitter:description" content={description} />
 					<meta name="twitter:image" content={logo} />
 				</Head>
-				<div className="absolute left-0 right-0 h-16 bg-white border-gray-200 px-4">
+				<div className="absolute left-0 right-0 h-16 bg-white border-gray-200 border-b px-4 z-50">
 					<div className="flex justify-between items-center h-full max-w-screen-xl mx-auto">
 						<div className="flex items-center">
 							{session.user && session.user.image && (
@@ -214,13 +214,15 @@ export default function Layout({ children }: LayoutProps) {
 					</div>
 				)}
 				<div
-					className={`pb-32 ${
+					className={
 						categoryPostsEditPage
 							? 'pt-56'
 							: categoryPostsPage || postEditPage || categoryPage || postPage
-							? 'pt-44'
-							: 'pt-32'
-					}`}
+							? 'pt-40'
+							: sitePage
+							? 'pt-28'
+							: 'pt-16'
+					}
 				>
 					{children}
 				</div>

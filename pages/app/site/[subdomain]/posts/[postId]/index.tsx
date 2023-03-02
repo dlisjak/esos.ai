@@ -19,6 +19,8 @@ import { placeholderBlurhash } from '@/lib/utils';
 import getSlug from 'speakingurl';
 import { Category } from '@prisma/client';
 import { StatusIndicator } from '@/components/app/PostCard';
+import Container from '@/components/Layout/Container';
+import Header from '@/components/Layout/Header';
 
 interface PostData {
 	title: string;
@@ -265,7 +267,10 @@ export default function Post() {
 	return (
 		<>
 			<Layout siteId={post?.site?.id}>
-				<div className="max-w-screen-lg pt-4">
+				<Header className="mb-8">
+					<h1 className="text-4xl">Edit Post</h1>
+				</Header>
+				<Container className="pb-32">
 					<div className="flex items-center mb-4">
 						<TextareaAutosize
 							name="title"
@@ -403,7 +408,7 @@ export default function Post() {
 							/>
 						)}
 					</div>
-				</div>
+				</Container>
 				<footer className="h-20 z-5 fixed bottom-0 inset-x-0 border-solid border-t border-gray-500 bg-white">
 					<div className="max-w-screen-lg mx-auto h-full flex justify-between items-center">
 						<div className="text-sm">

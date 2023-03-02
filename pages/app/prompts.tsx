@@ -11,6 +11,8 @@ import Modal from '@/components/Modal';
 import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 import PromptCard from '@/components/app/PromptCard';
+import Header from '@/components/Layout/Header';
+import Container from '@/components/Layout/Container';
 
 export default function Prompts() {
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -51,7 +53,6 @@ export default function Prompts() {
 
 			if (res.ok) {
 				const data = await res.json();
-				console.log(data);
 				toast.success('Prompt Created');
 			}
 		} catch (error) {
@@ -62,13 +63,11 @@ export default function Prompts() {
 		}
 	}
 
-	console.log(prompts);
-
 	return (
 		<Layout>
-			<div className="pt-4 max-w-screen-lg">
+			<Header>
 				<div className="flex justify-between items-center">
-					<h1 className="text-4xl mb-8">Prompts</h1>
+					<h1 className="text-4xl">Prompts</h1>
 					<button
 						onClick={() => setShowModal(true)}
 						className="text-md tracking-wide text-white rounded bg-black border border-black px-4 py-2 transition-all ease-in-out duration-200 hover:bg-white hover:text-black"
@@ -76,6 +75,8 @@ export default function Prompts() {
 						New Prompt <span className="ml-2">＋</span>
 					</button>
 				</div>
+			</Header>
+			<Container>
 				<div className="my-4 grid gap-y-4">
 					{prompts && prompts.length > 0 ? (
 						prompts?.map((prompt) => (
@@ -91,7 +92,7 @@ export default function Prompts() {
 						</>
 					)}
 				</div>
-			</div>
+			</Container>
 			<Modal showModal={showModal} setShowModal={setShowModal}>
 				<form
 					onSubmit={(event) => {

@@ -14,6 +14,8 @@ import type { Category, Post } from '@prisma/client';
 import PostCard from '@/components/app/PostCard';
 import { toast } from 'react-hot-toast';
 import AddNewButton from '@/components/app/AddNewButton';
+import Header from '@/components/Layout/Header';
+import Container from '@/components/Layout/Container';
 
 interface CategoryWithPosts extends Category {
 	posts: Post[];
@@ -76,8 +78,8 @@ export default function CategoryPosts() {
 
 	return (
 		<Layout>
-			<div className="pt-4 max-w-screen-lg mx-auto">
-				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
+			<Header>
+				<div className="flex justify-between items-center">
 					<h1 className="text-4xl">Posts for {category?.title}</h1>
 					<AddNewButton
 						onClick={() => {
@@ -87,6 +89,8 @@ export default function CategoryPosts() {
 						New Post <span className="ml-2">＋</span>
 					</AddNewButton>
 				</div>
+			</Header>
+			<Container>
 				<div className="my-10 grid gap-y-4">
 					{category && category?.posts && category?.posts?.length > 0 ? (
 						category.posts?.map((post) => (
@@ -105,7 +109,7 @@ export default function CategoryPosts() {
 						</div>
 					)}
 				</div>
-			</div>
+			</Container>
 			<Modal showModal={showModal} setShowModal={setShowModal}>
 				<form
 					onSubmit={(event) => {

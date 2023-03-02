@@ -14,12 +14,7 @@ export default function App({
 }: AppProps<{ session: Session }>) {
 	return (
 		<SessionProvider session={session}>
-			<main
-				className={`container max-w-screen-lg mx-auto px-4 ${cx(
-					cal.variable,
-					inter.variable
-				)}`}
-			>
+			<main className={cx(cal.variable, inter.variable)}>
 				<Component {...pageProps} />
 			</main>
 			<Analytics />

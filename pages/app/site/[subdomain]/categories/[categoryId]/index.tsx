@@ -20,6 +20,8 @@ import CloudinaryUploadWidget from '@/components/Cloudinary';
 import { placeholderBlurhash } from '@/lib/utils';
 import getSlug from 'speakingurl';
 import { Category } from '@prisma/client';
+import Container from '@/components/Layout/Container';
+import Header from '@/components/Layout/Header';
 
 interface CategoryData {
 	id: string;
@@ -233,7 +235,10 @@ export default function CategoryPage() {
 	return (
 		<>
 			<Layout siteId={category?.site?.id}>
-				<div className="max-w-screen-xl mx-auto px-10 pt-16 mb-30">
+				<Header className="mb-8">
+					<h1 className="text-4xl">Edit Category</h1>
+				</Header>
+				<Container className="mb-32">
 					<div className="flex items-center mb-4">
 						<TextareaAutosize
 							name="title"
@@ -397,7 +402,7 @@ export default function CategoryPage() {
 							Delete Site
 						</button>
 					</div>
-				</div>
+				</Container>
 				<footer className="h-20 z-5 fixed bottom-0 inset-x-0 border-solid border-t border-gray-500 bg-white">
 					<div className="max-w-screen-xl mx-auto px-10 sm:px-20 h-full flex justify-between items-center">
 						<button

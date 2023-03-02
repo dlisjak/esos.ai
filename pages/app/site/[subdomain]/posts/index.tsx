@@ -16,6 +16,8 @@ import type { Post, Site } from '@prisma/client';
 import PostCard from '@/components/app/PostCard';
 import { toast } from 'react-hot-toast';
 import AddNewButton from '@/components/app/AddNewButton';
+import Container from '@/components/Layout/Container';
+import Header from '@/components/Layout/Header';
 
 interface SitePostData {
 	posts: Array<Post>;
@@ -79,13 +81,15 @@ export default function Posts() {
 
 	return (
 		<Layout>
-			<div className="pt-4 max-w-screen-lg">
+			<Header>
 				<div className="flex justify-between items-center">
 					<h1 className="text-4xl">Published</h1>
 					<AddNewButton onClick={() => setShowModal(true)}>
 						New Post <span className="ml-2">＋</span>
 					</AddNewButton>
 				</div>
+			</Header>
+			<Container>
 				<div className="my-4 grid gap-y-2">
 					{posts && posts?.length > 0 ? (
 						posts?.map((post) => (
@@ -104,7 +108,8 @@ export default function Posts() {
 						</div>
 					)}
 				</div>
-			</div>
+			</Container>
+
 			<Modal showModal={showModal} setShowModal={setShowModal}>
 				<form
 					onSubmit={(event) => {

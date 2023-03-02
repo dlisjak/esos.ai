@@ -6,6 +6,8 @@ import Layout from '@/components/app/Layout';
 import { fetcher } from '@/lib/fetcher';
 
 import type { Theme } from '@prisma/client';
+import Header from '@/components/Layout/Header';
+import Container from '@/components/Layout/Container';
 
 export default function SiteThemes() {
 	const { data: themes } = useSWR<Theme[] | null>('/api/theme', fetcher, {
@@ -14,15 +16,11 @@ export default function SiteThemes() {
 
 	return (
 		<Layout>
-			<Toaster
-				position="top-right"
-				toastOptions={{
-					duration: 10000,
-				}}
-			/>
-			<div className="max-w-screen-lg pt-4">
-				<h1 className="text-4xl mb-8">Themes</h1>
-				<div className="grid grid-cols-3 gap-4 mt-4">
+			<Header>
+				<h1 className="text-4xl">Themes</h1>
+			</Header>
+			<Container>
+				<div className="my-4 grid gap-y-4">
 					{themes?.map((theme) => (
 						<div
 							className="relative flex items-center min-w-[20rem] justify-center aspect-square border rounded drop-shadow-md  hover:drop-shadow-xl ease-in-out duration-100 bg-white cursor-pointer"
@@ -34,7 +32,7 @@ export default function SiteThemes() {
 						</div>
 					))}
 				</div>
-			</div>
+			</Container>
 		</Layout>
 	);
 }

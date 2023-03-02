@@ -14,6 +14,8 @@ import { HttpMethod } from '@/types';
 
 import type { Category, Post } from '@prisma/client';
 import AddNewButton from '@/components/app/AddNewButton';
+import Header from '@/components/Layout/Header';
+import Container from '@/components/Layout/Container';
 
 interface CategoryWithPosts extends Category {
 	posts: Post[];
@@ -128,17 +130,17 @@ export default function SiteCategories() {
 		setShowPostModal(true);
 	};
 
-	console.log({ categories });
-
 	return (
 		<Layout>
-			<div className="pt-4 max-w-screen-lg">
+			<Header>
 				<div className="flex justify-between items-center">
 					<h1 className="text-4xl">Categories</h1>
 					<AddNewButton onClick={() => setShowCategoryModal(true)}>
 						New Category <span className="ml-2">＋</span>
 					</AddNewButton>
 				</div>
+			</Header>
+			<Container>
 				<div className="my-4 grid gap-y-4">
 					{categories && categories?.length > 0 ? (
 						<CategoryList
@@ -154,7 +156,7 @@ export default function SiteCategories() {
 						</div>
 					)}
 				</div>
-			</div>
+			</Container>
 			<Modal showModal={showCategoryModal} setShowModal={setShowCategoryModal}>
 				<form
 					onSubmit={(event) => {

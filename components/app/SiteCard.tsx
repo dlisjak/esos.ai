@@ -91,7 +91,10 @@ const SiteCard = ({ site }) => {
 					</Link>
 				</div>
 			</div>
-			<StatusIndicator published={site.customDomain} className="top-2 left-2" />
+			<StatusIndicator
+				published={!!site.customDomain}
+				className="top-2 left-2"
+			/>
 		</div>
 	);
 };

@@ -16,6 +16,8 @@ import { HttpMethod } from '@/types';
 
 import type { Site } from '@prisma/client';
 import { Theme } from '@prisma/client';
+import Header from '@/components/Layout/Header';
+import Container from '@/components/Layout/Container';
 
 interface SettingsData
 	extends Pick<
@@ -179,15 +181,11 @@ export default function SiteSettings() {
 
 	return (
 		<Layout>
-			<Toaster
-				position="top-right"
-				toastOptions={{
-					duration: 10000,
-				}}
-			/>
-			<div className="max-w-screen-lg pt-4">
-				<h1 className="text-4xl mb-12">Site Settings</h1>
-				<div className="mb-28 flex flex-col space-y-4">
+			<Header>
+				<h1 className="text-4xl">Site Settings</h1>
+			</Header>
+			<Container>
+				<div className="my-4 flex flex-col space-y-4">
 					<div className="flex w-full  space-x-8">
 						<div className="flex flex-col space-y-2 w-full">
 							<h2 className=" text-2xl">Name</h2>
@@ -438,7 +436,7 @@ export default function SiteSettings() {
 						</div>
 					</div>
 				</div>
-			</div>
+			</Container>
 			<Modal showModal={showDeleteModal} setShowModal={setShowDeleteModal}>
 				<form
 					onSubmit={async (event) => {

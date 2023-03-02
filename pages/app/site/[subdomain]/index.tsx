@@ -1,14 +1,22 @@
 import Layout from '@/components/app/Layout';
+import Container from '@/components/Layout/Container';
+import Header from '@/components/Layout/Header';
+import { useRouter } from 'next/router';
 
 export default function SiteIndex() {
+	const router = useRouter();
+	const { subdomain } = router.query;
+
 	return (
 		<Layout>
-			<div className="pt-4 max-w-screen-lg mx-auto">
-				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
-					<h1 className=" text-4xl">Overview</h1>
+			<Header>
+				<div className="flex justify-between items-center">
+					<h1 className="text-4xl">{subdomain}</h1>
 				</div>
-				<div className="my-10 grid gap-y-4"></div>
-			</div>
+			</Header>
+			<Container>
+				<div className="my-4 grid gap-y-4"></div>
+			</Container>
 		</Layout>
 	);
 }
