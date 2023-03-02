@@ -1,12 +1,13 @@
 import Link from 'next/link';
+
 import BlurImage from '../BlurImage';
 import { StatusIndicator } from './PostCard';
 
 const PromptCard = ({ prompt }) => {
 	if (!prompt) return <></>;
 
-	const promptEditUrl = `/site/prompts/${prompt.id}`;
-	const promptTestUrl = `/site/prompts/${prompt.id}/test`;
+	const promptEditUrl = `/prompts/${prompt.id}`;
+	const promptTestUrl = `/prompts/${prompt.id}/test`;
 
 	return (
 		<div className="relative bg-white p-4 flex items-end rounded drop-shadow-sm">

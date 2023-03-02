@@ -76,9 +76,9 @@ export default function AppIndex() {
 
 	return (
 		<Layout>
-			<div className="pt-4 max-w-screen-xl mx-auto">
-				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
-					<h1 className="text-4xl mr-4 mb-2">Dashboard</h1>
+			<div className="pt-4 max-w-screen-lg">
+				<div className="flex justify-between items-center">
+					<h1 className="text-4xl mb-8">Dashboard</h1>
 					<AddNewButton onClick={() => setShowModal(true)}>
 						New Site <span className="ml-2">＋</span>
 					</AddNewButton>

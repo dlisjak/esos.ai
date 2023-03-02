@@ -52,7 +52,7 @@ export default function Prompts() {
 			if (res.ok) {
 				const data = await res.json();
 				console.log(data);
-				toast.success('Post Created');
+				toast.success('Prompt Created');
 			}
 		} catch (error) {
 			console.error(error);
@@ -66,12 +66,6 @@ export default function Prompts() {
 
 	return (
 		<Layout>
-			<Toaster
-				position="top-right"
-				toastOptions={{
-					duration: 10000,
-				}}
-			/>
 			<div className="pt-4 max-w-screen-lg">
 				<div className="flex justify-between items-center">
 					<h1 className="text-4xl mb-8">Prompts</h1>

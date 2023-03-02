@@ -85,7 +85,7 @@ export default function Layout({ children }: LayoutProps) {
 					<meta name="twitter:description" content={description} />
 					<meta name="twitter:image" content={logo} />
 				</Head>
-				<div className="absolute left-0 right-0 h-16 bg-white border-gray-200">
+				<div className="absolute left-0 right-0 h-16 bg-white border-gray-200 px-4">
 					<div className="flex justify-between items-center h-full max-w-screen-xl mx-auto">
 						<div className="flex items-center">
 							{session.user && session.user.image && (
@@ -114,7 +114,7 @@ export default function Layout({ children }: LayoutProps) {
 					</div>
 				</div>
 				{sitePage && (
-					<div className="absolute left-0 right-0 top-16  border-b bg-white border-gray-200">
+					<div className="absolute left-0 right-0 top-16  border-b bg-white border-gray-200 px-4">
 						<div className="flex justify-between items-center max-w-screen-xl mx-auto">
 							<Link href="/" className="ml-3 block">
 								← All Sites
@@ -166,7 +166,7 @@ export default function Layout({ children }: LayoutProps) {
 					</div>
 				)}
 				{postPage && (
-					<div className="absolute left-0 right-0 top-[7.2rem] border-b bg-white border-gray-200">
+					<div className="absolute left-0 right-0 top-[7.2rem] border-b bg-white border-gray-200 px-4">
 						<div className="flex justify-center items-center space-x-16 max-w-screen-lg mx-auto">
 							<Link
 								href={`/site/${subdomain}/posts`}
