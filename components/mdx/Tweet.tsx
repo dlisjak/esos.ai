@@ -192,8 +192,8 @@ export default function Tweet({ id, metadata, className }: TweetProps) {
 				<div
 					className={
 						media.length === 1
-							? 'inline-grid grid-cols-1 gap-x-2 gap-y-2 my-2'
-							: 'inline-grid grid-cols-2 gap-x-2 gap-y-2 my-2'
+							? 'inline-grid grid-cols-1 gap-x-4 gap-y-4 my-2'
+							: 'inline-grid grid-cols-2 gap-x-4 gap-y-4 my-2'
 					}
 				>
 					{media.map((m, i) => (

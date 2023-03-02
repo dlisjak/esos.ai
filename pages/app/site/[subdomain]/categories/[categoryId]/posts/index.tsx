@@ -86,7 +86,7 @@ export default function CategoryPosts() {
 							setShowModal(true);
 						}}
 					>
-						New Post <span className="ml-2">＋</span>
+						Add Post <span className="ml-2">＋</span>
 					</AddNewButton>
 				</div>
 			</Header>
@@ -103,8 +103,8 @@ export default function CategoryPosts() {
 						))
 					) : (
 						<div className="text-center">
-							<p className="text-2xl  text-gray-600">
-								No posts yet. Click &quot;New Post&quot; to create one.
+							<p className="text-2xl mt-4 text-gray-600">
+								No posts yet. Click &quot;Add Post&quot; to create one.
 							</p>
 						</div>
 					)}
@@ -119,7 +119,7 @@ export default function CategoryPosts() {
 					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded"
 				>
 					<div className="px-8">
-						<h2 className="text-2xl mb-6">Create a New Post</h2>
+						<h2 className="text-2xl mb-6">Add a New Post</h2>
 						<div className="flex flex-col space-y-4 flex-start items-center">
 							<input
 								className="w-full px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"

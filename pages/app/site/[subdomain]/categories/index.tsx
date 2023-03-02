@@ -136,26 +136,24 @@ export default function SiteCategories() {
 				<div className="flex justify-between items-center">
 					<h1 className="text-4xl">Categories</h1>
 					<AddNewButton onClick={() => setShowCategoryModal(true)}>
-						New Category <span className="ml-2">＋</span>
+						Add Category <span className="ml-2">＋</span>
 					</AddNewButton>
 				</div>
 			</Header>
 			<Container>
-				<div className="my-4 grid gap-y-4">
-					{categories && categories?.length > 0 ? (
-						<CategoryList
-							categories={categories}
-							subdomain={subdomain}
-							addPostClick={handleAddPostClick}
-						/>
-					) : (
-						<div className="text-center">
-							<p className="text-2xl  text-gray-600">
-								No categories yet. Click &quot;New Category&quot; to create one.
-							</p>
-						</div>
-					)}
-				</div>
+				{categories && categories?.length > 0 ? (
+					<CategoryList
+						categories={categories}
+						subdomain={subdomain}
+						addPostClick={handleAddPostClick}
+					/>
+				) : (
+					<div className="text-center">
+						<p className="text-2xl  text-gray-600">
+							No categories yet. Click &quot;Add Category&quot; to create one.
+						</p>
+					</div>
+				)}
 			</Container>
 			<Modal showModal={showCategoryModal} setShowModal={setShowCategoryModal}>
 				<form
@@ -166,7 +164,7 @@ export default function SiteCategories() {
 					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded"
 				>
 					<div className="px-8">
-						<h2 className="text-2xl mb-6">Create a New Category</h2>
+						<h2 className="text-2xl mb-6">Add a New Category</h2>
 						<div className="flex flex-col space-y-4 flex-start items-center">
 							<input
 								className="w-full px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"
@@ -221,7 +219,7 @@ export default function SiteCategories() {
 					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded"
 				>
 					<div className="px-8">
-						<h2 className="text-2xl mb-6">Create a New Post</h2>
+						<h2 className="text-2xl mb-6">Add a New Post</h2>
 						<div className="flex flex-col space-y-4 flex-start items-center">
 							<input
 								className="w-full px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"

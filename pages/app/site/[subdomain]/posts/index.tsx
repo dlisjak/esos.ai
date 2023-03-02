@@ -85,12 +85,12 @@ export default function Posts() {
 				<div className="flex justify-between items-center">
 					<h1 className="text-4xl">Published</h1>
 					<AddNewButton onClick={() => setShowModal(true)}>
-						New Post <span className="ml-2">＋</span>
+						Add Post <span className="ml-2">＋</span>
 					</AddNewButton>
 				</div>
 			</Header>
 			<Container>
-				<div className="my-4 grid gap-y-2">
+				<div className="my-4 grid gap-y-4">
 					{posts && posts?.length > 0 ? (
 						posts?.map((post) => (
 							<PostCard
@@ -102,8 +102,8 @@ export default function Posts() {
 						))
 					) : (
 						<div className="text-center">
-							<p className="text-2xl  text-gray-600">
-								No posts yet. Click &quot;New Post&quot; to create one.
+							<p className="text-2xl mt-4 text-gray-600">
+								No posts yet. Click &quot;Add Post&quot; to create one.
 							</p>
 						</div>
 					)}
@@ -119,7 +119,7 @@ export default function Posts() {
 					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded"
 				>
 					<div className="px-8">
-						<h2 className="text-2xl mb-6">Create a New Post</h2>
+						<h2 className="text-2xl mb-6">Add a New Post</h2>
 						<div className="flex flex-col space-y-4 flex-start items-center">
 							<input
 								className="w-full px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"

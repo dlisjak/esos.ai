@@ -82,7 +82,7 @@ export default function AppIndex() {
 				<div className="flex justify-between items-center">
 					<h1 className="text-4xl">Dashboard</h1>
 					<AddNewButton onClick={() => setShowModal(true)}>
-						New Site <span className="ml-2">＋</span>
+						Add Site <span className="ml-2">＋</span>
 					</AddNewButton>
 				</div>
 			</Header>
@@ -93,8 +93,8 @@ export default function AppIndex() {
 					) : (
 						<>
 							<div className="text-center">
-								<p className="text-2xl  text-gray-600">
-									No sites yet. Click &quot;New Site&quot; to create one.
+								<p className="text-2xl mt-4 text-gray-600">
+									No sites yet. Click &quot;Add Site&quot; to create one.
 								</p>
 							</div>
 						</>

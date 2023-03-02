@@ -13,6 +13,7 @@ import { HttpMethod } from '@/types';
 import PromptCard from '@/components/app/PromptCard';
 import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
+import AddNewButton from '@/components/app/AddNewButton';
 
 export default function Prompts() {
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -68,12 +69,9 @@ export default function Prompts() {
 			<Header>
 				<div className="flex justify-between items-center">
 					<h1 className="text-4xl">Prompts</h1>
-					<button
-						onClick={() => setShowModal(true)}
-						className="text-md tracking-wide text-white rounded bg-black border border-black px-4 py-2 transition-all ease-in-out duration-200 hover:bg-white hover:text-black"
-					>
-						New Prompt <span className="ml-2">＋</span>
-					</button>
+					<AddNewButton onClick={() => setShowModal(true)}>
+						Add Prompt <span className="ml-2">＋</span>
+					</AddNewButton>
 				</div>
 			</Header>
 			<Container>
@@ -85,8 +83,8 @@ export default function Prompts() {
 					) : (
 						<>
 							<div className="text-center">
-								<p className="text-2xl text-gray-600">
-									No prompts yet. Click &quot;New Prompt&quot; to create one.
+								<p className="text-2xl mt-4 text-gray-600">
+									No prompts yet. Click &quot;Add Prompt&quot; to create one.
 								</p>
 							</div>
 						</>

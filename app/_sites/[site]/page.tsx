@@ -155,7 +155,7 @@ export default async function Index({ params }) {
 							placeholder="blur"
 							blurDataURL={placeholderBlurhash}
 						/>
-						<p className="text-2xl  text-gray-600">No posts yet.</p>
+						<p className="text-2xl mt-4 text-gray-600">No posts yet.</p>
 					</div>
 				)}
 			</div>
