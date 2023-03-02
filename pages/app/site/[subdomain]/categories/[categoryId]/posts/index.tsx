@@ -10,14 +10,9 @@ import LoadingDots from '@/components/app/loading-dots';
 import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
-import type { Post, Site } from '@prisma/client';
+import type { Category } from '@prisma/client';
 import PostCard from '@/components/app/PostCard';
 import { toast } from 'react-hot-toast';
-
-interface SitePostData {
-	posts: Array<Post>;
-	site: Site | null;
-}
 
 export default function CategoryPosts() {
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -27,7 +22,7 @@ export default function CategoryPosts() {
 	const router = useRouter();
 	const { subdomain, categoryId } = router.query;
 
-	const { data: category } = useSWR<SitePostData>(
+	const { data: category } = useSWR<Category>(
 		subdomain && `/api/category?categoryId=${categoryId}`,
 		fetcher,
 		{
@@ -99,7 +94,7 @@ export default function CategoryPosts() {
 					</button>
 				</div>
 				<div className="my-10 grid gap-y-4">
-					{category && category.posts && category.posts?.length > 0 ? (
+					{category && category?.posts && category?.posts?.length > 0 ? (
 						category.posts?.map((post) => (
 							<PostCard post={post} subdomain={subdomain} key={post.id} />
 						))
