@@ -12,7 +12,11 @@ import CategoryCard from '@/components/app/CategoryCard';
 import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
-import type { Category } from '@prisma/client';
+import type { Category, Post } from '@prisma/client';
+
+interface CategoryWithPosts extends Category {
+	posts: Post[];
+}
 
 export default function SiteCategories() {
 	const [showCategoryModal, setShowCategoryModal] = useState<boolean>(false);
@@ -27,7 +31,7 @@ export default function SiteCategories() {
 	const router = useRouter();
 	const { subdomain } = router.query;
 
-	const { data: parentCategories } = useSWR<Array<Category> | null>(
+	const { data: parentCategories } = useSWR<Array<CategoryWithPosts> | null>(
 		`/api/category/parents?subdomain=${subdomain}`,
 		fetcher,
 		{
@@ -35,7 +39,7 @@ export default function SiteCategories() {
 		}
 	);
 
-	const { data: childCategories } = useSWR<Array<Category> | null>(
+	const { data: childCategories } = useSWR<Array<CategoryWithPosts> | null>(
 		`/api/category/children?subdomain=${subdomain}`,
 		fetcher,
 		{

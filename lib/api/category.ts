@@ -25,7 +25,7 @@ export async function getCategory(
 	req: NextApiRequest,
 	res: NextApiResponse,
 	session: Session
-): Promise<void | NextApiResponse<Array<Theme> | (Theme | null)>> {
+): Promise<void | NextApiResponse<Array<Category> | (Category | null)>> {
 	const { subdomain, siteId, categoryId } = req.query;
 
 	if (
@@ -105,7 +105,7 @@ export async function getParentCategories(
 	req: NextApiRequest,
 	res: NextApiResponse,
 	session: Session
-): Promise<void | NextApiResponse<Array<Theme> | (Theme | null)>> {
+): Promise<void | NextApiResponse<Array<Category> | (Category | null)>> {
 	const { subdomain } = req.query;
 
 	if (Array.isArray(subdomain) || !session.user.id)
@@ -158,7 +158,7 @@ export async function getChildrenCategories(
 	req: NextApiRequest,
 	res: NextApiResponse,
 	session: Session
-): Promise<void | NextApiResponse<Array<Theme> | (Theme | null)>> {
+): Promise<void | NextApiResponse<Array<Category> | (Category | null)>> {
 	const { subdomain } = req.query;
 
 	if (Array.isArray(subdomain) || !session.user.id)
@@ -211,7 +211,7 @@ export async function createCategory(
 	req: NextApiRequest,
 	res: NextApiResponse,
 	session: Session
-): Promise<void | NextApiResponse<Array<Theme> | (Theme | null)>> {
+): Promise<void | NextApiResponse<Array<Category> | (Category | null)>> {
 	const { subdomain } = req.query;
 	const { title, slug } = req.body;
 
