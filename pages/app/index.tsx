@@ -75,7 +75,7 @@ export default function AppIndex() {
 
 	return (
 		<Layout>
-			<div className="py-20 max-w-screen-xl mx-auto px-10 sm:px-20">
+			<div className="p-4 max-w-screen-xl mx-auto px-10">
 				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
 					<h1 className="text-5xl mr-4 mb-2">Dashboard</h1>
 					<button
