@@ -10,9 +10,13 @@ import LoadingDots from '@/components/app/loading-dots';
 import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
-import type { Category } from '@prisma/client';
+import type { Category, Post } from '@prisma/client';
 import PostCard from '@/components/app/PostCard';
 import { toast } from 'react-hot-toast';
+
+interface CategoryWithPosts extends Category {
+	posts: Post[];
+}
 
 export default function CategoryPosts() {
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -22,7 +26,7 @@ export default function CategoryPosts() {
 	const router = useRouter();
 	const { subdomain, categoryId } = router.query;
 
-	const { data: category } = useSWR<Category>(
+	const { data: category } = useSWR<CategoryWithPosts>(
 		subdomain && `/api/category?categoryId=${categoryId}`,
 		fetcher,
 		{

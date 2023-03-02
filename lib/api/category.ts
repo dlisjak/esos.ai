@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from 'pages/api/auth/[...nextauth]';
-import type { Category, Theme } from '.prisma/client';
+import type { Category } from '.prisma/client';
 import type { Session } from 'next-auth';
 import { revalidate } from '@/lib/revalidate';
 import { getBlurDataURL, placeholderBlurhash } from '@/lib/utils';

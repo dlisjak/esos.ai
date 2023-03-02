@@ -4,7 +4,7 @@ import {
 	updateCategory,
 	deleteCategory,
 } from '@/lib/api/category';
-import { unstable_getServerSession } from 'next-auth/next';
+import { getServerSession } from 'next-auth/next';
 
 import { authOptions } from '../auth/[...nextauth]';
 import { HttpMethod } from '@/types';
@@ -15,7 +15,7 @@ export default async function category(
 	req: NextApiRequest,
 	res: NextApiResponse
 ) {
-	const session = await unstable_getServerSession(req, res, authOptions);
+	const session = await getServerSession(req, res, authOptions);
 	if (!session) return res.status(401).end();
 
 	switch (req.method) {
