@@ -4,23 +4,19 @@ import BlurImage from '../BlurImage';
 export const StatusIndicator = ({ published, className = '' }) => {
 	return (
 		<div
-			className={`absolute top-0 w-4 h-4 rounded-full ${
+			className={`${className} absolute top-1 left-1 w-4 h-4 rounded-full ${
 				published ? 'bg-emerald-400' : 'bg-yellow-400'
-			} ${className}`}
+			}`}
 		/>
 	);
 };
 
-const PostCard = ({ subdomain, post }) => {
-	if (!post) return <></>;
-
-	const postEditUrl = `/site/${subdomain}/${
-		post.category?.id ? 'categories/' + post.category.id + '/' : ''
-	}posts/${post.id}`;
+const PostCard = ({ subdomain, post, postEditUrl }) => {
+	if (!post || !postEditUrl) return <></>;
 
 	return (
-		<div className="flex relative items-end pb-2 border-b border-gray-200">
-			<div className="w-full flex rounded overflow-hidden mb-2">
+		<div className="relative bg-white p-4 flex items-end rounded drop-shadow-sm">
+			<div className="w-full flex overflow-hidden">
 				<div className="relative h-[120px]">
 					<Link href={postEditUrl}>
 						{post.image ? (
@@ -32,34 +28,32 @@ const PostCard = ({ subdomain, post }) => {
 								src={post.image}
 							/>
 						) : (
-							<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-4xl">
+							<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-3xl">
 								?
 							</div>
 						)}
 					</Link>
 				</div>
-				<div className="flex flex-col relative p-4">
-					<Link href={postEditUrl} className="hover:underline">
-						<h2 className="text-2xl border-black mb-2">{post.title}</h2>
-					</Link>
+				<div className="flex flex-col relative px-4">
+					<div className="flex items-center">
+						<Link href={postEditUrl} className="hover:underline">
+							<h2 className="text-xl font-semibold mb-1">{post.title}</h2>
+						</Link>
+					</div>
+					<p className="text-sm flex bg-slate-100 px-1 right-1 rounded w-auto line-clamp-1">
+						/{post.slug}
+					</p>
 					<Link
 						href={`/site/${subdomain}/categories/${post.category?.id}`}
 						className="hover:underline"
 					>
-						<h3>{post.category?.title}</h3>
+						<p>{post.category?.title}</p>
 					</Link>
-					<p>/{post.slug}</p>
 				</div>
 			</div>
-			<div className="flex flex-col items-end">
+			<div className="flex flex-col h-full items-end">
 				<Link
-					className="flex mt-auto px-3 py-1 mb-2 tracking-wide rounded text-white bg-black whitespace-nowrap"
-					href={postEditUrl}
-				>
-					Edit Post
-				</Link>
-				<Link
-					className="flex mt-auto px-3 py-1 mb-2 tracking-wide rounded text-white bg-black whitespace-nowrap"
+					className="flex items-center justify-center rounded mt-2 px-1 tracking-wide text-white bg-slate-400 duration-200 hover:bg-slate-600"
 					href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${
 						process.env.NEXT_PUBLIC_DOMAIN_URL
 					}${post.category?.slug ? '/' + post.category?.slug : ''}/${
@@ -69,10 +63,18 @@ const PostCard = ({ subdomain, post }) => {
 					rel="noreferrer"
 					target="_blank"
 				>
-					View Post ↗
+					↗
 				</Link>
+				<div className="flex h-full space-x-2 items-end justify-between">
+					<Link
+						className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"
+						href={postEditUrl}
+					>
+						Edit Post
+					</Link>
+				</div>
 			</div>
-			<StatusIndicator published={post.published} />
+			<StatusIndicator published={post.published} className="top-2 left-2" />
 		</div>
 	);
 };

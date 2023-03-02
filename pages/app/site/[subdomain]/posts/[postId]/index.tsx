@@ -265,7 +265,7 @@ export default function Post() {
 	return (
 		<>
 			<Layout siteId={post?.site?.id}>
-				<div className="max-w-screen-xl mx-auto px-10 pt-16 mb-30">
+				<div className="max-w-screen-lg pt-4">
 					<div className="flex items-center mb-4">
 						<TextareaAutosize
 							name="title"
@@ -275,7 +275,7 @@ export default function Post() {
 									title: (e.target as HTMLTextAreaElement).value,
 								})
 							}
-							className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b text-5xl resize-none focus:outline-none focus:ring-0 mb-2"
+							className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b text-4xl resize-none focus:outline-none focus:ring-0 mb-2"
 							placeholder="Untitled Category"
 							value={data.title || ''}
 							onBlur={generateSlug}
@@ -405,7 +405,7 @@ export default function Post() {
 					</div>
 				</div>
 				<footer className="h-20 z-5 fixed bottom-0 inset-x-0 border-solid border-t border-gray-500 bg-white">
-					<div className="max-w-screen-xl mx-auto px-10 sm:px-20 h-full flex justify-between items-center">
+					<div className="max-w-screen-lg mx-auto h-full flex justify-between items-center">
 						<div className="text-sm">
 							<strong>
 								<p>{post?.published ? 'Published' : 'Draft'}</p>

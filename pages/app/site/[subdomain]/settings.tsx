@@ -185,8 +185,8 @@ export default function SiteSettings() {
 					duration: 10000,
 				}}
 			/>
-			<div className="max-w-screen-xl mx-auto px-10 sm:px-20 mt-20 mb-16">
-				<h1 className="text-5xl mb-12">Site Settings</h1>
+			<div className="max-w-screen-lg pt-4">
+				<h1 className="text-4xl mb-12">Site Settings</h1>
 				<div className="mb-28 flex flex-col space-y-4">
 					<div className="flex w-full  space-x-8">
 						<div className="flex flex-col space-y-2 w-full">
@@ -489,7 +489,7 @@ export default function SiteSettings() {
 			</Modal>
 
 			<footer className="h-20 z-20 fixed bottom-0 inset-x-0 border-solid border-t border-gray-500 bg-white">
-				<div className="max-w-screen-xl mx-auto px-10 sm:px-20 h-full flex justify-end items-center">
+				<div className="max-w-screen-lg mx-auto h-full flex justify-end items-center">
 					<button
 						onClick={() => {
 							saveSiteSettings(data);

@@ -15,7 +15,7 @@ export default function App({
 	return (
 		<SessionProvider session={session}>
 			<main
-				className={`container max-w-[1200px] mx-auto ${cx(
+				className={`container max-w-screen-lg mx-auto px-4 ${cx(
 					cal.variable,
 					inter.variable
 				)}`}

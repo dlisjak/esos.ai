@@ -27,7 +27,7 @@ export default function BlogCard({ data }: BlogCardProps) {
 						quality={100}
 					/>
 				) : (
-					<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-4xl select-none">
+					<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-3xl select-none">
 						?
 					</div>
 				)}

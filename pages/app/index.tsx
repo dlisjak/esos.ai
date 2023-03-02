@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import Layout from '@/components/app/Layout';
 import Modal from '@/components/Modal';
 import LoadingDots from '@/components/app/loading-dots';
-import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
@@ -11,6 +10,8 @@ import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
 import type { Site } from '@prisma/client';
+import SiteCard from '@/components/app/SiteCard';
+import AddNewButton from '@/components/app/AddNewButton';
 
 export default function AppIndex() {
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -75,72 +76,16 @@ export default function AppIndex() {
 
 	return (
 		<Layout>
-			<div className="p-4 max-w-screen-xl mx-auto px-10">
+			<div className="pt-4 max-w-screen-xl mx-auto">
 				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
-					<h1 className="text-5xl mr-4 mb-2">Dashboard</h1>
-					<button
-						onClick={() => setShowModal(true)}
-						className="text-lg tracking-wide text-white rounded bg-[#007FFF] px-5 py-3 transition-all ease-in-out duration-150"
-					>
-						Add New Site <span className="ml-2">＋</span>
-					</button>
+					<h1 className="text-4xl mr-4 mb-2">Dashboard</h1>
+					<AddNewButton onClick={() => setShowModal(true)}>
+						New Site <span className="ml-2">＋</span>
+					</AddNewButton>
 				</div>
-				<div className="my-10 grid gap-y-4">
+				<div className="my-4 grid gap-y-4">
 					{sites && sites.length > 0 ? (
-						sites.map((site) => (
-							<div key={site.subdomain}>
-								<div className="flex flex-col rounded overflow-hidden">
-									<div className="relative w-full flex items-end py-2 border-b border-gray-200">
-										<Link href={`/site/${site.subdomain}`}>
-											<h2 className="text-3xl mr-4 hover:underline">
-												{site.name}
-											</h2>
-										</Link>
-										<Link
-											href={`/site/${site.subdomain}/posts`}
-											className="text-[#007FFF] hover:underline mx-2"
-										>
-											Posts
-										</Link>
-										<Link
-											href={`/site/${site.subdomain}/categories`}
-											className="text-[#007FFF] hover:underline mx-2"
-										>
-											Categories
-										</Link>
-										<Link
-											href={`/site/${site.subdomain}/themes`}
-											className="text-[#007FFF] hover:underline mx-2"
-										>
-											Themes
-										</Link>
-										<Link
-											href={`/site/${site.subdomain}/code`}
-											className="text-[#007FFF] hover:underline mx-2"
-										>
-											Custom Code
-										</Link>
-										<Link
-											href={`/site/${site.subdomain}/settings`}
-											className="ml-auto hover:underline"
-										>
-											Edit Settings
-										</Link>
-									</div>
-									<div className="flex pt-2 w-auto">
-										<Link
-											className="px-4 py-2 text-sm flex items-center w-auto tracking-wide rounded bg-black text-white whitespace-nowrap"
-											href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`}
-											onClick={(e) => e.stopPropagation()}
-											rel="noreferrer"
-											target="_blank"
-										>
-											{site.subdomain}.{process.env.NEXT_PUBLIC_DOMAIN_URL} ↗
-										</Link>
-									</div>
-								</div>
-							</div>
-						))
+						sites.map((site) => <SiteCard site={site} key={site.id} />)
 					) : (
 						<>
 							<div className="text-center">
@@ -161,7 +106,7 @@ export default function AppIndex() {
 					}}
 					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
 				>
-					<h2 className=" text-2xl mb-6">Create a New Site</h2>
+					<h2 className="text-2xl mb-6">Create a New Site</h2>
 					<div className="grid gap-y-4 w-5/6 mx-auto">
 						<div className="border border-gray-700 rounded-lg flex flex-start items-center">
 							<span className="pl-5 pr-1">📌</span>

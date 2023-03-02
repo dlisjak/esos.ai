@@ -265,20 +265,40 @@ export default function Post() {
 	return (
 		<>
 			<Layout siteId={post?.site?.id}>
-				<div className="max-w-screen-xl mx-auto px-10 sm:px-20 mt-10 mb-24">
-					<TextareaAutosize
-						name="title"
-						onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
-							setData({
-								...data,
-								title: (e.target as HTMLTextAreaElement).value,
-							})
-						}
-						onBlur={generateSlug}
-						className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b mt-6 text-5xl resize-none focus:outline-none focus:ring-0 mb-2"
-						placeholder="Untitled Post"
-						value={data.title}
-					/>
+				<div className="max-w-screen-lg mx-auto">
+					<div className="flex items-center mb-4">
+						<TextareaAutosize
+							name="title"
+							onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
+								setData({
+									...data,
+									title: (e.target as HTMLTextAreaElement).value,
+								})
+							}
+							className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b text-4xl resize-none focus:outline-none focus:ring-0 mb-2"
+							placeholder="Untitled Category"
+							value={data.title || ''}
+							onBlur={generateSlug}
+						/>
+						<button
+							onClick={async () => {
+								await publish();
+							}}
+							title={
+								disabled
+									? 'Category must have a title, description, and a slug to be published.'
+									: 'Publish'
+							}
+							disabled={disabled}
+							className={`ml-4 ${
+								disabled
+									? 'cursor-not-allowed bg-gray-300 border-gray-300'
+									: 'bg-black hover:bg-white hover:text-black border-black'
+							} mx-2 w-32 h-12 text-lg text-white border-2 focus:outline-none transition-all ease-in-out duration-150`}
+						>
+							{publishing ? <LoadingDots /> : 'Publish  →'}
+						</button>
+					</div>
 					<div className="flex w-full space-x-4">
 						<div className="flex flex-col w-full">
 							<p>Slug</p>
@@ -385,7 +405,7 @@ export default function Post() {
 					</div>
 				</div>
 				<footer className="h-20 z-5 fixed bottom-0 inset-x-0 border-solid border-t border-gray-500 bg-white">
-					<div className="max-w-screen-xl mx-auto px-10 sm:px-20 h-full flex justify-between items-center">
+					<div className="max-w-screen-lg mx-auto h-full flex justify-between items-center">
 						<div className="text-sm">
 							<strong>
 								<p>{post?.published ? 'Published' : 'Draft'}</p>

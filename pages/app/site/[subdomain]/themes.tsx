@@ -20,9 +20,8 @@ export default function SiteThemes() {
 					duration: 10000,
 				}}
 			/>
-			<div className="max-w-screen-xl mx-auto px-10 sm:px-20 mt-20 mb-16">
-				<h1 className=" text-5xl mb-12">Themes</h1>
-				<p>Select a Theme:</p>
+			<div className="max-w-screen-lg pt-4">
+				<h1 className="text-4xl mb-8">Themes</h1>
 				<div className="grid grid-cols-3 gap-4 mt-4">
 					{themes?.map((theme) => (
 						<div

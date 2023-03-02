@@ -13,6 +13,7 @@ import { HttpMethod } from '@/types';
 import type { Post, Site } from '@prisma/client';
 import PostCard from '@/components/app/PostCard';
 import { toast } from 'react-hot-toast';
+import AddNewButton from '@/components/app/AddNewButton';
 
 interface SitePostData {
 	posts: Array<Post>;
@@ -76,32 +77,22 @@ export default function Drafts() {
 
 	return (
 		<Layout>
-			<div className="py-20 max-w-screen-xl mx-auto px-10 sm:px-20">
-				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
-					<h1 className="text-5xl">Drafts</h1>
-					<button
-						onClick={() => {
-							setShowModal(true);
-						}}
-						className={`${
-							creatingPost
-								? 'cursor-not-allowed bg-gray-300 border-gray-300'
-								: 'text-white bg-black hover:bg-white hover:text-black border-black'
-						}  text-lg w-3/4 sm:w-40 tracking-wide border-2 px-5 py-3 transition-all ease-in-out duration-150`}
-					>
-						{creatingPost ? (
-							<LoadingDots />
-						) : (
-							<>
-								New Post <span className="ml-2">＋</span>
-							</>
-						)}
-					</button>
+			<div className="pt-4 max-w-screen-lg">
+				<div className="flex justify-between items-center">
+					<h1 className="text-4xl">Drafts</h1>
+					<AddNewButton onClick={() => setShowModal(true)}>
+						New Post <span className="ml-2">＋</span>
+					</AddNewButton>
 				</div>
-				<div className="my-10 grid gap-y-4">
+				<div className="my-4 grid gap-y-4">
 					{posts && posts?.length > 0 ? (
 						posts?.map((post) => (
-							<PostCard post={post} subdomain={subdomain} key={post.id} />
+							<PostCard
+								post={post}
+								postEditUrl={`/site/${subdomain}/posts/${post.id}`}
+								subdomain={subdomain}
+								key={post.id}
+							/>
 						))
 					) : (
 						<div className="text-center">

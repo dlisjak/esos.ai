@@ -13,6 +13,7 @@ import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
 import type { Category, Post } from '@prisma/client';
+import AddNewButton from '@/components/app/AddNewButton';
 
 interface CategoryWithPosts extends Category {
 	posts: Post[];
@@ -143,29 +144,14 @@ export default function SiteCategories() {
 					duration: 10000,
 				}}
 			/>
-			<div className="py-20 max-w-screen-xl mx-auto px-10 sm:px-20">
-				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
-					<h1 className="text-5xl">Categories</h1>
-					<button
-						onClick={() => {
-							setShowCategoryModal(true);
-						}}
-						className={`${
-							creatingCategory
-								? 'cursor-not-allowed bg-gray-300 border-gray-300'
-								: 'text-white bg-black hover:bg-white hover:text-black border-black'
-						}  text-lg tracking-wide border-2 px-5 py-3 transition-all ease-in-out duration-150`}
-					>
-						{creatingCategory ? (
-							<LoadingDots />
-						) : (
-							<>
-								New Category <span className="ml-2">＋</span>
-							</>
-						)}
-					</button>
+			<div className="pt-4 max-w-screen-lg">
+				<div className="flex justify-between items-center">
+					<h1 className="text-4xl">Categories</h1>
+					<AddNewButton onClick={() => setShowCategoryModal(true)}>
+						New Category <span className="ml-2">＋</span>
+					</AddNewButton>
 				</div>
-				<div className="my-10 grid gap-y-4">
+				<div className="my-4 grid gap-y-4">
 					{parentCategories && parentCategories?.length > 0 ? (
 						parentCategories?.map((category) => (
 							<div className="flex flex-col" key={category.id}>

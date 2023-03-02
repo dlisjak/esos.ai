@@ -71,7 +71,7 @@ export default function Layout({ meta, children, subdomain }: LayoutProps) {
 					scrolled ? 'drop-shadow-md' : ''
 				}  top-0 left-0 right-0 h-16 bg-white z-30 transition-all ease duration-150 flex`}
 			>
-				<div className="flex justify-center items-center space-x-5 h-full max-w-screen-xl mx-auto px-10 sm:px-20">
+				<div className="flex justify-center items-center space-x-5 h-full max-w-screen-lg mx-auto">
 					<Link href="/" className="flex justify-center items-center">
 						{meta?.logo && (
 							<div className="h-8 w-8 inline-block rounded-full overflow-hidden align-middle">
@@ -90,13 +90,13 @@ export default function Layout({ meta, children, subdomain }: LayoutProps) {
 				</div>
 			</div>
 
-			<div className="mt-20">{children}</div>
+			<div className="pt-4">{children}</div>
 
 			{subdomain == 'demo' && (
 				<div
 					className={`${
 						closeModal ? 'h-14 lg:h-auto' : 'lg:h-auto sm:h-40 h-60'
-					} max-w-screen-xl xl:mx-auto mx-5 rounded-lg px-5 lg:pt-3 pt-0 pb-3 flex flex-col lg:flex-row space-y-3 lg:space-y-0 justify-between items-center sticky bottom-5 bg-white border-t-4 border-black
+					} max-w-screen-lg xl:mx-auto mx-5 rounded-lg px-5 lg:pt-3 pt-0 pb-3 flex flex-col lg:flex-row space-y-3 lg:space-y-0 justify-between items-center sticky bottom-5 bg-white border-t-4 border-black
           drop-shadow-lg transition-all ease-in-out duration-150`}
 				>
 					<button

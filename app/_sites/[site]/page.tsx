@@ -90,7 +90,7 @@ export default async function Index({ params }) {
 		<>
 			<div className="w-full mb-20">
 				{data.posts.length > 0 ? (
-					<div className="w-full max-w-screen-xl lg:w-5/6 mx-auto md:mb-28">
+					<div className="w-full max-w-screen-lg lg:w-5/6 mx-auto md:mb-28">
 						<Link href={`/${data.posts[0].slug}`}>
 							<div className="relative group h-80 sm:h-150 w-full mx-auto overflow-hidden lg:rounded-xl">
 								{data.posts[0].image ? (
@@ -161,7 +161,7 @@ export default async function Index({ params }) {
 			</div>
 
 			{data.posts.length > 1 && (
-				<div className="mx-5 lg:mx-24 2xl:mx-auto mb-20 max-w-screen-xl">
+				<div className="mx-5 lg:mx-24 2xl:mx-auto mb-20 max-w-screen-lg">
 					<h2 className="text-4xl mb-10">More stories</h2>
 					<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-8 w-full">
 						{data.posts.slice(1).map((metadata, index) => (
