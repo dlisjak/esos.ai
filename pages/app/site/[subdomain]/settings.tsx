@@ -92,9 +92,10 @@ export default function SiteSettings() {
 				const data = await res.json();
 				mutate(`/api/site?subdomain=${settings?.subdomain}`);
 				mutate(`/api/site?subdomain=${data?.subdomain}`);
-				router.push(`/site/${data.subdomain}/settings`);
-
 				toast.success(`Changes Saved`);
+				setTimeout(() => {
+					router.push(`/site/${data.subdomain}/settings`);
+				}, 100);
 			}
 		} catch (error) {
 			toast.error('Failed to save settings');
@@ -351,7 +352,7 @@ export default function SiteSettings() {
 								<div
 									className={`${
 										data.image ? '' : 'animate-pulse bg-gray-300 h-150'
-									} relative mt-5 w-full border-2 border-gray-800 border-dashed rounded-md`}
+									} relative mt-5 w-full border-2 border-gray-800 border-dashed rounded-md overflow-hidden`}
 								>
 									<CloudinaryUploadWidget
 										callback={(e) =>
@@ -405,7 +406,6 @@ export default function SiteSettings() {
 											}))
 										}
 										value={data?.themeId || ''}
-										defaultValue=""
 										className="w-full px-5 py-3  text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none placeholder-gray-400"
 									>
 										<option value="" disabled>
@@ -448,7 +448,7 @@ export default function SiteSettings() {
 					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
 				>
 					<h2 className=" text-2xl mb-6">Delete Site</h2>
-					<div className="grid gap-y-5 w-5/6 mx-auto">
+					<div className="grid gap-y-4 w-5/6 mx-auto">
 						<p className="text-gray-600 mb-3">
 							Are you sure you want to delete your site? This action is not
 							reversible. Type in the full name of your site (<b>{data.name}</b>

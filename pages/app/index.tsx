@@ -85,94 +85,70 @@ export default function AppIndex() {
 						Add New Site <span className="ml-2">＋</span>
 					</button>
 				</div>
-				<div className="my-10 grid gap-y-10">
-					{sites ? (
-						sites.length > 0 ? (
-							sites.map((site) => (
-								<Link href={`/site/${site.subdomain}`} key={site.subdomain}>
-									<div className="flex flex-col rounded overflow-hidden">
-										<div className="relative w-full flex items-end py-2 border-b border-gray-200">
+				<div className="my-10 grid gap-y-4">
+					{sites && sites.length > 0 ? (
+						sites.map((site) => (
+							<div key={site.subdomain}>
+								<div className="flex flex-col rounded overflow-hidden">
+									<div className="relative w-full flex items-end py-2 border-b border-gray-200">
+										<Link href={`/site/${site.subdomain}`}>
 											<h2 className="text-3xl mr-4 hover:underline">
 												{site.name}
 											</h2>
-											<Link
-												href={`/site/${site.subdomain}/posts`}
-												className="text-[#007FFF] hover:underline mx-2"
-											>
-												Posts
-											</Link>
-											<Link
-												href={`/site/${site.subdomain}/categories`}
-												className="text-[#007FFF] hover:underline mx-2"
-											>
-												Categories
-											</Link>
-											<Link
-												href={`/site/${site.subdomain}/themes`}
-												className="text-[#007FFF] hover:underline mx-2"
-											>
-												Themes
-											</Link>
-											<Link
-												href={`/site/${site.subdomain}/code`}
-												className="text-[#007FFF] hover:underline mx-2"
-											>
-												Custom Code
-											</Link>
-											<Link
-												href={`/site/${site.subdomain}/settings`}
-												className="ml-auto hover:underline"
-											>
-												Edit Settings
-											</Link>
-										</div>
-										<div className="flex pt-2 w-auto">
-											<Link
-												className="px-2 py-2 flex items-center w-auto tracking-wide rounded bg-gray-200 text-gray-600 whitespace-nowrap"
-												href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`}
-												onClick={(e) => e.stopPropagation()}
-												rel="noreferrer"
-												target="_blank"
-											>
-												{site.subdomain}.{process.env.NEXT_PUBLIC_DOMAIN_URL} ↗
-											</Link>
-										</div>
+										</Link>
+										<Link
+											href={`/site/${site.subdomain}/posts`}
+											className="text-[#007FFF] hover:underline mx-2"
+										>
+											Posts
+										</Link>
+										<Link
+											href={`/site/${site.subdomain}/categories`}
+											className="text-[#007FFF] hover:underline mx-2"
+										>
+											Categories
+										</Link>
+										<Link
+											href={`/site/${site.subdomain}/themes`}
+											className="text-[#007FFF] hover:underline mx-2"
+										>
+											Themes
+										</Link>
+										<Link
+											href={`/site/${site.subdomain}/code`}
+											className="text-[#007FFF] hover:underline mx-2"
+										>
+											Custom Code
+										</Link>
+										<Link
+											href={`/site/${site.subdomain}/settings`}
+											className="ml-auto hover:underline"
+										>
+											Edit Settings
+										</Link>
 									</div>
-								</Link>
-							))
-						) : (
-							<>
-								<div className="flex flex-col md:flex-row md:h-60 rounded-lg overflow-hidden border border-gray-200">
-									<div className="relative w-full h-60 md:h-auto md:w-1/3 md:flex-none bg-gray-300" />
-									<div className="relative p-10 grid gap-5">
-										<div className="w-28 h-10 rounded-md bg-gray-300" />
-										<div className="w-48 h-6 rounded-md bg-gray-300" />
-										<div className="w-48 h-6 rounded-md bg-gray-300" />
-										<div className="w-48 h-6 rounded-md bg-gray-300" />
+									<div className="flex pt-2 w-auto">
+										<Link
+											className="px-4 py-2 text-sm flex items-center w-auto tracking-wide rounded bg-black text-white whitespace-nowrap"
+											href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`}
+											onClick={(e) => e.stopPropagation()}
+											rel="noreferrer"
+											target="_blank"
+										>
+											{site.subdomain}.{process.env.NEXT_PUBLIC_DOMAIN_URL} ↗
+										</Link>
 									</div>
-								</div>
-								<div className="text-center">
-									<p className="text-2xl  text-gray-600">
-										No sites yet. Click &quot;New Site&quot; to create one.
-									</p>
-								</div>
-							</>
-						)
-					) : (
-						[0, 1].map((i) => (
-							<div
-								key={i}
-								className="flex flex-col md:flex-row md:h-60 rounded-lg overflow-hidden border border-gray-200"
-							>
-								<div className="relative w-full h-60 md:h-auto md:w-1/3 md:flex-none bg-gray-300 animate-pulse" />
-								<div className="relative p-10 grid gap-5">
-									<div className="w-28 h-10 rounded-md bg-gray-300 animate-pulse" />
-									<div className="w-48 h-6 rounded-md bg-gray-300 animate-pulse" />
-									<div className="w-48 h-6 rounded-md bg-gray-300 animate-pulse" />
-									<div className="w-48 h-6 rounded-md bg-gray-300 animate-pulse" />
 								</div>
 							</div>
 						))
+					) : (
+						<>
+							<div className="text-center">
+								<p className="text-2xl  text-gray-600">
+									No sites yet. Click &quot;New Site&quot; to create one.
+								</p>
+							</div>
+						</>
 					)}
 				</div>
 			</div>
@@ -186,7 +162,7 @@ export default function AppIndex() {
 					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
 				>
 					<h2 className=" text-2xl mb-6">Create a New Site</h2>
-					<div className="grid gap-y-5 w-5/6 mx-auto">
+					<div className="grid gap-y-4 w-5/6 mx-auto">
 						<div className="border border-gray-700 rounded-lg flex flex-start items-center">
 							<span className="pl-5 pr-1">📌</span>
 							<input

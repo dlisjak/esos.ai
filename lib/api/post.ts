@@ -30,11 +30,12 @@ export async function getPost(
 	res: NextApiResponse,
 	session: Session
 ): Promise<void | NextApiResponse<AllPosts | (WithSitePost | null)>> {
-	const { postId, subdomain, published } = req.query;
+	const { postId, subdomain, categoryId, published } = req.query;
 
 	if (
 		Array.isArray(postId) ||
 		Array.isArray(subdomain) ||
+		Array.isArray(categoryId) ||
 		Array.isArray(published) ||
 		!session.user.id
 	)
@@ -53,6 +54,7 @@ export async function getPost(
 				},
 				include: {
 					site: true,
+					category: true,
 				},
 			});
 
@@ -76,9 +78,13 @@ export async function getPost(
 							subdomain: subdomain,
 						},
 						published: JSON.parse(published || 'true'),
+						categoryId: categoryId,
 					},
 					orderBy: {
 						createdAt: 'desc',
+					},
+					include: {
+						category: true,
 					},
 			  });
 
@@ -110,7 +116,7 @@ export async function createPost(
 	postId: string;
 }>> {
 	const { subdomain } = req.query;
-	const { title, slug } = req.body;
+	const { title, slug, categoryId } = req.body;
 
 	if (!subdomain || typeof subdomain !== 'string' || !session?.user?.id) {
 		return res
@@ -133,6 +139,7 @@ export async function createPost(
 			data: {
 				title,
 				slug,
+				categoryId,
 				image: `/placeholder.png`,
 				imageBlurhash: placeholderBlurhash,
 				site: {
@@ -248,6 +255,7 @@ export async function updatePost(
 		id,
 		title,
 		content,
+		categoryId,
 		slug,
 		image,
 		published,
@@ -283,6 +291,7 @@ export async function updatePost(
 			data: {
 				title,
 				content,
+				categoryId,
 				slug,
 				image,
 				imageBlurhash: (await getBlurDataURL(image)) ?? undefined,

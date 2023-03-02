@@ -7,7 +7,7 @@ export default function SiteIndex() {
 				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
 					<h1 className=" text-5xl">Overview</h1>
 				</div>
-				<div className="my-10 grid gap-y-10"></div>
+				<div className="my-10 grid gap-y-4"></div>
 			</div>
 		</Layout>
 	);

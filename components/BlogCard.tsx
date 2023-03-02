@@ -24,6 +24,7 @@ export default function BlogCard({ data }: BlogCardProps) {
 						className="w-full h-64 object-cover"
 						placeholder="blur"
 						blurDataURL={data.imageBlurhash ?? placeholderBlurhash}
+						quality={100}
 					/>
 				) : (
 					<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-4xl select-none">

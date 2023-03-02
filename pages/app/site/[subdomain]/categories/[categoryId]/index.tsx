@@ -20,12 +20,14 @@ import BlurImage from '@/components/BlurImage';
 import CloudinaryUploadWidget from '@/components/Cloudinary';
 import { placeholderBlurhash } from '@/lib/utils';
 import getSlug from 'speakingurl';
+import { Category } from '@prisma/client';
 
 interface CategoryData {
 	id: string;
 	title: string;
 	description: string;
 	slug: string;
+	parentId: string;
 	image: string;
 	imageBlurhash: string;
 }
@@ -38,7 +40,7 @@ Paragraphs are separated by a blank line.
 
 2nd paragraph. *Italic*, and **bold**.`;
 
-export default function Category() {
+export default function CategoryPage() {
 	const router = useRouter();
 	const categorySlugRef = useRef<HTMLInputElement | null>(null);
 	const [deletingCategory, setDeletingCategory] = useState(false);
@@ -47,12 +49,20 @@ export default function Category() {
 	// TODO: Undefined check redirects to error
 	const { subdomain, categoryId } = router.query;
 
-	const { data: category, isValidating } = useSWR<WithSiteCategory>(
+	const { data: category } = useSWR<WithSiteCategory>(
 		router.isReady && `/api/category?categoryId=${categoryId}`,
 		fetcher,
 		{
 			dedupingInterval: 1000,
 			onError: () => router.push('/'),
+			revalidateOnFocus: false,
+		}
+	);
+
+	const { data: categories } = useSWR<Category[]>(
+		router.isReady && `/api/category`,
+		fetcher,
+		{
 			revalidateOnFocus: false,
 		}
 	);
@@ -79,7 +89,10 @@ export default function Category() {
 			});
 
 			if (res.ok) {
-				router.push(`/site/${subdomain}/categories`);
+				toast.success(`Category Deleted`);
+				setTimeout(() => {
+					router.push(`/site/${subdomain}/categories`);
+				}, 100);
 			}
 		} catch (error) {
 			console.error(error);
@@ -93,6 +106,7 @@ export default function Category() {
 		title: '',
 		description: '',
 		slug: '',
+		parentId: '',
 		image: '',
 		imageBlurhash: '',
 	});
@@ -103,6 +117,7 @@ export default function Category() {
 				id: category.id ?? '',
 				title: category.title ?? '',
 				description: category.description ?? '',
+				parentId: category.parentId ?? '',
 				slug: category.slug ?? '',
 				image: category.image ?? '',
 				imageBlurhash: category.imageBlurhash ?? '',
@@ -126,6 +141,7 @@ export default function Category() {
 						title: data.title,
 						description: data.description,
 						slug: data.slug,
+						parentId: data.parentId,
 						image: data.image,
 					}),
 				});
@@ -195,6 +211,7 @@ export default function Category() {
 					title: data.title,
 					description: data.description,
 					slug: data.slug,
+					parentId: data.parentId,
 					image: data.image,
 				}),
 			});
@@ -223,46 +240,86 @@ export default function Category() {
 		});
 	};
 
-	if (isValidating)
-		return (
-			<Layout>
-				<Loader />
-			</Layout>
-		);
-
 	return (
 		<>
 			<Layout siteId={category?.site?.id}>
-				<div className="max-w-screen-xl mx-auto px-10 sm:px-20 mt-10 mb-30">
-					<TextareaAutosize
-						name="title"
-						onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
-							setData({
-								...data,
-								title: (e.target as HTMLTextAreaElement).value,
-							})
-						}
-						className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b mt-6 text-5xl resize-none focus:outline-none focus:ring-0 mb-2"
-						placeholder="Untitled Category"
-						value={data.title}
-						onBlur={generateSlug}
-					/>
-					<p>Slug</p>
-					<input
-						className="w-full max-w-[24rem] px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"
-						name="slug"
-						required
-						placeholder="Category Slug"
-						ref={categorySlugRef}
-						type="text"
-						value={data.slug}
-						onChange={(e) =>
-							setData({
-								...data,
-								slug: (e.target as HTMLInputElement).value,
-							})
-						}
-					/>
+				<div className="max-w-screen-xl mx-auto px-10 pt-16 mb-30">
+					<div className="flex items-center mb-4">
+						<TextareaAutosize
+							name="title"
+							onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
+								setData({
+									...data,
+									title: (e.target as HTMLTextAreaElement).value,
+								})
+							}
+							className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b text-5xl resize-none focus:outline-none focus:ring-0 mb-2"
+							placeholder="Untitled Category"
+							value={data.title || ''}
+							onBlur={generateSlug}
+						/>
+						<button
+							onClick={async () => {
+								await publish();
+							}}
+							title={
+								disabled
+									? 'Category must have a title, description, and a slug to be published.'
+									: 'Publish'
+							}
+							disabled={disabled}
+							className={`ml-4 ${
+								disabled
+									? 'cursor-not-allowed bg-gray-300 border-gray-300'
+									: 'bg-black hover:bg-white hover:text-black border-black'
+							} mx-2 w-32 h-12 text-lg text-white border-2 focus:outline-none transition-all ease-in-out duration-150`}
+						>
+							{publishing ? <LoadingDots /> : 'Publish  →'}
+						</button>
+					</div>
+					<div className="flex w-full space-x-4">
+						<div className="flex flex-col w-full">
+							<p>Slug</p>
+							<input
+								className="w-full max-w-[24rem] px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"
+								name="slug"
+								required
+								placeholder="Category Slug"
+								ref={categorySlugRef}
+								type="text"
+								value={data.slug}
+								onChange={(e) =>
+									setData({
+										...data,
+										slug: (e.target as HTMLInputElement).value,
+									})
+								}
+							/>
+						</div>
+						<div className="flex flex-col w-full">
+							<p>Parent Category</p>
+							<div className="border border-gray-700 rounded-lg overflow-hidden w-full flex items-center max-w-lg">
+								<select
+									onChange={(e) =>
+										setData((data) => ({
+											...data,
+											parentId: (e.target as HTMLSelectElement).value,
+										}))
+									}
+									value={data?.parentId || category?.parentId || ''}
+									className="w-full px-5 py-3  text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none placeholder-gray-400"
+								>
+									<option value="">None</option>
+									{categories &&
+										categories?.map((category) => (
+											<option value={category.id} key={category.id}>
+												{category.title}
+											</option>
+										))}
+								</select>
+							</div>
+						</div>
+					</div>
 					<div>
 						<p className="mt-8">Description</p>
 						<TextareaAutosize
@@ -360,7 +417,7 @@ export default function Category() {
 									: 'Publish'
 							}
 							disabled={disabled}
-							className={`${
+							className={`ml-auto ${
 								disabled
 									? 'cursor-not-allowed bg-gray-300 border-gray-300'
 									: 'bg-black hover:bg-white hover:text-black border-black'
@@ -379,7 +436,7 @@ export default function Category() {
 						className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
 					>
 						<h2 className=" text-2xl mb-6">Delete Category</h2>
-						<div className="grid gap-y-5 w-5/6 mx-auto">
+						<div className="grid gap-y-4 w-5/6 mx-auto">
 							<p className="text-gray-600 mb-3">
 								Are you sure you want to delete your category? This action is
 								not reversible. Type in the full title of your category (

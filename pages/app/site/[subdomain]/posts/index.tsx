@@ -13,6 +13,8 @@ import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
 import type { Post, Site } from '@prisma/client';
+import PostCard from '@/components/app/PostCard';
+import { toast } from 'react-hot-toast';
 
 interface SitePostData {
 	posts: Array<Post>;
@@ -57,7 +59,10 @@ export default function Posts() {
 
 			if (res.ok) {
 				const data = await res.json();
-				router.push(`/site/${subdomain}/posts/${data.postId}`);
+				toast.success('Post Created');
+				setTimeout(() => {
+					router.push(`/site/${subdomain}/posts/${data.postId}`);
+				}, 100);
 			}
 		} catch (error) {
 			console.error(error);
@@ -96,44 +101,10 @@ export default function Posts() {
 						)}
 					</button>
 				</div>
-				<div className="my-10 grid gap-y-10">
+				<div className="my-10 grid gap-y-4">
 					{posts && posts?.length > 0 ? (
 						posts?.map((post) => (
-							<Link href={`/site/${subdomain}/posts/${post.id}`} key={post.id}>
-								<div className="flex flex-col md:flex-row md:h-60 rounded-lg overflow-hidden border border-gray-200">
-									<div className="relative w-full h-60 md:h-auto md:w-1/3 md:flex-none">
-										{post.image ? (
-											<BlurImage
-												alt={post.title ?? 'Unknown Thumbnail'}
-												width={500}
-												height={400}
-												className="h-full object-cover"
-												src={post.image}
-											/>
-										) : (
-											<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-4xl">
-												?
-											</div>
-										)}
-									</div>
-									<div className="relative p-10">
-										<h2 className=" text-3xl">{post.title}</h2>
-										<p className="text-base my-5 line-clamp-3">
-											{post.description}
-										</p>
-										<Link
-											className=" px-3 py-1 tracking-wide rounded bg-gray-200 text-gray-600 absolute bottom-5 left-10 whitespace-nowrap"
-											href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}/${post.slug}`}
-											onClick={(e) => e.stopPropagation()}
-											rel="noreferrer"
-											target="_blank"
-										>
-											{site?.subdomain}.{process.env.NEXT_PUBLIC_DOMAIN_URL}/
-											{post.slug} ↗
-										</Link>
-									</div>
-								</div>
-							</Link>
+							<PostCard post={post} subdomain={subdomain} key={post.id} />
 						))
 					) : (
 						<div className="text-center">
@@ -165,7 +136,7 @@ export default function Posts() {
 								onBlur={generateSlug}
 							/>
 							<input
-								className="hidden w-full px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"
+								className="w-full px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"
 								name="slug"
 								required
 								placeholder="Post Slug"

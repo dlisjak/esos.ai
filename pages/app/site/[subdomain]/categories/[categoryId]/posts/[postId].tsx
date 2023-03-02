@@ -60,14 +60,15 @@ export default function Post() {
 	const postSlugRef = useRef<HTMLInputElement | null>(null);
 	const router = useRouter();
 
-	const { subdomain, postId } = router.query;
+	const { subdomain, categoryId, postId } = router.query;
 
 	const { data: post } = useSWR<WithSitePost>(
 		router.isReady && `/api/post?postId=${postId}`,
 		fetcher,
 		{
 			dedupingInterval: 1000,
-			onError: () => router.push('/'),
+			onError: () =>
+				router.push(`/site/${subdomain}/categories/${categoryId}/posts`),
 			revalidateOnFocus: false,
 		}
 	);
@@ -108,11 +109,11 @@ export default function Post() {
 				title: post.title ?? '',
 				slug: post.slug ?? '',
 				content: post.content ?? '',
-				categoryId: post.categoryId ?? '',
+				categoryId: categoryId ?? '',
 				image: post.image ?? '',
 				imageBlurhash: post.imageBlurhash ?? '',
 			});
-	}, [post]);
+	}, [post, categoryId]);
 
 	const [debouncedData] = useDebounce(data, 1000);
 
@@ -241,9 +242,7 @@ export default function Post() {
 
 			if (response.ok) {
 				mutate(`/api/post?postId=${postId}`);
-				router.push(
-					`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}/site/${subdomain}/posts`
-				);
+				router.push(`/site/${subdomain}/categories/${categoryId}/posts`);
 			}
 		} catch (error) {
 			console.error(error);
@@ -266,40 +265,20 @@ export default function Post() {
 	return (
 		<>
 			<Layout siteId={post?.site?.id}>
-				<div className="max-w-screen-xl mx-auto px-10 pt-16 mb-30">
-					<div className="flex items-center mb-4">
-						<TextareaAutosize
-							name="title"
-							onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
-								setData({
-									...data,
-									title: (e.target as HTMLTextAreaElement).value,
-								})
-							}
-							className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b text-5xl resize-none focus:outline-none focus:ring-0 mb-2"
-							placeholder="Untitled Category"
-							value={data.title || ''}
-							onBlur={generateSlug}
-						/>
-						<button
-							onClick={async () => {
-								await publish();
-							}}
-							title={
-								disabled
-									? 'Category must have a title, description, and a slug to be published.'
-									: 'Publish'
-							}
-							disabled={disabled}
-							className={`ml-4 ${
-								disabled
-									? 'cursor-not-allowed bg-gray-300 border-gray-300'
-									: 'bg-black hover:bg-white hover:text-black border-black'
-							} mx-2 w-32 h-12 text-lg text-white border-2 focus:outline-none transition-all ease-in-out duration-150`}
-						>
-							{publishing ? <LoadingDots /> : 'Publish  →'}
-						</button>
-					</div>
+				<div className="max-w-screen-xl mx-auto px-10 sm:px-20 mt-10 mb-24">
+					<TextareaAutosize
+						name="title"
+						onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
+							setData({
+								...data,
+								title: (e.target as HTMLTextAreaElement).value,
+							})
+						}
+						onBlur={generateSlug}
+						className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b mt-6 text-5xl resize-none focus:outline-none focus:ring-0 mb-2"
+						placeholder="Untitled Post"
+						value={data.title}
+					/>
 					<div className="flex w-full space-x-4">
 						<div className="flex flex-col w-full">
 							<p>Slug</p>
@@ -329,7 +308,7 @@ export default function Post() {
 											categoryId: (e.target as HTMLSelectElement).value,
 										}))
 									}
-									value={data.categoryId || post?.category?.id || ''}
+									value={data.categoryId || categoryId}
 									className="w-full px-5 py-3  text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none placeholder-gray-400"
 								>
 									<option value="" disabled>
@@ -419,11 +398,7 @@ export default function Post() {
 							}}
 							title="Draft"
 							disabled={!post?.published}
-							className={`${
-								!post?.published
-									? 'cursor-not-allowed bg-gray-300 border-gray-300'
-									: 'bg-black hover:bg-white hover:text-black border-black'
-							} mx-2 w-32 h-12 text-lg text-white border-2 focus:outline-none transition-all ease-in-out duration-150 ml-auto`}
+							className="bg-black hover:bg-white hover:text-black border-black mx-2 w-32 h-12 text-lg text-white border-2 focus:outline-none transition-all ease-in-out duration-150 ml-auto disabled:cursor-not-allowed disabled:bg-gray-300 disabled:border-gray-300"
 						>
 							{drafting ? <LoadingDots /> : 'Draft  →'}
 						</button>
@@ -448,7 +423,7 @@ export default function Post() {
 						<StatusIndicator
 							className="relative right-0"
 							published={post?.published}
-						/>{' '}
+						/>
 					</div>
 				</footer>
 			</Layout>

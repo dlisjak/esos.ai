@@ -47,6 +47,14 @@ export async function getCategory(
 						},
 					},
 				},
+				include: {
+					parent: true,
+					posts: {
+						include: {
+							category: true,
+						},
+					},
+				},
 			});
 
 			return res.status(200).json(category);
@@ -69,6 +77,116 @@ export async function getCategory(
 					},
 					orderBy: {
 						createdAt: 'desc',
+					},
+					include: {
+						parent: true,
+					},
+			  });
+
+		return res.status(200).json(categories);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).end(error);
+	}
+}
+
+/**
+ * Get Parent Categories
+ *
+ * Fetches & returns either a single or all parent categories available depending on
+ * whether a `subdomain` query parameter is provided. If not all categories are
+ * returned
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ * @param session - NextAuth.js session
+ */
+export async function getParentCategories(
+	req: NextApiRequest,
+	res: NextApiResponse,
+	session: Session
+): Promise<void | NextApiResponse<Array<Theme> | (Theme | null)>> {
+	const { subdomain } = req.query;
+
+	if (Array.isArray(subdomain) || !session.user.id)
+		return res.status(400).end('Bad request. Query parameters are not valid.');
+
+	try {
+		const site = await prisma.site.findFirst({
+			where: {
+				subdomain: subdomain,
+				user: {
+					id: session.user.id,
+				},
+			},
+		});
+
+		const categories = !site
+			? []
+			: await prisma.category.findMany({
+					where: {
+						siteId: site.id,
+						parent: { is: null },
+					},
+					orderBy: {
+						createdAt: 'desc',
+					},
+					include: {
+						posts: true,
+					},
+			  });
+
+		return res.status(200).json(categories);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).end(error);
+	}
+}
+
+/**
+ * Get Children Categories
+ *
+ * Fetches & returns either a single or all children categories available depending on
+ * whether a `subdomain` query parameter is provided. If not all categories are
+ * returned
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ * @param session - NextAuth.js session
+ */
+export async function getChildrenCategories(
+	req: NextApiRequest,
+	res: NextApiResponse,
+	session: Session
+): Promise<void | NextApiResponse<Array<Theme> | (Theme | null)>> {
+	const { subdomain } = req.query;
+
+	if (Array.isArray(subdomain) || !session.user.id)
+		return res.status(400).end('Bad request. Query parameters are not valid.');
+
+	try {
+		const site = await prisma.site.findFirst({
+			where: {
+				subdomain: subdomain,
+				user: {
+					id: session.user.id,
+				},
+			},
+		});
+
+		const categories = !site
+			? []
+			: await prisma.category.findMany({
+					where: {
+						siteId: site.id,
+						parent: { isNot: null },
+					},
+					orderBy: {
+						createdAt: 'desc',
+					},
+					include: {
+						parent: true,
+						posts: true,
 					},
 			  });
 
@@ -212,7 +330,9 @@ export async function updateCategory(
 	res: NextApiResponse,
 	session: Session
 ): Promise<void | NextApiResponse<Category>> {
-	const { id, title, description, slug, image } = req.body;
+	const { id, title, description, parentId, slug, image } = req.body;
+
+	const parent = parentId.length > 1 ? parentId : null;
 
 	if (!id || typeof id !== 'string' || !session?.user?.id) {
 		return res
@@ -243,6 +363,7 @@ export async function updateCategory(
 				title,
 				description,
 				slug,
+				parentId: parent,
 				image,
 				imageBlurhash: (await getBlurDataURL(image)) ?? undefined,
 			},

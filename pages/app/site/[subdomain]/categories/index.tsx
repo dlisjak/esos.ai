@@ -1,30 +1,42 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import getSlug from 'speakingurl';
-import { Toaster } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 import useSWR from 'swr';
 
 import Layout from '@/components/app/Layout';
 import LoadingDots from '@/components/app/loading-dots';
 import Modal from '@/components/Modal';
+import CategoryCard from '@/components/app/CategoryCard';
 
 import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
 import type { Category } from '@prisma/client';
-import Link from 'next/link';
-import BlurImage from '@/components/BlurImage';
 
 export default function SiteCategories() {
-	const [showModal, setShowModal] = useState<boolean>(false);
+	const [showCategoryModal, setShowCategoryModal] = useState<boolean>(false);
+	const [showPostModal, setShowPostModal] = useState<boolean>(false);
 	const [creatingCategory, setCreatingCategory] = useState<boolean>(false);
+	const [creatingPost, setCreatingPost] = useState(false);
+	const [creatingPostCategoryId, setCreatingPostCategoryId] = useState();
+	const postTitleRef = useRef<HTMLInputElement | null>(null);
+	const postSlugRef = useRef<HTMLInputElement | null>(null);
 	const categoryTitleRef = useRef<HTMLInputElement | null>(null);
 	const categorySlugRef = useRef<HTMLInputElement | null>(null);
 	const router = useRouter();
 	const { subdomain } = router.query;
 
-	const { data: categories } = useSWR<Array<Category> | null>(
-		`/api/category?subdomain=${subdomain}`,
+	const { data: parentCategories } = useSWR<Array<Category> | null>(
+		`/api/category/parents?subdomain=${subdomain}`,
+		fetcher,
+		{
+			revalidateOnFocus: false,
+		}
+	);
+
+	const { data: childCategories } = useSWR<Array<Category> | null>(
+		`/api/category/children?subdomain=${subdomain}`,
 		fetcher,
 		{
 			revalidateOnFocus: false,
@@ -50,7 +62,10 @@ export default function SiteCategories() {
 
 			if (res.ok) {
 				const { categoryId } = await res.json();
-				router.push(`/site/${subdomain}/categories/${categoryId}`);
+				toast.success(`Category Created`);
+				setTimeout(() => {
+					router.push(`/site/${subdomain}/categories/${categoryId}`);
+				}, 100);
 			}
 		} catch (error) {
 			console.error(error);
@@ -59,12 +74,61 @@ export default function SiteCategories() {
 		}
 	}
 
+	async function createPost(
+		subdomain: string | string[] | undefined,
+		categoryId: string | string[] | undefined
+	) {
+		if (!subdomain) return;
+		setCreatingPost(true);
+		if (!postTitleRef.current || !postSlugRef.current) return;
+		const title = postTitleRef.current.value;
+		const slug = postSlugRef.current.value;
+		const data = { title, slug };
+
+		try {
+			const res = await fetch(`/api/post?subdomain=${subdomain}`, {
+				method: HttpMethod.POST,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(data),
+			});
+
+			if (res.ok) {
+				const data = await res.json();
+				toast.success(`Post Created`);
+				setTimeout(() => {
+					router.push(
+						`/site/${subdomain}/categories/${categoryId}/posts/${data.postId}`
+					);
+				}, 100);
+			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setCreatingPost(false);
+			setShowPostModal(false);
+		}
+	}
+
 	const generateSlug = (e) => {
 		const title = e.target.value;
 		const slug = getSlug(title);
 
-		if (!categorySlugRef?.current) return;
-		categorySlugRef.current.value = slug;
+		if (showCategoryModal) {
+			if (!categorySlugRef?.current) return;
+			categorySlugRef.current.value = slug;
+		}
+
+		if (showPostModal) {
+			if (!postSlugRef?.current) return;
+			postSlugRef.current.value = slug;
+		}
+	};
+
+	const handleAddPostClick = (categoryId) => {
+		setCreatingPostCategoryId(categoryId);
+		setShowPostModal(true);
 	};
 
 	return (
@@ -80,7 +144,7 @@ export default function SiteCategories() {
 					<h1 className="text-5xl">Categories</h1>
 					<button
 						onClick={() => {
-							setShowModal(true);
+							setShowCategoryModal(true);
 						}}
 						className={`${
 							creatingCategory
@@ -98,36 +162,28 @@ export default function SiteCategories() {
 					</button>
 				</div>
 				<div className="my-10 grid gap-y-4">
-					{categories && categories?.length > 0 ? (
-						categories?.map((category) => (
-							<Link
-								href={`/site/${subdomain}/categories/${category.id}`}
-								key={category.id}
-							>
-								<div className="flex flex-col md:flex-row md:h-60 rounded-lg overflow-hidden border border-gray-200">
-									<div className="relative w-full h-60 md:h-auto md:w-1/3 md:flex-none">
-										{category.image ? (
-											<BlurImage
-												alt={category.title ?? 'Unknown Thumbnail'}
-												width={500}
-												height={400}
-												className="h-full object-cover"
-												src={category.image}
+					{parentCategories && parentCategories?.length > 0 ? (
+						parentCategories?.map((category) => (
+							<div className="flex flex-col" key={category.id}>
+								<CategoryCard
+									subdomain={subdomain}
+									category={category}
+									addPostClick={handleAddPostClick}
+								/>
+								{childCategories &&
+									childCategories?.map((child) => {
+										if (category.id !== child.parentId) return;
+										return (
+											<CategoryCard
+												subdomain={subdomain}
+												category={child}
+												addPostClick={handleAddPostClick}
+												isChild={true}
+												key={child.id}
 											/>
-										) : (
-											<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-4xl">
-												?
-											</div>
-										)}
-									</div>
-									<div className="relative p-10">
-										<h2 className=" text-3xl">{category.title}</h2>
-										<p className="text-base my-5 line-clamp-3">
-											{category.description}
-										</p>
-									</div>
-								</div>
-							</Link>
+										);
+									})}
+							</div>
 						))
 					) : (
 						<div className="text-center">
@@ -138,7 +194,7 @@ export default function SiteCategories() {
 					)}
 				</div>
 			</div>
-			<Modal showModal={showModal} setShowModal={setShowModal}>
+			<Modal showModal={showCategoryModal} setShowModal={setShowCategoryModal}>
 				<form
 					onSubmit={(event) => {
 						event.preventDefault();
@@ -173,7 +229,7 @@ export default function SiteCategories() {
 							type="button"
 							className="w-full px-5 py-5 text-sm text-gray-600 hover:text-black border-t border-gray-300 rounded-bl focus:outline-none focus:ring-0 transition-all ease-in-out duration-150"
 							onClick={() => {
-								setShowModal(false);
+								setShowCategoryModal(false);
 							}}
 						>
 							CANCEL
@@ -189,6 +245,61 @@ export default function SiteCategories() {
 							} w-full px-5 py-5 text-sm border-t border-l border-gray-300 rounded-br focus:outline-none focus:ring-0 transition-all ease-in-out duration-150`}
 						>
 							{creatingCategory ? <LoadingDots /> : 'CREATE CATEGORY'}
+						</button>
+					</div>
+				</form>
+			</Modal>
+			<Modal showModal={showPostModal} setShowModal={setShowPostModal}>
+				<form
+					onSubmit={(event) => {
+						event.preventDefault();
+						createPost(subdomain, creatingPostCategoryId);
+					}}
+					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded-lg"
+				>
+					<div className="px-8">
+						<h2 className="text-2xl mb-6">Create a New Post</h2>
+						<div className="flex flex-col space-y-4 flex-start items-center">
+							<input
+								className="w-full px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"
+								name="title"
+								required
+								placeholder="Post Title"
+								ref={postTitleRef}
+								type="text"
+								onBlur={generateSlug}
+							/>
+							<input
+								className="w-full px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"
+								name="slug"
+								required
+								placeholder="Post Slug"
+								ref={postSlugRef}
+								type="text"
+							/>
+						</div>
+					</div>
+					<div className="flex justify-between items-center mt-10 w-full">
+						<button
+							type="button"
+							className="w-full px-5 py-5 text-sm text-gray-600 hover:text-black border-t border-gray-300 rounded-bl focus:outline-none focus:ring-0 transition-all ease-in-out duration-150"
+							onClick={() => {
+								setShowPostModal(false);
+							}}
+						>
+							CANCEL
+						</button>
+
+						<button
+							type="submit"
+							disabled={creatingPost}
+							className={`${
+								creatingPost
+									? 'cursor-not-allowed text-gray-400 bg-gray-50'
+									: 'bg-white text-gray-600 hover:text-black'
+							} w-full px-5 py-5 text-sm border-t border-l border-gray-300 rounded-br focus:outline-none focus:ring-0 transition-all ease-in-out duration-150`}
+						>
+							{creatingPost ? <LoadingDots /> : 'CREATE CATEGORY'}
 						</button>
 					</div>
 				</form>

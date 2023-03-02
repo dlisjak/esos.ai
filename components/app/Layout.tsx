@@ -15,7 +15,7 @@ interface LayoutProps extends WithChildren {
 
 export default function Layout({ children }: LayoutProps) {
 	const router = useRouter();
-	const { subdomain } = router.query;
+	const { subdomain, categoryId } = router.query;
 
 	const logo = '/favicon.ico';
 	const sitePage = router.pathname.startsWith('/app/site/[subdomain]');
@@ -24,7 +24,13 @@ export default function Layout({ children }: LayoutProps) {
 		'/app/site/[subdomain]/posts/drafts'
 	);
 	const categoryPage = router.pathname.startsWith(
-		'/app/site/[subdomain]/categories'
+		'/app/site/[subdomain]/categories/[categoryId]'
+	);
+	const categoryPostsPage = router.pathname.startsWith(
+		'/app/site/[subdomain]/categories/[categoryId]/posts'
+	);
+	const categoryDraftsPage = router.pathname.startsWith(
+		'/app/site/[subdomain]/categories/[categoryId]/drafts'
 	);
 	const rootPage = !sitePage && !postPage && !categoryPage;
 	const tab = rootPage
@@ -171,6 +177,30 @@ export default function Layout({ children }: LayoutProps) {
 								} py-3`}
 							>
 								Drafts
+							</Link>
+						</div>
+					</div>
+				)}
+				{categoryPage && (
+					<div className="absolute left-0 right-0 top-[7.2rem] border-b bg-white border-gray-200">
+						<div className="flex justify-center items-center space-x-16 max-w-screen-xl mx-auto px-10 sm:px-20">
+							<Link
+								href={`/site/${subdomain}/categories/${categoryId}`}
+								className={`border-b-2 ${
+									categoryPage && !categoryPostsPage && !categoryDraftsPage
+										? 'border-black'
+										: 'border-transparent'
+								} py-3`}
+							>
+								Category
+							</Link>
+							<Link
+								href={`/site/${subdomain}/categories/${categoryId}/posts`}
+								className={`border-b-2 ${
+									categoryPostsPage ? 'border-black' : 'border-transparent'
+								} py-3`}
+							>
+								Posts
 							</Link>
 						</div>
 					</div>

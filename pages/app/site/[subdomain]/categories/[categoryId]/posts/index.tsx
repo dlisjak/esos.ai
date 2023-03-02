@@ -19,23 +19,21 @@ interface SitePostData {
 	site: Site | null;
 }
 
-export default function Drafts() {
+export default function CategoryPosts() {
 	const [showModal, setShowModal] = useState<boolean>(false);
 	const [creatingPost, setCreatingPost] = useState(false);
 	const postTitleRef = useRef<HTMLInputElement | null>(null);
 	const postSlugRef = useRef<HTMLInputElement | null>(null);
 	const router = useRouter();
-	const { subdomain } = router.query;
+	const { subdomain, categoryId } = router.query;
 
-	const { data } = useSWR<SitePostData>(
-		subdomain && `/api/post?subdomain=${subdomain}&published=false`,
+	const { data: category } = useSWR<SitePostData>(
+		subdomain && `/api/category?categoryId=${categoryId}`,
 		fetcher,
 		{
 			revalidateOnFocus: false,
 		}
 	);
-
-	const posts = data?.posts;
 
 	async function createPost(subdomain: string | string[] | undefined) {
 		if (!subdomain) return;
@@ -56,9 +54,11 @@ export default function Drafts() {
 
 			if (res.ok) {
 				const data = await res.json();
-				toast.success('Post Created');
+				toast.success(`Post Created`);
 				setTimeout(() => {
-					router.push(`/site/${subdomain}/posts/${data.postId}`);
+					router.push(
+						`/site/${subdomain}/categories/${categoryId}/posts/${data.postId}`
+					);
 				}, 100);
 			}
 		} catch (error) {
@@ -78,7 +78,7 @@ export default function Drafts() {
 		<Layout>
 			<div className="py-20 max-w-screen-xl mx-auto px-10 sm:px-20">
 				<div className="flex flex-col sm:flex-row space-y-5 sm:space-y-0 justify-between items-center">
-					<h1 className="text-5xl">Drafts</h1>
+					<h1 className="text-5xl">Posts for {category?.title}</h1>
 					<button
 						onClick={() => {
 							setShowModal(true);
@@ -99,8 +99,8 @@ export default function Drafts() {
 					</button>
 				</div>
 				<div className="my-10 grid gap-y-4">
-					{posts && posts?.length > 0 ? (
-						posts?.map((post) => (
+					{category && category.posts && category.posts?.length > 0 ? (
+						category.posts?.map((post) => (
 							<PostCard post={post} subdomain={subdomain} key={post.id} />
 						))
 					) : (
