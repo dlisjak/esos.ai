@@ -267,10 +267,10 @@ export default function Post() {
 	return (
 		<>
 			<Layout siteId={post?.site?.id}>
-				<Header className="mb-8">
+				<Header>
 					<h1 className="text-4xl">Edit Post</h1>
 				</Header>
-				<Container className="pb-32">
+				<Container className="pb-24">
 					<div className="flex items-center mb-4">
 						<TextareaAutosize
 							name="title"

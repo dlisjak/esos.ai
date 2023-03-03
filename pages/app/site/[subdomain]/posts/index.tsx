@@ -89,8 +89,8 @@ export default function Posts() {
 					</AddNewButton>
 				</div>
 			</Header>
-			<Container>
-				<div className="my-4 grid gap-y-4">
+			<Container dark>
+				<div className="grid gap-y-4">
 					{posts && posts?.length > 0 ? (
 						posts?.map((post) => (
 							<PostCard
@@ -102,7 +102,7 @@ export default function Posts() {
 						))
 					) : (
 						<div className="text-center">
-							<p className="text-2xl mt-4 text-gray-600">
+							<p className="text-2xl my-4 text-gray-600">
 								No posts yet. Click &quot;Add Post&quot; to create one.
 							</p>
 						</div>

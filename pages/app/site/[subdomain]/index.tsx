@@ -14,8 +14,8 @@ export default function SiteIndex() {
 					<h1 className="text-4xl">{subdomain}</h1>
 				</div>
 			</Header>
-			<Container>
-				<div className="my-4 grid gap-y-4"></div>
+			<Container dark>
+				<div className="grid gap-y-4"></div>
 			</Container>
 		</Layout>
 	);

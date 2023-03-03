@@ -24,6 +24,7 @@ model User {
   sessions      Session[]
   sites         Site[]
   prompts       Prompt[]
+  accessToken   String?   @db.LongText
 }
 
 model Account {
@@ -133,10 +134,11 @@ model Site {
 model Prompt {
   id            String    @id @default(cuid())
   name          String?
-  description   String?   @db.Text
-  command       String?
-  image         String?  @db.Text
-  imageBlurhash String?  @db.LongText
+  description   String?   @db.LongText
+  command       String?   @db.LongText
+  hint          String?   @db.Text
+  tested        Boolean?
+  intent        
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sites         Site[]

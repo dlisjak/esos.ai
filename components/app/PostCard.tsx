@@ -1,12 +1,16 @@
 import Link from 'next/link';
 import BlurImage from '../BlurImage';
 
-export const StatusIndicator = ({ published, className = '' }) => {
+export const StatusIndicator = ({
+	published,
+	right = false,
+	className = '',
+}) => {
 	return (
 		<div
-			className={`${className} absolute top-1 left-1 w-4 h-4 rounded-full ${
-				published ? 'bg-emerald-400' : 'bg-yellow-400'
-			}`}
+			className={`${className} absolute top-2 ${
+				!right ? 'left-2' : 'right-2'
+			} w-4 h-4 rounded-full ${published ? 'bg-emerald-400' : 'bg-yellow-400'}`}
 		/>
 	);
 };
@@ -53,7 +57,7 @@ const PostCard = ({ subdomain, post, postEditUrl }) => {
 			</div>
 			<div className="flex flex-col h-full items-end">
 				<Link
-					className="flex items-center justify-center rounded mt-2 px-1 tracking-wide text-white bg-slate-400 duration-200 hover:bg-slate-600"
+					className="flex items-center justify-center rounded px-1 tracking-wide text-white bg-slate-400 duration-200 hover:bg-slate-600"
 					href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${
 						process.env.NEXT_PUBLIC_DOMAIN_URL
 					}${post.category?.slug ? '/' + post.category?.slug : ''}/${

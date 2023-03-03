@@ -235,24 +235,9 @@ export default function CategoryPage() {
 	return (
 		<>
 			<Layout siteId={category?.site?.id}>
-				<Header className="mb-8">
-					<h1 className="text-4xl">Edit Category</h1>
-				</Header>
-				<Container className="mb-32">
-					<div className="flex items-center mb-4">
-						<TextareaAutosize
-							name="title"
-							onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
-								setData({
-									...data,
-									title: (e.target as HTMLTextAreaElement).value,
-								})
-							}
-							className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b text-5xl resize-none focus:outline-none focus:ring-0 mb-2"
-							placeholder="Untitled Category"
-							value={data.title || ''}
-							onBlur={generateSlug}
-						/>
+				<Header className="">
+					<div className="flex justify-between items-center">
+						<h1 className="text-4xl">Edit Category</h1>
 						<button
 							onClick={async () => {
 								await publish();
@@ -271,6 +256,23 @@ export default function CategoryPage() {
 						>
 							{publishing ? <LoadingDots /> : 'Publish  →'}
 						</button>
+					</div>
+				</Header>
+				<Container className="pb-24">
+					<div className="flex items-center mb-4">
+						<TextareaAutosize
+							name="title"
+							onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
+								setData({
+									...data,
+									title: (e.target as HTMLTextAreaElement).value,
+								})
+							}
+							className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b text-5xl resize-none focus:outline-none focus:ring-0 mb-2"
+							placeholder="Untitled Category"
+							value={data.title || ''}
+							onBlur={generateSlug}
+						/>
 					</div>
 					<div className="flex w-full space-x-4">
 						<div className="flex flex-col w-full">

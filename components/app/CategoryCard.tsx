@@ -11,7 +11,7 @@ export const CategoryList = ({
 	isSubChild = false,
 }) => {
 	return (
-		<ul className="flex flex-col">
+		<ul className={`flex flex-col ${isChild ? 'space-y-2' : 'space-y-4'}`}>
 			{categories.map((category) => {
 				if (category?.parent?.id && !isChild) return;
 				if (category?.parent?.id && !isSubChild) return;
@@ -44,14 +44,10 @@ const CategoryCard = ({
 	const categoryEditUrl = `/site/${subdomain}/categories/${id}`;
 
 	return (
-		<>
-			<li
+		<li className="flex flex-col space-y-2">
+			<div
 				className={`relative bg-white p-4 flex items-end rounded drop-shadow-sm ${
-					isChild && !isSubChild
-						? 'ml-8 mt-2'
-						: isSubChild
-						? 'ml-16 mt-2'
-						: 'mt-4'
+					isChild && !isSubChild ? 'ml-8' : isSubChild ? 'ml-16' : ''
 				}`}
 			>
 				<div className="w-full flex rounded overflow-hidden">
@@ -90,14 +86,6 @@ const CategoryCard = ({
 					</div>
 				</div>
 				<div className="flex flex-col h-full items-end">
-					<Link
-						className="flex items-center justify-center rounded mt-2 px-1 tracking-wide text-white bg-slate-400 duration-200 hover:bg-slate-600"
-						href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}/${slug}`}
-						rel="noreferrer"
-						target="_blank"
-					>
-						↗
-					</Link>
 					<div className="flex h-full space-x-2 items-end justify-between">
 						<Link
 							className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"
@@ -119,8 +107,16 @@ const CategoryCard = ({
 						</button>
 					</div>
 				</div>
+				<Link
+					className="absolute top-4 right-4 flex items-center justify-center rounded px-1 tracking-wide text-white bg-slate-400 duration-200 hover:bg-slate-600"
+					href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}/${slug}`}
+					rel="noreferrer"
+					target="_blank"
+				>
+					↗
+				</Link>
 				<StatusIndicator published={true} className="top-2 left-2" />
-			</li>
+			</div>
 			{Array.isArray(children) && children.length > 0 && (
 				<CategoryList
 					categories={children}
@@ -130,7 +126,7 @@ const CategoryCard = ({
 					isSubChild={isChild}
 				/>
 			)}
-		</>
+		</li>
 	);
 };
 

@@ -20,7 +20,7 @@ export default function SiteThemes() {
 				<h1 className="text-4xl">Themes</h1>
 			</Header>
 			<Container>
-				<div className="my-4 grid gap-y-4">
+				<div className="grid gap-y-4">
 					{themes?.map((theme) => (
 						<div
 							className="relative flex items-center min-w-[20rem] justify-center aspect-square border rounded drop-shadow-md  hover:drop-shadow-xl ease-in-out duration-100 bg-white cursor-pointer"

@@ -1,3 +1,5 @@
+import type { AppProps } from 'next/app';
+import { Toaster } from 'react-hot-toast';
 import { Analytics } from '@vercel/analytics/react';
 import { SessionProvider } from 'next-auth/react';
 import type { Session } from 'next-auth';
@@ -5,8 +7,6 @@ import { cal, inter } from '@/styles/fonts';
 import cx from 'classnames';
 
 import '@/styles/globals.css';
-
-import type { AppProps } from 'next/app';
 
 export default function App({
 	Component,
@@ -17,6 +17,7 @@ export default function App({
 			<main className={cx(cal.variable, inter.variable)}>
 				<Component {...pageProps} />
 			</main>
+			<Toaster position="bottom-center" />
 			<Analytics />
 		</SessionProvider>
 	);

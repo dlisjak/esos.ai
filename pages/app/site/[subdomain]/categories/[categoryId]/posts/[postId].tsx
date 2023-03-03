@@ -20,6 +20,8 @@ import { placeholderBlurhash } from '@/lib/utils';
 import getSlug from 'speakingurl';
 import { Category } from '@prisma/client';
 import { StatusIndicator } from '@/components/app/PostCard';
+import Header from '@/components/Layout/Header';
+import Container from '@/components/Layout/Container';
 
 interface PostData {
 	title: string;
@@ -265,21 +267,9 @@ export default function Post() {
 	return (
 		<>
 			<Layout siteId={post?.site?.id}>
-				<div className="max-w-screen-lg mx-auto">
-					<div className="flex items-center mb-4">
-						<TextareaAutosize
-							name="title"
-							onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
-								setData({
-									...data,
-									title: (e.target as HTMLTextAreaElement).value,
-								})
-							}
-							className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b text-4xl resize-none focus:outline-none focus:ring-0 mb-2"
-							placeholder="Untitled Category"
-							value={data.title || ''}
-							onBlur={generateSlug}
-						/>
+				<Header>
+					<div className="flex justify-between items-center">
+						<h1 className="text-4xl">Edit Category</h1>
 						<button
 							onClick={async () => {
 								await publish();
@@ -299,6 +289,21 @@ export default function Post() {
 							{publishing ? <LoadingDots /> : 'Publish  →'}
 						</button>
 					</div>
+				</Header>
+				<Container className="pb-24">
+					<TextareaAutosize
+						name="title"
+						onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
+							setData({
+								...data,
+								title: (e.target as HTMLTextAreaElement).value,
+							})
+						}
+						className="w-full px-2 py-4 text-gray-800 placeholder-gray-400 border-t-0 border-l-0 border-r-0 border-b text-4xl resize-none focus:outline-none focus:ring-0 mb-2"
+						placeholder="Untitled Category"
+						value={data.title || ''}
+						onBlur={generateSlug}
+					/>
 					<div className="flex w-full space-x-4">
 						<div className="flex flex-col w-full">
 							<p>Slug</p>
@@ -403,7 +408,7 @@ export default function Post() {
 							/>
 						)}
 					</div>
-				</div>
+				</Container>
 				<footer className="h-20 z-5 fixed bottom-0 inset-x-0 border-solid border-t border-gray-500 bg-white">
 					<div className="max-w-screen-lg mx-auto h-full flex justify-between items-center">
 						<div className="text-sm">

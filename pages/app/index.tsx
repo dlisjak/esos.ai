@@ -86,14 +86,14 @@ export default function AppIndex() {
 					</AddNewButton>
 				</div>
 			</Header>
-			<Container>
-				<div className="my-4 grid gap-y-4">
+			<Container dark>
+				<div className="grid gap-y-4">
 					{sites && sites.length > 0 ? (
 						sites.map((site) => <SiteCard site={site} key={site.id} />)
 					) : (
 						<>
 							<div className="text-center">
-								<p className="text-2xl mt-4 text-gray-600">
+								<p className="text-2xl my-4 text-gray-600">
 									No sites yet. Click &quot;Add Site&quot; to create one.
 								</p>
 							</div>

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { useSession } from 'next-auth/react';
-import { toast, Toaster } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import type { Prompt } from '@prisma/client';
 
 import Layout from '@/components/app/Layout';
@@ -16,19 +16,47 @@ import Container from '@/components/Layout/Container';
 import AddNewButton from '@/components/app/AddNewButton';
 
 export default function Prompts() {
-	const [showModal, setShowModal] = useState<boolean>(false);
+	const [showCreatePostModal, setShowCreatePromptModal] =
+		useState<boolean>(false);
 	const [creatingPrompt, setCreatingPrompt] = useState(false);
+	const [testingPrompt, setTestingPrompt] = useState(false);
 	const promptNameRef = useRef<HTMLInputElement | null>(null);
 	const promptDescriptionRef = useRef<HTMLTextAreaElement | null>(null);
 	const promptCommandRef = useRef<HTMLTextAreaElement | null>(null);
+	const promptHintRef = useRef<HTMLInputElement | null>(null);
 
 	const { data: session } = useSession();
 	const sessionId = session?.user?.id;
 
 	const { data: prompts } = useSWR<Array<Prompt>>(
 		sessionId && '/api/prompt',
-		fetcher
+		fetcher,
+		{ revalidateOnFocus: false }
 	);
+
+	async function testPrompt(promptId, command) {
+		setTestingPrompt(true);
+		const data = { command };
+
+		try {
+			const res = await fetch(`/api/prompt/test?promptId=${promptId}`, {
+				method: HttpMethod.POST,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(data),
+			});
+
+			if (res.ok) {
+				mutate(`/api/prompt`);
+				toast.success(`Prompt Works!`);
+			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setTestingPrompt(false);
+		}
+	}
 
 	async function createPrompt() {
 		setCreatingPrompt(true);
@@ -40,8 +68,12 @@ export default function Prompts() {
 		if (promptDescriptionRef.current) {
 			description = promptDescriptionRef.current.value;
 		}
+		let hint = '';
+		if (promptHintRef.current) {
+			hint = promptHintRef.current.value;
+		}
 
-		const data = { name, description, command };
+		const data = { name, description, command, hint };
 
 		try {
 			const res = await fetch(`/api/prompt`, {
@@ -53,14 +85,14 @@ export default function Prompts() {
 			});
 
 			if (res.ok) {
-				const data = await res.json();
+				mutate('/api/prompt');
 				toast.success('Prompt Created');
 			}
 		} catch (error) {
 			console.error(error);
 		} finally {
 			setCreatingPrompt(false);
-			setShowModal(false);
+			setShowCreatePromptModal(false);
 		}
 	}
 
@@ -69,29 +101,40 @@ export default function Prompts() {
 			<Header>
 				<div className="flex justify-between items-center">
 					<h1 className="text-4xl">Prompts</h1>
-					<AddNewButton onClick={() => setShowModal(true)}>
-						Add Prompt <span className="ml-2">＋</span>
-					</AddNewButton>
+					<div className="flex space-x-4">
+						<AddNewButton onClick={() => setShowCreatePromptModal(true)}>
+							Add Prompt <span className="ml-2">＋</span>
+						</AddNewButton>
+					</div>
 				</div>
 			</Header>
-			<Container>
-				<div className="my-4 grid gap-y-4">
-					{prompts && prompts.length > 0 ? (
-						prompts?.map((prompt) => (
-							<PromptCard prompt={prompt} key={prompt.id} />
-						))
-					) : (
-						<>
-							<div className="text-center">
-								<p className="text-2xl mt-4 text-gray-600">
-									No prompts yet. Click &quot;Add Prompt&quot; to create one.
-								</p>
-							</div>
-						</>
-					)}
-				</div>
+			<Container dark>
+				{prompts && prompts.length > 0 ? (
+					<div className="grid grid-cols-3 gap-x-4 gap-y-4">
+						{prompts?.map((prompt) => (
+							<PromptCard
+								prompt={prompt}
+								testOnClick={testPrompt}
+								testingPrompt={testingPrompt}
+								key={prompt.id}
+							/>
+						))}
+					</div>
+				) : (
+					<>
+						<div className="text-center">
+							<p className="text-2xl my-4 text-gray-600">
+								No Acess Token added. Click &quot;Add Access Token&quot; to add
+								one.
+							</p>
+						</div>
+					</>
+				)}
 			</Container>
-			<Modal showModal={showModal} setShowModal={setShowModal}>
+			<Modal
+				showModal={showCreatePostModal}
+				setShowModal={setShowCreatePromptModal}
+			>
 				<form
 					onSubmit={(event) => {
 						event.preventDefault();
@@ -123,7 +166,6 @@ export default function Prompts() {
 								<textarea
 									className="w-full px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"
 									name="description"
-									required
 									placeholder="To Help Write a Long Form Blog Post in the Style of..."
 									ref={promptDescriptionRef}
 								/>
@@ -136,9 +178,22 @@ export default function Prompts() {
 									className="w-full px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"
 									name="command"
 									required
-									placeholder="I want you to act as a professional copywriter..."
+									placeholder="Prompt command including placeholders such as [KEYWORD] or [TITLE], these will be replaced automatically"
 									rows={8}
 									ref={promptCommandRef}
+								/>
+							</div>
+							<div className="flex flex-col w-full">
+								<label className="text-start mb-1" htmlFor="name">
+									Prompt Hint
+								</label>
+								<input
+									className="w-full px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"
+									name="hint"
+									required
+									placeholder="[TITLE] or [KEYWORD]"
+									type="text"
+									ref={promptHintRef}
 								/>
 							</div>
 						</div>
@@ -148,7 +203,7 @@ export default function Prompts() {
 							type="button"
 							className="w-full px-5 py-5 text-sm text-gray-600 hover:text-black border-t border-gray-300 rounded-bl focus:outline-none focus:ring-0 transition-all ease-in-out duration-200"
 							onClick={() => {
-								setShowModal(false);
+								setShowCreatePromptModal(false);
 							}}
 						>
 							CANCEL

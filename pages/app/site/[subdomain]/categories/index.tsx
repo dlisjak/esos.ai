@@ -140,7 +140,7 @@ export default function SiteCategories() {
 					</AddNewButton>
 				</div>
 			</Header>
-			<Container>
+			<Container dark>
 				{categories && categories?.length > 0 ? (
 					<CategoryList
 						categories={categories}
@@ -149,7 +149,7 @@ export default function SiteCategories() {
 					/>
 				) : (
 					<div className="text-center">
-						<p className="text-2xl  text-gray-600">
+						<p className="text-2xl my-4 text-gray-600">
 							No categories yet. Click &quot;Add Category&quot; to create one.
 						</p>
 					</div>

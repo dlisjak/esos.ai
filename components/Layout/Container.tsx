@@ -1,7 +1,11 @@
-const Container = ({ className = '', children }) => {
+const Container = ({ className = '', dark = false, children }) => {
 	return (
-		<div className={`container max-w-screen-lg mx-auto px-4 ${className}`}>
-			{children}
+		<div
+			className={`w-full ${!dark ? 'bg-white' : 'bg-[#fafafa]'} ${className}`}
+		>
+			<div className="container py-4 max-w-screen-lg mx-auto px-4">
+				{children}
+			</div>
 		</div>
 	);
 };
