@@ -138,7 +138,6 @@ model Prompt {
   command       String?   @db.LongText
   hint          String?   @db.Text
   tested        Boolean?
-  intent        
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sites         Site[]
