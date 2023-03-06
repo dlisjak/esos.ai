@@ -1,10 +1,10 @@
-import prisma from '@/lib/prisma';
-
+import type { Session } from 'next-auth';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
+
+import prisma from '@/lib/prisma';
 import { authOptions } from 'pages/api/auth/[...nextauth]';
 import type { Category } from '.prisma/client';
-import type { Session } from 'next-auth';
 import { revalidate } from '@/lib/revalidate';
 import { getBlurDataURL, placeholderBlurhash } from '@/lib/utils';
 
@@ -217,9 +217,9 @@ export async function deleteCategory(
 }
 
 /**
- * Update Post
+ * Update Category
  *
- * Updates a post & all of its data using a collection of provided
+ * Updates a category & all of its data using a collection of provided
  * query parameters. These include the following:
  *  - id
  *  - title
@@ -268,8 +268,8 @@ export async function updateCategory(
 				description,
 				slug,
 				parentId: parent,
-				image,
-				imageBlurhash: (await getBlurDataURL(image)) ?? undefined,
+				image: image,
+				imageBlurhash: undefined,
 			},
 		});
 

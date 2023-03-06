@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import LoadingDots from './loading-dots';
 
+import LoadingDots from './loading-dots';
 import { StatusIndicator } from './PostCard';
 
 const PromptCard = ({ prompt, testOnClick, testingPrompt }) => {
@@ -10,7 +10,7 @@ const PromptCard = ({ prompt, testOnClick, testingPrompt }) => {
 
 	return (
 		<div className="relative bg-white p-4 flex items-end rounded drop-shadow-sm">
-			<div className="w-full flex rounded overflow-hidden h-[150px]">
+			<div className="w-full flex rounded overflow-hidden h-full">
 				<div className="flex flex-col w-full">
 					<div className="flex flex-col relative">
 						<div className="flex flex-col items-start">

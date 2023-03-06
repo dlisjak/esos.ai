@@ -22,6 +22,7 @@ import getSlug from 'speakingurl';
 import { Category } from '@prisma/client';
 import Container from '@/components/Layout/Container';
 import Header from '@/components/Layout/Header';
+import axios from 'axios';
 
 interface CategoryData {
 	id: string;
@@ -38,6 +39,8 @@ export default function CategoryPage() {
 	const categorySlugRef = useRef<HTMLInputElement | null>(null);
 	const [deletingCategory, setDeletingCategory] = useState(false);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [imagePreview, setImagePreview] = useState<any>();
+	const [imageData, setImageData] = useState<any>();
 
 	const { subdomain, categoryId } = router.query;
 
@@ -134,7 +137,6 @@ export default function CategoryPage() {
 						description: data.description,
 						slug: data.slug,
 						parentId: data.parentId,
-						image: data.image,
 					}),
 				});
 
@@ -189,30 +191,56 @@ export default function CategoryPage() {
 		return () => window.removeEventListener('keydown', clickedSave);
 	}, [data, saveChanges]);
 
+	const uploadImage = async (imageData) => {
+		const formData = new FormData();
+		formData.append('file', imageData);
+		formData.append('fileName', imageData.name);
+
+		const config = {
+			headers: {
+				'content-type': 'multipart/form-data',
+			},
+		};
+
+		try {
+			const response = await axios.post('/api/upload', formData, config);
+
+			console.log(response);
+		} catch (e) {
+			console.error(e);
+		} finally {
+		}
+	};
+
 	async function publish() {
 		setPublishing(true);
 
+		if (imageData) {
+			const res = await uploadImage(imageData);
+			console.log(res);
+		}
+
+		return;
 		try {
+			const formData = new FormData();
+			formData.append('id', categoryId?.toString() || '');
+			formData.append('title', data.title);
+			formData.append('description', data.description);
+			formData.append('slug', data.slug);
+			formData.append('parentId', data.parentId);
+			formData.append('image', imageData);
+
 			const response = await fetch(`/api/category`, {
 				method: HttpMethod.PUT,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					id: categoryId,
-					title: data.title,
-					description: data.description,
-					slug: data.slug,
-					parentId: data.parentId,
-					image: data.image,
-				}),
+				body: formData,
 			});
 
 			if (response.ok) {
-				mutate(`/api/category?categoryId=${categoryId}`);
-				router.push(
-					`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}/site/${subdomain}/categories`
-				);
+				toast.success('Successfuly Published Category!');
+				// mutate(`/api/category?categoryId=${categoryId}`);
+				// router.push(
+				// 	`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}/site/${subdomain}/categories`
+				// );
 			}
 		} catch (error) {
 			console.error(error);
@@ -221,16 +249,30 @@ export default function CategoryPage() {
 		}
 	}
 
-	const generateSlug = (e) => {
+	const handleImageSelect = async (e) => {
+		if (!e.target.files || e.target.files.length === 0) return;
+		const { files } = e.target;
+		const selectedFiles = files as FileList;
+		const file = selectedFiles[0];
+		const imagePreviewSrc = URL.createObjectURL(file);
+
+		setImagePreview(imagePreviewSrc);
+		return setImageData(file);
+	};
+
+	const generateSlug = () => {
 		const title = data.title;
 		const slug = getSlug(title);
 
 		if (!categorySlugRef?.current) return;
+
 		return setData({
 			...data,
 			slug: slug,
 		});
 	};
+
+	console.log(imageData);
 
 	return (
 		<>
@@ -340,45 +382,26 @@ export default function CategoryPage() {
 						<div className="w-full max-w-lg">
 							<p>Category Image</p>
 							<div
-								className={`${
+								className={`relative w-[480px] h-[480px] ${
 									data.image ? '' : 'animate-pulse bg-gray-300 h-150'
 								} relative w-full border-2 border-gray-800 border-dashed rounded overflow-hidden`}
 							>
-								<CloudinaryUploadWidget
-									callback={(e) =>
-										setData({
-											...data,
-											image: e.secure_url,
-										})
-									}
-								>
-									{({ open }) => (
-										<button
-											onClick={open}
-											className="absolute w-full h-full rounded bg-gray-200 z-10 flex flex-col justify-center items-center opacity-0 hover:opacity-100 transition-all ease-linear duration-200"
-										>
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												width="100"
-												height="100"
-												viewBox="0 0 24 24"
-											>
-												<path d="M16 16h-3v5h-2v-5h-3l4-4 4 4zm3.479-5.908c-.212-3.951-3.473-7.092-7.479-7.092s-7.267 3.141-7.479 7.092c-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h3.5v-2h-3.5c-1.93 0-3.5-1.57-3.5-3.5 0-2.797 2.479-3.833 4.433-3.72-.167-4.218 2.208-6.78 5.567-6.78 3.453 0 5.891 2.797 5.567 6.78 1.745-.046 4.433.751 4.433 3.72 0 1.93-1.57 3.5-3.5 3.5h-3.5v2h3.5c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408z" />
-											</svg>
-											<p>Upload category image</p>
-										</button>
-									)}
-								</CloudinaryUploadWidget>
-
-								{data.image && (
+								<input
+									className="absolute cursor-pointer z-50 opacity-0 left-0 top-0 bottom-0 right-0"
+									onChange={handleImageSelect}
+									type="file"
+								/>
+								{(imagePreview || data.image) && (
 									<BlurImage
-										src={data.image}
-										alt="Cover Photo"
+										src={imagePreview || data.image}
+										alt="Upload Category Image"
 										width={800}
 										height={500}
 										placeholder="blur"
-										className="rounded w-full h-full object-cover"
-										blurDataURL={data.image || placeholderBlurhash}
+										className="rounded cursor-pointer w-full h-full object-contain"
+										blurDataURL={
+											imagePreview || data.image || placeholderBlurhash
+										}
 									/>
 								)}
 							</div>
@@ -401,12 +424,16 @@ export default function CategoryPage() {
 							}}
 							className="bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white px-5 py-3 max-w-max  border-solid border rounded focus:outline-none transition-all ease-in-out duration-150"
 						>
-							Delete Site
+							Delete Category
 						</button>
 					</div>
 				</Container>
 				<footer className="h-20 z-5 fixed bottom-0 inset-x-0 border-solid border-t border-gray-500 bg-white">
 					<div className="max-w-screen-xl mx-auto px-10 sm:px-20 h-full flex justify-between items-center">
+						<p>
+							{disabled &&
+								'Category must have a title, description, and a slug to be published.'}
+						</p>
 						<button
 							onClick={async () => {
 								await publish();

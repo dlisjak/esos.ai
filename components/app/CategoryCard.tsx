@@ -7,6 +7,7 @@ export const CategoryList = ({
 	categories,
 	subdomain,
 	addPostClick,
+	removePostClick,
 	isChild = false,
 	isSubChild = false,
 }) => {
@@ -15,11 +16,13 @@ export const CategoryList = ({
 			{categories.map((category) => {
 				if (category?.parent?.id && !isChild) return;
 				if (category?.parent?.id && !isSubChild) return;
+
 				return (
 					<CategoryCard
 						category={category}
 						subdomain={subdomain}
 						addPostClick={addPostClick}
+						removePostClick={removePostClick}
 						key={category.id}
 						isChild={isChild}
 						isSubChild={isSubChild}
@@ -34,6 +37,7 @@ const CategoryCard = ({
 	subdomain,
 	category,
 	addPostClick,
+	removePostClick,
 	isChild = false,
 	isSubChild = false,
 }) => {
@@ -42,6 +46,7 @@ const CategoryCard = ({
 
 	const categoryPostsUrl = `/site/${subdomain}/categories/${id}/posts`;
 	const categoryEditUrl = `/site/${subdomain}/categories/${id}`;
+	const canDelete = !children?.length;
 
 	return (
 		<li className="flex flex-col space-y-2">
@@ -87,11 +92,19 @@ const CategoryCard = ({
 				</div>
 				<div className="flex flex-col h-full items-end">
 					<div className="flex h-full space-x-2 items-end justify-between">
+						{canDelete && (
+							<button
+								className="flex px-3 py-1 tracking-wide rounded text-white bg-red-600 duration-200 hover:bg-red-500 whitespace-nowrap"
+								onClick={() => removePostClick(id, title)}
+							>
+								Delete
+							</button>
+						)}
 						<Link
 							className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"
 							href={categoryEditUrl}
 						>
-							Edit Category
+							Edit
 						</Link>
 						<Link
 							className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"
@@ -123,6 +136,7 @@ const CategoryCard = ({
 					subdomain={subdomain}
 					addPostClick={addPostClick}
 					isChild={true}
+					removePostClick={removePostClick}
 					isSubChild={isChild}
 				/>
 			)}

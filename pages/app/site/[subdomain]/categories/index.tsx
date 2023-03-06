@@ -1,13 +1,13 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import getSlug from 'speakingurl';
-import { toast, Toaster } from 'react-hot-toast';
-import useSWR from 'swr';
+import { toast } from 'react-hot-toast';
+import useSWR, { mutate } from 'swr';
 
 import Layout from '@/components/app/Layout';
 import LoadingDots from '@/components/app/loading-dots';
 import Modal from '@/components/Modal';
-import CategoryCard, { CategoryList } from '@/components/app/CategoryCard';
+import { CategoryList } from '@/components/app/CategoryCard';
 
 import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
@@ -26,7 +26,11 @@ export default function SiteCategories() {
 	const [showPostModal, setShowPostModal] = useState<boolean>(false);
 	const [creatingCategory, setCreatingCategory] = useState<boolean>(false);
 	const [creatingPost, setCreatingPost] = useState(false);
+	const [deletingCategory, setDeletingCategory] = useState(false);
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [creatingPostCategoryId, setCreatingPostCategoryId] = useState();
+	const [deletingPostCategoryId, setDeletingPostCategoryId] = useState();
+	const [deletingPostCategoryTitle, setDeletingPostCategoryTitle] = useState();
 	const postTitleRef = useRef<HTMLInputElement | null>(null);
 	const postSlugRef = useRef<HTMLInputElement | null>(null);
 	const categoryTitleRef = useRef<HTMLInputElement | null>(null);
@@ -34,13 +38,14 @@ export default function SiteCategories() {
 	const router = useRouter();
 	const { subdomain } = router.query;
 
-	const { data: categories } = useSWR<Array<CategoryWithPosts> | null>(
-		`/api/category?subdomain=${subdomain}`,
-		fetcher,
-		{
-			revalidateOnFocus: false,
-		}
-	);
+	const { data: categories, mutate: mutateCategories } =
+		useSWR<Array<CategoryWithPosts> | null>(
+			`/api/category?subdomain=${subdomain}`,
+			fetcher,
+			{
+				revalidateOnFocus: false,
+			}
+		);
 
 	async function createCategory(subdomain: string | string[] | undefined) {
 		if (!subdomain) return;
@@ -110,6 +115,27 @@ export default function SiteCategories() {
 		}
 	}
 
+	async function deleteCategory(categoryId) {
+		if (!categoryId) return;
+		setDeletingCategory(true);
+
+		try {
+			const res = await fetch(`/api/category?categoryId=${categoryId}`, {
+				method: HttpMethod.DELETE,
+			});
+
+			if (res.ok) {
+				toast.success(`Category Deleted`);
+				mutateCategories();
+			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setDeletingCategory(false);
+			setShowDeleteModal(false);
+		}
+	}
+
 	const generateSlug = (e) => {
 		const title = e.target.value;
 		const slug = getSlug(title);
@@ -130,6 +156,12 @@ export default function SiteCategories() {
 		setShowPostModal(true);
 	};
 
+	const handleRemovePostClick = (categoryId, categoryTitle) => {
+		setDeletingPostCategoryId(categoryId);
+		setDeletingPostCategoryTitle(categoryTitle);
+		setShowDeleteModal(true);
+	};
+
 	return (
 		<Layout>
 			<Header>
@@ -146,6 +178,7 @@ export default function SiteCategories() {
 						categories={categories}
 						subdomain={subdomain}
 						addPostClick={handleAddPostClick}
+						removePostClick={handleRemovePostClick}
 					/>
 				) : (
 					<div className="text-center">
@@ -261,6 +294,54 @@ export default function SiteCategories() {
 							} w-full px-5 py-5 text-sm border-t border-l border-gray-300 rounded-br focus:outline-none focus:ring-0 transition-all ease-in-out duration-150`}
 						>
 							{creatingPost ? <LoadingDots /> : 'CREATE CATEGORY'}
+						</button>
+					</div>
+				</form>
+			</Modal>
+			<Modal showModal={showDeleteModal} setShowModal={setShowDeleteModal}>
+				<form
+					onSubmit={async (event) => {
+						event.preventDefault();
+						await deleteCategory(deletingPostCategoryId);
+					}}
+					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded"
+				>
+					<h2 className=" text-2xl mb-6">Delete Category</h2>
+					<div className="grid gap-y-4 w-5/6 mx-auto">
+						<p className="text-gray-600 mb-3">
+							Are you sure you want to delete your category? This action is not
+							reversible. Type in the full title of your category (
+							<b>{deletingPostCategoryTitle}</b>) to confirm.
+						</p>
+						<div className="border border-gray-700 rounded flex flex-start items-center overflow-hidden">
+							<input
+								className="w-full px-5 py-3 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-r-lg placeholder-gray-400"
+								type="text"
+								name="name"
+								placeholder={deletingPostCategoryTitle ?? ''}
+								pattern={deletingPostCategoryTitle ?? 'Category Name'}
+							/>
+						</div>
+					</div>
+					<div className="flex justify-between items-center mt-10 w-full">
+						<button
+							type="button"
+							className="w-full px-5 py-5 text-sm text-gray-400 hover:text-black border-t border-gray-300 rounded-bl focus:outline-none focus:ring-0 transition-all ease-in-out duration-150"
+							onClick={() => setShowDeleteModal(false)}
+						>
+							CANCEL
+						</button>
+
+						<button
+							type="submit"
+							disabled={deletingCategory}
+							className={`${
+								deletingCategory
+									? 'cursor-not-allowed text-gray-400 bg-gray-50'
+									: 'bg-white text-gray-600 hover:text-black'
+							} w-full px-5 py-5 text-sm border-t border-l border-gray-300 rounded-br focus:outline-none focus:ring-0 transition-all ease-in-out duration-150`}
+						>
+							{deletingCategory ? <LoadingDots /> : 'DELETE CATEGORY'}
 						</button>
 					</div>
 				</form>
