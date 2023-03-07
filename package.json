@@ -43,6 +43,7 @@
     "next-mdx-remote": "^4.2.1",
     "next-s3-upload": "^0.3.0",
     "openai": "^3.2.1",
+    "prettier-plugin-tailwindcss": "^0.2.4",
     "react": "^18.2.0",
     "react-confetti": "^6.1.0",
     "react-dom": "^18.2.0",

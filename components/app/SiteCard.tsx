@@ -8,7 +8,6 @@ const SiteCard = ({ site }) => {
 	const siteOverviewUrl = `/site/${site.subdomain}`;
 	const sitePostsUrl = `/site/${site.subdomain}/posts`;
 	const siteCategoriesUrl = `/site/${site.subdomain}/categories`;
-	const siteThemesUrl = `/site/${site.subdomain}/themes`;
 	const siteSettingssUrl = `/site/${site.subdomain}/settings`;
 
 	const domain = site.customDomain
@@ -61,6 +60,12 @@ const SiteCard = ({ site }) => {
 				<div className="flex h-full space-x-2 items-end justify-between">
 					<Link
 						className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"
+						href={siteOverviewUrl}
+					>
+						Overview
+					</Link>
+					<Link
+						className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"
 						href={sitePostsUrl}
 					>
 						Posts
@@ -70,12 +75,6 @@ const SiteCard = ({ site }) => {
 						href={siteCategoriesUrl}
 					>
 						Categories
-					</Link>
-					<Link
-						className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"
-						href={siteThemesUrl}
-					>
-						Themes
 					</Link>
 					<Link
 						className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"

@@ -112,7 +112,7 @@ export default async function Index({ params }) {
 								)}
 							</div>
 							<div className="mt-10 w-5/6 mx-auto lg:w-full">
-								<h2 className=" text-4xl md:text-6xl my-10">
+								<h2 className="text-4xl md:text-6xl my-10">
 									{data.posts[0].title}
 								</h2>
 								<p className="text-base md:text-lg w-full lg:w-2/3">
