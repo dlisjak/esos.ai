@@ -146,6 +146,8 @@ export default function SiteCategories() {
 		setShowDeleteModal(true);
 	};
 
+	if (isLoading) return <Loader />;
+
 	return (
 		<Layout>
 			<Header>
@@ -158,26 +160,19 @@ export default function SiteCategories() {
 			</Header>
 
 			<Container dark>
-				{isLoading ? (
-					<Loader className="my-12 h-auto" />
+				{categories && categories?.length > 0 ? (
+					<CategoryList
+						categories={categories}
+						subdomain={subdomain}
+						addPostClick={handleAddPostClick}
+						removePostClick={handleRemovePostClick}
+					/>
 				) : (
-					<>
-						{categories && categories?.length > 0 ? (
-							<CategoryList
-								categories={categories}
-								subdomain={subdomain}
-								addPostClick={handleAddPostClick}
-								removePostClick={handleRemovePostClick}
-							/>
-						) : (
-							<div className="text-center">
-								<p className="text-2xl my-4 text-gray-600">
-									No categories yet. Click &quot;Add Category&quot; to create
-									one.
-								</p>
-							</div>
-						)}
-					</>
+					<div className="text-center">
+						<p className="text-2xl my-4 text-gray-600">
+							No categories yet. Click &quot;Add Category&quot; to create one.
+						</p>
+					</div>
 				)}
 			</Container>
 			<Modal showModal={showCategoryModal} setShowModal={setShowCategoryModal}>

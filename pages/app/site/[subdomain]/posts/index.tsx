@@ -95,6 +95,8 @@ export default function Posts() {
 		setShowDeleteModal(true);
 	};
 
+	if (isLoading) return <Loader />;
+
 	return (
 		<Layout>
 			<Header>
@@ -106,29 +108,25 @@ export default function Posts() {
 				</div>
 			</Header>
 			<Container dark>
-				{isLoading ? (
-					<Loader className="my-12 h-auto" />
-				) : (
-					<div className="grid gap-y-4">
-						{posts && posts?.length > 0 ? (
-							posts?.map((post) => (
-								<PostCard
-									post={post}
-									postEditUrl={`/site/${subdomain}/posts/${post.id}`}
-									subdomain={subdomain}
-									removePostClick={handleRemovePostClick}
-									key={post.id}
-								/>
-							))
-						) : (
-							<div className="text-center">
-								<p className="text-2xl my-4 text-gray-600">
-									No posts yet. Click &quot;Add Post&quot; to create one.
-								</p>
-							</div>
-						)}
-					</div>
-				)}
+				<div className="grid gap-y-4">
+					{posts && posts?.length > 0 ? (
+						posts?.map((post) => (
+							<PostCard
+								post={post}
+								postEditUrl={`/site/${subdomain}/posts/${post.id}`}
+								subdomain={subdomain}
+								removePostClick={handleRemovePostClick}
+								key={post.id}
+							/>
+						))
+					) : (
+						<div className="text-center">
+							<p className="text-2xl my-4 text-gray-600">
+								No posts yet. Click &quot;Add Post&quot; to create one.
+							</p>
+						</div>
+					)}
+				</div>
 			</Container>
 
 			<Modal showModal={showModal} setShowModal={setShowModal}>
