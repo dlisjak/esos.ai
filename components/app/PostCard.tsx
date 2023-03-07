@@ -15,9 +15,16 @@ export const StatusIndicator = ({
 	);
 };
 
-const PostCard = ({ subdomain, post, postEditUrl, removePostClick }) => {
+const PostCard = ({
+	subdomain,
+	post,
+	postEditUrl,
+	removePostClick,
+	makeFeatured,
+}) => {
 	if (!post || !postEditUrl) return <></>;
-	const { id, image, title, slug, category, published } = post;
+
+	const { id, image, title, slug, category, isFeatured, published } = post;
 
 	return (
 		<div className="relative bg-white p-4 flex items-end rounded drop-shadow-sm">
@@ -51,17 +58,25 @@ const PostCard = ({ subdomain, post, postEditUrl, removePostClick }) => {
 				</div>
 			</div>
 			<div className="flex flex-col h-full items-end">
-				<Link
-					className="flex items-center justify-center rounded px-1 tracking-wide text-white bg-slate-400 duration-200 hover:bg-slate-600"
-					href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${
-						process.env.NEXT_PUBLIC_DOMAIN_URL
-					}${category?.slug ? '/' + category?.slug : ''}/${slug}`}
-					onClick={(e) => e.stopPropagation()}
-					rel="noreferrer"
-					target="_blank"
-				>
-					↗
-				</Link>
+				<div className="flex relative justify-between">
+					<button
+						className="flex px-2 py-0 font-light text-2xl tracking-wide rounded text-yellow-500 duration-200 whitespace-nowrap mr-2"
+						onClick={() => makeFeatured(id, !isFeatured)}
+					>
+						{isFeatured ? '★' : '☆'}
+					</button>
+					<Link
+						className="flex items-center justify-center rounded px-2 tracking-wide text-white bg-slate-400 duration-200 hover:bg-slate-600"
+						href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${
+							process.env.NEXT_PUBLIC_DOMAIN_URL
+						}${category?.slug ? '/' + category?.slug : ''}/${slug}`}
+						onClick={(e) => e.stopPropagation()}
+						rel="noreferrer"
+						target="_blank"
+					>
+						↗
+					</Link>
+				</div>
 				<div className="flex h-full space-x-2 items-end justify-between">
 					<button
 						className="flex px-3 py-1 tracking-wide rounded text-white bg-red-600 duration-200 hover:bg-red-500 whitespace-nowrap"

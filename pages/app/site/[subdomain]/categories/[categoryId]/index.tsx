@@ -294,17 +294,19 @@ export default function CategoryPage() {
 									className="fileUpload absolute cursor-pointer z-50 opacity-0 left-0 top-0 bottom-0 right-0"
 									onChange={handleImageSelect}
 								/>
-								<Image
-									src={imagePreview || data.image}
-									alt="Upload Category Image"
-									width={800}
-									height={500}
-									placeholder="blur"
-									className="rounded cursor-pointer w-full h-full object-contain"
-									blurDataURL={
-										imagePreview || data.image || placeholderBlurhash
-									}
-								/>
+								{(imagePreview || data.image) && (
+									<Image
+										src={imagePreview || data.image}
+										alt="Upload Category Image"
+										width={800}
+										height={500}
+										placeholder="blur"
+										className="rounded cursor-pointer w-full h-full object-contain"
+										blurDataURL={
+											imagePreview || data.image || placeholderBlurhash
+										}
+									/>
+								)}
 							</div>
 						</div>
 						<div className="w-full h-full">

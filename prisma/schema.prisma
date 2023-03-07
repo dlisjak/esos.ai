@@ -74,6 +74,7 @@ model Post {
   description   String?   @db.Text
   content       String?   @db.LongText
   slug          String    @default(cuid())
+  isFeatured    Boolean   @default(false)
   image         String?   @db.Text
   imageBlurhash String?   @db.LongText
   createdAt     DateTime  @default(now())

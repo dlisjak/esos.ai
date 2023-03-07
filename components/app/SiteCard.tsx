@@ -21,7 +21,7 @@ const SiteCard = ({ site }) => {
 				<div className="relative h-[120px]">
 					<Link href={siteOverviewUrl}>
 						<Image
-							alt={site.title}
+							alt={site.name}
 							width={240}
 							height={120}
 							className="h-full object-cover"
@@ -50,7 +50,7 @@ const SiteCard = ({ site }) => {
 			</div>
 			<div className="flex flex-col h-full items-end">
 				<Link
-					className="flex items-center justify-center rounded mt-2 px-1 tracking-wide text-white bg-slate-400 duration-200 hover:bg-slate-600"
+					className="flex items-center justify-center rounded px-1 tracking-wide text-white bg-slate-400 duration-200 hover:bg-slate-600"
 					href={domain}
 					onClick={(e) => e.stopPropagation()}
 					rel="noreferrer"

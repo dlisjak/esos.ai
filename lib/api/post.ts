@@ -1,8 +1,6 @@
 import prisma from '@/lib/prisma';
 
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from 'pages/api/auth/[...nextauth]';
 import type { Post, Site } from '@prisma/client';
 import type { Session } from 'next-auth';
 import { revalidate } from '@/lib/revalidate';
@@ -80,9 +78,14 @@ export async function getPost(
 						published: JSON.parse(published || 'true'),
 						categoryId: categoryId,
 					},
-					orderBy: {
-						createdAt: 'desc',
-					},
+					orderBy: [
+						{
+							isFeatured: 'desc',
+						},
+						{
+							createdAt: 'desc',
+						},
+					],
 					include: {
 						category: true,
 					},
@@ -312,6 +315,91 @@ export async function updatePost(
 			);
 
 		return res.status(200).json(post);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).end(error);
+	}
+}
+
+/**
+ * Feature Post
+ *
+ * Features or unfeatures a post
+ *  - id
+ *  - isFeatured
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+export async function featurePost(
+	req: NextApiRequest,
+	res: NextApiResponse,
+	session: Session
+): Promise<void | NextApiResponse<Post>> {
+	const { postId } = req.query;
+	const { isFeatured } = req.body;
+
+	if (!postId || typeof postId !== 'string' || !session?.user?.id) {
+		return res.status(400).json({
+			error: 'Missing or misconfigured post ID or session ID',
+		});
+	}
+
+	try {
+		const post = await prisma.post.update({
+			where: {
+				id: postId,
+			},
+			data: {
+				isFeatured,
+			},
+		});
+
+		return res.status(200).json(post);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).end(error);
+	}
+}
+
+/**
+ * Get Featured Posts
+ *
+ * Features or unfeatures a post
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+export async function getFeaturedPost(
+	req: NextApiRequest,
+	res: NextApiResponse,
+	session: Session
+): Promise<void | NextApiResponse<Post[]>> {
+	const { subdomain } = req.query;
+
+	if (!subdomain || typeof subdomain !== 'string' || !session?.user?.id) {
+		return res.status(400).json({
+			error: 'Missing or misconfigured post ID or session ID',
+		});
+	}
+
+	try {
+		const posts = await prisma.post.findMany({
+			where: {
+				site: {
+					subdomain,
+				},
+				isFeatured: true,
+			},
+			orderBy: {
+				createdAt: 'desc',
+			},
+			include: {
+				category: true,
+			},
+		});
+
+		return res.status(200).json(posts);
 	} catch (error) {
 		console.error(error);
 		return res.status(500).end(error);

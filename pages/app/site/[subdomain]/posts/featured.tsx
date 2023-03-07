@@ -11,26 +11,26 @@ import { HttpMethod } from '@/types';
 import PostCard from '@/components/app/PostCard';
 import { toast } from 'react-hot-toast';
 import AddNewButton from '@/components/app/AddNewButton';
-import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
-import { useCategory } from '@/lib/queries';
+import Header from '@/components/Layout/Header';
 import Loader from '@/components/app/Loader';
+import { useSubdomainFeaturedPosts } from '@/lib/queries';
 
-export default function CategoryPosts() {
+export default function Posts() {
 	const [showModal, setShowModal] = useState<boolean>(false);
 	const [creatingPost, setCreatingPost] = useState(false);
 	const postTitleRef = useRef<HTMLInputElement | null>(null);
 	const postSlugRef = useRef<HTMLInputElement | null>(null);
 	const [deletingPostId, setDeletingPostId] = useState();
 	const [deletingPostTitle, setDeletingPostTitle] = useState();
-	const [showDeletePostModal, setShowDeletePostModal] = useState(false);
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [deletingPost, setDeletingPost] = useState(false);
 	const [featuringPost, setFeaturingPost] = useState(false);
 	const router = useRouter();
-	const { subdomain, categoryId } = router.query;
+	const { subdomain } = router.query;
 
-	const { category, isLoading, isError, mutateCategory } =
-		useCategory(categoryId);
+	const { featuredPosts, isLoading, mutateFeaturedPosts } =
+		useSubdomainFeaturedPosts(subdomain);
 
 	async function createPost(subdomain: string | string[] | undefined) {
 		if (!subdomain) return;
@@ -51,12 +51,8 @@ export default function CategoryPosts() {
 
 			if (res.ok) {
 				const data = await res.json();
-				toast.success(`Post Created`);
-				setTimeout(() => {
-					router.push(
-						`/site/${subdomain}/categories/${categoryId}/posts/${data.postId}`
-					);
-				}, 100);
+				toast.success('Post Created');
+				router.push(`/site/${subdomain}/posts/${data.postId}`);
 			}
 		} catch (error) {
 			console.error(error);
@@ -74,13 +70,13 @@ export default function CategoryPosts() {
 
 			if (res.ok) {
 				toast.success(`Post Deleted`);
-				mutateCategory();
+				mutateFeaturedPosts();
 			}
 		} catch (error) {
 			console.error(error);
 		} finally {
 			setDeletingPost(false);
-			setShowDeletePostModal(false);
+			setShowDeleteModal(false);
 		}
 	}
 
@@ -95,7 +91,7 @@ export default function CategoryPosts() {
 	const handleRemovePostClick = (postId, postTitle) => {
 		setDeletingPostId(postId);
 		setDeletingPostTitle(postTitle);
-		setShowDeletePostModal(true);
+		setShowDeleteModal(true);
 	};
 
 	const makeFeatured = async (postId, isFeatured) => {
@@ -115,7 +111,7 @@ export default function CategoryPosts() {
 
 			if (res.ok) {
 				toast.success(`Post Featured`);
-				mutateCategory();
+				mutateFeaturedPosts();
 			}
 		} catch (error) {
 			console.error(error);
@@ -130,24 +126,20 @@ export default function CategoryPosts() {
 		<Layout>
 			<Header>
 				<div className="flex justify-between items-center">
-					<h1 className="text-4xl">Posts for {category?.title}</h1>
-					<AddNewButton
-						onClick={() => {
-							setShowModal(true);
-						}}
-					>
+					<h1 className="text-4xl">Featured</h1>
+					<AddNewButton onClick={() => setShowModal(true)}>
 						Add Post <span className="ml-2">＋</span>
 					</AddNewButton>
 				</div>
 			</Header>
 			<Container dark>
 				<div className="grid gap-y-4">
-					{category && category?.posts && category?.posts?.length > 0 ? (
-						category.posts?.map((post) => (
+					{featuredPosts && featuredPosts?.length > 0 ? (
+						featuredPosts?.map((post) => (
 							<PostCard
 								post={post}
-								postEditUrl={`/site/${subdomain}/categories/${category.id}/posts/${post.id}`}
 								subdomain={subdomain}
+								postEditUrl={`/site/${subdomain}/posts/${post.id}`}
 								removePostClick={handleRemovePostClick}
 								makeFeatured={makeFeatured}
 								key={post.id}
@@ -162,6 +154,7 @@ export default function CategoryPosts() {
 					)}
 				</div>
 			</Container>
+
 			<Modal showModal={showModal} setShowModal={setShowModal}>
 				<form
 					onSubmit={(event) => {
@@ -217,10 +210,7 @@ export default function CategoryPosts() {
 					</div>
 				</form>
 			</Modal>
-			<Modal
-				showModal={showDeletePostModal}
-				setShowModal={setShowDeletePostModal}
-			>
+			<Modal showModal={showDeleteModal} setShowModal={setShowDeleteModal}>
 				<form
 					onSubmit={async (event) => {
 						event.preventDefault();
@@ -249,7 +239,7 @@ export default function CategoryPosts() {
 						<button
 							type="button"
 							className="w-full px-5 py-5 text-sm text-gray-400 hover:text-black border-t border-gray-300 rounded-bl focus:outline-none focus:ring-0 transition-all ease-in-out duration-150"
-							onClick={() => setShowDeletePostModal(false)}
+							onClick={() => setShowDeleteModal(false)}
 						>
 							CANCEL
 						</button>

@@ -25,6 +25,7 @@ export default function Posts() {
 	const [deletingPostTitle, setDeletingPostTitle] = useState();
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [deletingPost, setDeletingPost] = useState(false);
+	const [featuringPost, setFeaturingPost] = useState(false);
 	const router = useRouter();
 	const { subdomain } = router.query;
 
@@ -95,6 +96,32 @@ export default function Posts() {
 		setShowDeleteModal(true);
 	};
 
+	const makeFeatured = async (postId, isFeatured) => {
+		if (!postId) return;
+		setFeaturingPost(true);
+
+		try {
+			const res = await fetch(`/api/post/feature?postId=${postId}`, {
+				method: HttpMethod.PUT,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					isFeatured,
+				}),
+			});
+
+			if (res.ok) {
+				toast.success(`Post Featured`);
+				mutateSubdomainPosts();
+			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setFeaturingPost(false);
+		}
+	};
+
 	if (isLoading) return <Loader />;
 
 	return (
@@ -113,9 +140,10 @@ export default function Posts() {
 						posts?.map((post) => (
 							<PostCard
 								post={post}
-								postEditUrl={`/site/${subdomain}/posts/${post.id}`}
 								subdomain={subdomain}
+								postEditUrl={`/site/${subdomain}/posts/${post.id}`}
 								removePostClick={handleRemovePostClick}
+								makeFeatured={makeFeatured}
 								key={post.id}
 							/>
 						))

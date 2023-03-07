@@ -116,6 +116,26 @@ export const useSubdomainPosts = (subdomain, published) => {
 	};
 };
 
+export const useSubdomainFeaturedPosts = (subdomain) => {
+	const router = useRouter();
+
+	const {
+		data: posts,
+		error,
+		mutate,
+	} = useSWR<Array<Post>>(`/api/post/feature?subdomain=${subdomain}`, fetcher, {
+		onError: () => router.push('/'),
+		revalidateOnFocus: false,
+	});
+
+	return {
+		featuredPosts: posts,
+		isLoading: !error && !posts,
+		isError: error,
+		mutateFeaturedPosts: mutate,
+	};
+};
+
 export const useCategories = () => {
 	const router = useRouter();
 

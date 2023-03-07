@@ -24,6 +24,9 @@ export default function Layout({ children }) {
 	const draftsPage = router.pathname.startsWith(
 		'/app/site/[subdomain]/posts/drafts'
 	);
+	const featuredPostsPage = router.pathname.startsWith(
+		'/app/site/[subdomain]/posts/featured'
+	);
 	const categoryPage = router.pathname.startsWith(
 		'/app/site/[subdomain]/categories/[categoryId]'
 	);
@@ -166,12 +169,20 @@ export default function Layout({ children }) {
 							<Link
 								href={`/site/${subdomain}/posts`}
 								className={`border-b-2 ${
-									postPage && !draftsPage
+									postPage && !featuredPostsPage && !draftsPage
 										? 'border-black'
 										: 'border-transparent'
 								} py-3`}
 							>
 								Published
+							</Link>
+							<Link
+								href={`/site/${subdomain}/posts/featured`}
+								className={`border-b-2 ${
+									featuredPostsPage ? 'border-black' : 'border-transparent'
+								} py-3`}
+							>
+								Featured
 							</Link>
 							<Link
 								href={`/site/${subdomain}/posts/drafts`}
