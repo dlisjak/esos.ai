@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import getSlug from 'speakingurl';
 
 import Layout from '@/components/app/Layout';
@@ -27,10 +27,14 @@ export default function Drafts() {
 	const [creatingPost, setCreatingPost] = useState(false);
 	const postTitleRef = useRef<HTMLInputElement | null>(null);
 	const postSlugRef = useRef<HTMLInputElement | null>(null);
+	const [deletingPostId, setDeletingPostId] = useState();
+	const [deletingPostTitle, setDeletingPostTitle] = useState();
+	const [showDeletePostModal, setShowDeletePostModal] = useState(false);
+	const [deletingPost, setDeletingPost] = useState(false);
 	const router = useRouter();
 	const { subdomain } = router.query;
 
-	const { data } = useSWR<SitePostData>(
+	const { data, mutate: mutateDrafts } = useSWR<SitePostData>(
 		subdomain && `/api/post?subdomain=${subdomain}&published=false`,
 		fetcher,
 		{
@@ -69,12 +73,39 @@ export default function Drafts() {
 		}
 	}
 
+	async function deletePost(postId) {
+		if (!postId) return;
+		setDeletingPost(true);
+
+		try {
+			const res = await fetch(`/api/post?postId=${postId}`, {
+				method: HttpMethod.DELETE,
+			});
+
+			if (res.ok) {
+				toast.success(`Post Deleted`);
+				mutateDrafts();
+			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setDeletingPost(false);
+			setShowDeletePostModal(false);
+		}
+	}
+
 	const generateSlug = (e) => {
 		const title = e.target.value;
 		const slug = getSlug(title);
 
 		if (!postSlugRef?.current) return;
 		postSlugRef.current.value = slug;
+	};
+
+	const handleRemovePostClick = (postId, postTitle) => {
+		setDeletingPostId(postId);
+		setDeletingPostTitle(postTitle);
+		setShowDeletePostModal(true);
 	};
 
 	return (
@@ -95,6 +126,7 @@ export default function Drafts() {
 								post={post}
 								postEditUrl={`/site/${subdomain}/posts/${post.id}`}
 								subdomain={subdomain}
+								removePostClick={handleRemovePostClick}
 								key={post.id}
 							/>
 						))
@@ -159,6 +191,57 @@ export default function Drafts() {
 							} w-full px-5 py-5 text-sm border-t border-l border-gray-300 rounded-br focus:outline-none focus:ring-0 transition-all ease-in-out duration-150`}
 						>
 							{creatingPost ? <LoadingDots /> : 'CREATE CATEGORY'}
+						</button>
+					</div>
+				</form>
+			</Modal>
+			<Modal
+				showModal={showDeletePostModal}
+				setShowModal={setShowDeletePostModal}
+			>
+				<form
+					onSubmit={async (event) => {
+						event.preventDefault();
+						await deletePost(deletingPostId);
+					}}
+					className="inline-block w-full max-w-md pt-8 overflow-hidden text-center align-middle transition-all bg-white shadow-xl rounded"
+				>
+					<h2 className=" text-2xl mb-6">Delete Post</h2>
+					<div className="grid gap-y-4 w-5/6 mx-auto">
+						<p className="text-gray-600 mb-3">
+							Are you sure you want to delete your post:{' '}
+							<b>{deletingPostTitle}</b>? This action is not reversible. Type in
+							the <b>id</b> of your post (<b>{deletingPostId}</b>) to confirm.
+						</p>
+						<div className="border border-gray-700 rounded flex flex-start items-center overflow-hidden">
+							<input
+								className="w-full px-5 py-3 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-r-lg placeholder-gray-400"
+								type="text"
+								name="name"
+								placeholder={deletingPostId ?? ''}
+								pattern={deletingPostId ?? 'Post Slug'}
+							/>
+						</div>
+					</div>
+					<div className="flex justify-between items-center mt-10 w-full">
+						<button
+							type="button"
+							className="w-full px-5 py-5 text-sm text-gray-400 hover:text-black border-t border-gray-300 rounded-bl focus:outline-none focus:ring-0 transition-all ease-in-out duration-150"
+							onClick={() => setShowDeletePostModal(false)}
+						>
+							CANCEL
+						</button>
+
+						<button
+							type="submit"
+							disabled={deletingPost}
+							className={`${
+								deletingPost
+									? 'cursor-not-allowed text-gray-400 bg-gray-50'
+									: 'bg-white text-gray-600 hover:text-black'
+							} w-full px-5 py-5 text-sm border-t border-l border-gray-300 rounded-br focus:outline-none focus:ring-0 transition-all ease-in-out duration-150`}
+						>
+							{deletingPost ? <LoadingDots /> : 'DELETE POST'}
 						</button>
 					</div>
 				</form>
