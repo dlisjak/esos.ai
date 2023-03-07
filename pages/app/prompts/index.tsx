@@ -87,8 +87,6 @@ export default function Prompts() {
 		}
 	}
 
-	if (isLoading) return <Loader />;
-
 	return (
 		<Layout>
 			<Header>
@@ -102,7 +100,9 @@ export default function Prompts() {
 				</div>
 			</Header>
 			<Container dark>
-				{prompts && prompts.length > 0 ? (
+				{isLoading ? (
+					<Loader className="my-12 h-auto" />
+				) : prompts && prompts.length > 0 ? (
 					<div className="grid grid-cols-3 gap-x-4 gap-y-4">
 						{prompts?.map((prompt) => (
 							<PromptCard

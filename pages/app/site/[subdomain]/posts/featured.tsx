@@ -120,8 +120,6 @@ export default function Posts() {
 		}
 	};
 
-	if (isLoading) return <Loader />;
-
 	return (
 		<Layout>
 			<Header>
@@ -133,26 +131,30 @@ export default function Posts() {
 				</div>
 			</Header>
 			<Container dark>
-				<div className="grid gap-y-4">
-					{featuredPosts && featuredPosts?.length > 0 ? (
-						featuredPosts?.map((post) => (
-							<PostCard
-								post={post}
-								subdomain={subdomain}
-								postEditUrl={`/site/${subdomain}/posts/${post.id}`}
-								removePostClick={handleRemovePostClick}
-								makeFeatured={makeFeatured}
-								key={post.id}
-							/>
-						))
-					) : (
-						<div className="text-center">
-							<p className="text-2xl my-4 text-gray-600">
-								No posts yet. Click &quot;Add Post&quot; to create one.
-							</p>
-						</div>
-					)}
-				</div>
+				{isLoading ? (
+					<Loader className="my-12 h-auto" />
+				) : (
+					<div className="grid gap-y-4">
+						{featuredPosts && featuredPosts?.length > 0 ? (
+							featuredPosts?.map((post) => (
+								<PostCard
+									post={post}
+									subdomain={subdomain}
+									postEditUrl={`/site/${subdomain}/posts/${post.id}`}
+									removePostClick={handleRemovePostClick}
+									makeFeatured={makeFeatured}
+									key={post.id}
+								/>
+							))
+						) : (
+							<div className="text-center">
+								<p className="text-2xl my-4 text-gray-600">
+									No posts yet. Click &quot;Add Post&quot; to create one.
+								</p>
+							</div>
+						)}
+					</div>
+				)}
 			</Container>
 
 			<Modal showModal={showModal} setShowModal={setShowModal}>

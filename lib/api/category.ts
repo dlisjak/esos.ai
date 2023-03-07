@@ -53,6 +53,14 @@ export async function getCategory(
 						include: {
 							category: true,
 						},
+						orderBy: [
+							{
+								isFeatured: 'desc',
+							},
+							{
+								createdAt: 'desc',
+							},
+						],
 					},
 				},
 			});

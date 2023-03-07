@@ -72,8 +72,6 @@ export default function AppIndex() {
 		checkSubDomain();
 	}, [debouncedSubdomain]);
 
-	if (isLoading) return <Loader />;
-
 	return (
 		<Layout>
 			<Header>
@@ -85,19 +83,23 @@ export default function AppIndex() {
 				</div>
 			</Header>
 			<Container dark>
-				<div className="grid gap-y-4">
-					{sites && sites.length > 0 ? (
-						sites.map((site) => <SiteCard site={site} key={site.id} />)
-					) : (
-						<>
-							<div className="text-center">
-								<p className="text-2xl my-4 text-gray-600">
-									No sites yet. Click &quot;Add Site&quot; to create one.
-								</p>
-							</div>
-						</>
-					)}
-				</div>
+				{isLoading ? (
+					<Loader className="my-12 h-auto" />
+				) : (
+					<div className="grid gap-y-4">
+						{sites && sites.length > 0 ? (
+							sites.map((site) => <SiteCard site={site} key={site.id} />)
+						) : (
+							<>
+								<div className="text-center">
+									<p className="text-2xl my-4 text-gray-600">
+										No sites yet. Click &quot;Add Site&quot; to create one.
+									</p>
+								</div>
+							</>
+						)}
+					</div>
+				)}
 			</Container>
 
 			<Modal showModal={showModal} setShowModal={setShowModal}>

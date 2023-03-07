@@ -124,8 +124,6 @@ export default function CategoryPosts() {
 		}
 	};
 
-	if (isLoading) return <Loader />;
-
 	return (
 		<Layout>
 			<Header>
@@ -141,26 +139,30 @@ export default function CategoryPosts() {
 				</div>
 			</Header>
 			<Container dark>
-				<div className="grid gap-y-4">
-					{category && category?.posts && category?.posts?.length > 0 ? (
-						category.posts?.map((post) => (
-							<PostCard
-								post={post}
-								postEditUrl={`/site/${subdomain}/categories/${category.id}/posts/${post.id}`}
-								subdomain={subdomain}
-								removePostClick={handleRemovePostClick}
-								makeFeatured={makeFeatured}
-								key={post.id}
-							/>
-						))
-					) : (
-						<div className="text-center">
-							<p className="text-2xl my-4 text-gray-600">
-								No posts yet. Click &quot;Add Post&quot; to create one.
-							</p>
-						</div>
-					)}
-				</div>
+				{isLoading ? (
+					<Loader className="my-12 h-auto" />
+				) : (
+					<div className="grid gap-y-4">
+						{category && category?.posts && category?.posts?.length > 0 ? (
+							category.posts?.map((post) => (
+								<PostCard
+									post={post}
+									postEditUrl={`/site/${subdomain}/categories/${category.id}/posts/${post.id}`}
+									subdomain={subdomain}
+									removePostClick={handleRemovePostClick}
+									makeFeatured={makeFeatured}
+									key={post.id}
+								/>
+							))
+						) : (
+							<div className="text-center">
+								<p className="text-2xl my-4 text-gray-600">
+									No posts yet. Click &quot;Add Post&quot; to create one.
+								</p>
+							</div>
+						)}
+					</div>
+				)}
 			</Container>
 			<Modal showModal={showModal} setShowModal={setShowModal}>
 				<form

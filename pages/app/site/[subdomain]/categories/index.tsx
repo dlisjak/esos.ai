@@ -146,8 +146,6 @@ export default function SiteCategories() {
 		setShowDeleteModal(true);
 	};
 
-	if (isLoading) return <Loader />;
-
 	return (
 		<Layout>
 			<Header>
@@ -160,7 +158,9 @@ export default function SiteCategories() {
 			</Header>
 
 			<Container dark>
-				{categories && categories?.length > 0 ? (
+				{isLoading ? (
+					<Loader className="my-12 h-auto" />
+				) : categories && categories?.length > 0 ? (
 					<CategoryList
 						categories={categories}
 						subdomain={subdomain}
