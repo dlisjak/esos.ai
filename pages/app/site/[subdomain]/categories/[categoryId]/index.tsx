@@ -139,9 +139,7 @@ export default function CategoryPage() {
 			if (response.ok) {
 				toast.success('Successfuly Published Category!');
 				mutate(`/api/category?categoryId=${categoryId}`);
-				// router.push(
-				// 	`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}/site/${subdomain}/categories`
-				// );
+				router.push(`/site/${subdomain}/categories`);
 			}
 		} catch (error) {
 			console.error(error);
