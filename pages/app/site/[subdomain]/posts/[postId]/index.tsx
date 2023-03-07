@@ -238,6 +238,14 @@ export default function Post() {
 		});
 	};
 
+	const generate = (type) => {
+		console.log(type);
+
+		if (type === 'title') {
+			console.log('title');
+		}
+	};
+
 	return (
 		<>
 			<Layout siteId={post?.site?.id}>
@@ -261,21 +269,17 @@ export default function Post() {
 						/>
 						<button
 							onClick={async () => {
-								await publish();
+								await generate('title');
 							}}
-							title={
-								disabled
-									? 'Category must have a title, description, and a slug to be published.'
-									: 'Publish'
-							}
+							title="Generate Title"
 							disabled={disabled}
-							className={`ml-4 ${
+							className={`ml-4 px-2 whitespace-nowrap ${
 								disabled
 									? 'cursor-not-allowed bg-gray-300 border-gray-300'
 									: 'bg-black hover:bg-white hover:text-black border-black'
-							} mx-2 w-32 h-12 text-lg text-white border-2 focus:outline-none transition-all ease-in-out duration-150`}
+							} mx-2 h-12 text-lg text-white border-2 focus:outline-none transition-all ease-in-out duration-150`}
 						>
-							{publishing ? <LoadingDots /> : 'Publish  →'}
+							{publishing ? <LoadingDots /> : 'Generate Title'}
 						</button>
 					</div>
 					<div className="flex w-full space-x-4">

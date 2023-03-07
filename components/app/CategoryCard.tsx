@@ -75,7 +75,7 @@ const CategoryCard = ({
 					</div>
 					<div className="flex flex-col relative px-4">
 						<div className="flex items-center">
-							<Link href={categoryPostsUrl} className="hover:underline">
+							<Link href={categoryEditUrl} className="hover:underline">
 								<h2 className="text-xl font-semibold mb-1">{title}</h2>
 							</Link>
 						</div>
@@ -83,7 +83,7 @@ const CategoryCard = ({
 							/{slug}
 						</p>
 						<Link
-							href={`/site/${subdomain}/categories/${id}/posts`}
+							href={categoryPostsUrl}
 							className="text-base mt-auto line-clamp-1 hover:underline"
 						>
 							Posts({posts.length})

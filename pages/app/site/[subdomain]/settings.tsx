@@ -1,8 +1,9 @@
 import { useDebounce } from 'use-debounce';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import useSWR, { mutate } from 'swr';
+import { useS3Upload } from 'next-s3-upload';
 
 import BlurImage from '@/components/BlurImage';
 import CloudinaryUploadWidget from '@/components/Cloudinary';
@@ -18,6 +19,7 @@ import type { Site } from '@prisma/client';
 import { Theme } from '@prisma/client';
 import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
+import { useSession } from 'next-auth/react';
 
 interface SettingsData
 	extends Pick<
@@ -34,7 +36,18 @@ interface SettingsData
 
 export default function SiteSettings() {
 	const router = useRouter();
+	const { data: session } = useSession();
+	const [saving, setSaving] = useState(false);
+	const [adding, setAdding] = useState(false);
+	const [error, setError] = useState<any | null>(null);
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [deletingSite, setDeletingSite] = useState(false);
+	const [imagePreview, setImagePreview] = useState<any>();
+	const [imageData, setImageData] = useState<any>();
+	const { FileInput, uploadToS3 } = useS3Upload();
+
 	const { subdomain } = router.query;
+	const sessionUser = session?.user?.name;
 
 	const { data: settings } = useSWR<Site | null>(
 		subdomain && `/api/site?subdomain=${subdomain}`,
@@ -52,12 +65,6 @@ export default function SiteSettings() {
 			revalidateOnFocus: false,
 		}
 	);
-
-	const [saving, setSaving] = useState(false);
-	const [adding, setAdding] = useState(false);
-	const [error, setError] = useState<any | null>(null);
-	const [showDeleteModal, setShowDeleteModal] = useState(false);
-	const [deletingSite, setDeletingSite] = useState(false);
 
 	const [data, setData] = useState<SettingsData>({
 		id: '',
@@ -77,6 +84,12 @@ export default function SiteSettings() {
 	async function saveSiteSettings(data: SettingsData) {
 		setSaving(true);
 
+		let imageUrl;
+
+		if (imageData) {
+			imageUrl = await uploadImage(imageData);
+		}
+
 		try {
 			const res = await fetch('/api/site', {
 				method: HttpMethod.PUT,
@@ -87,6 +100,7 @@ export default function SiteSettings() {
 					currentSubdomain: settings?.subdomain ?? undefined,
 					...data,
 					id: data.id,
+					image: imageUrl,
 				}),
 			});
 
@@ -95,9 +109,6 @@ export default function SiteSettings() {
 				mutate(`/api/site?subdomain=${settings?.subdomain}`);
 				mutate(`/api/site?subdomain=${data?.subdomain}`);
 				toast.success(`Changes Saved`);
-				setTimeout(() => {
-					router.push(`/site/${data.subdomain}/settings`);
-				}, 100);
 			}
 		} catch (error) {
 			toast.error('Failed to save settings');
@@ -179,12 +190,34 @@ export default function SiteSettings() {
 		}
 	}
 
+	const uploadImage = async (file) => {
+		const path = `${sessionUser}/${subdomain}/${data.id}`;
+
+		const { url } = await uploadToS3(file, {
+			endpoint: {
+				request: {
+					body: {
+						path,
+					},
+				},
+			},
+		});
+		return url;
+	};
+
+	const handleImageSelect = async (file) => {
+		const imagePreviewSrc = URL.createObjectURL(file);
+
+		setImagePreview(imagePreviewSrc);
+		return setImageData(file);
+	};
+
 	return (
 		<Layout>
 			<Header>
 				<h1 className="text-4xl">Site Settings</h1>
 			</Header>
-			<Container>
+			<Container className="pb-24">
 				<div className="my-4 flex flex-col space-y-4">
 					<div className="flex w-full  space-x-8">
 						<div className="flex flex-col space-y-2 w-full">
@@ -343,52 +376,32 @@ export default function SiteSettings() {
 							)}
 						</div>
 					</div>
-					<div className="flex w-full  space-x-8">
+					<div className="flex w-full space-x-8">
 						<div className="w-full">
 							<div className="flex flex-col space-y-2 relative w-full max-w-lg">
-								<h2 className=" text-2xl">Thumbnail Image</h2>
-								<div
-									className={`${
-										data.image ? '' : 'animate-pulse bg-gray-300 h-150'
-									} relative mt-5 w-full border-2 border-gray-800 border-dashed rounded overflow-hidden`}
-								>
-									<CloudinaryUploadWidget
-										callback={(e) =>
-											setData({
-												...data,
-												image: e.secure_url,
-											})
-										}
+								<h2 className="text-2xl">Logo Image</h2>
+								<div className="w-full max-w-lg">
+									<div
+										className={`relative w-[480px] h-[480px] ${
+											data.image ? '' : 'animate-pulse bg-gray-300 h-150'
+										} relative w-full border-2 border-gray-800 border-dashed rounded overflow-hidden`}
 									>
-										{({ open }) => (
-											<button
-												onClick={open}
-												className="absolute w-full h-full rounded bg-gray-200 z-10 flex flex-col justify-center items-center opacity-0 hover:opacity-100 transition-all ease-linear duration-200"
-											>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													width="100"
-													height="100"
-													viewBox="0 0 24 24"
-												>
-													<path d="M16 16h-3v5h-2v-5h-3l4-4 4 4zm3.479-5.908c-.212-3.951-3.473-7.092-7.479-7.092s-7.267 3.141-7.479 7.092c-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h3.5v-2h-3.5c-1.93 0-3.5-1.57-3.5-3.5 0-2.797 2.479-3.833 4.433-3.72-.167-4.218 2.208-6.78 5.567-6.78 3.453 0 5.891 2.797 5.567 6.78 1.745-.046 4.433.751 4.433 3.72 0 1.93-1.57 3.5-3.5 3.5h-3.5v2h3.5c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408z" />
-												</svg>
-												<p>Upload another image</p>
-											</button>
-										)}
-									</CloudinaryUploadWidget>
-
-									{data.image && (
-										<BlurImage
-											alt="Cover Photo"
-											blurDataURL={data.imageBlurhash ?? undefined}
-											className="rounded w-full object-cover"
-											height={500}
-											placeholder="blur"
-											src={data.image}
-											width={800}
+										<FileInput
+											className="fileUpload absolute cursor-pointer z-50 opacity-0 left-0 top-0 bottom-0 right-0"
+											onChange={handleImageSelect}
 										/>
-									)}
+										{(imagePreview || data.image) && (
+											<BlurImage
+												src={imagePreview || data.image}
+												alt="Upload Category Image"
+												width={800}
+												height={500}
+												placeholder="blur"
+												className="rounded cursor-pointer w-full h-full object-contain"
+												blurDataURL={imagePreview || data.image}
+											/>
+										)}
+									</div>
 								</div>
 							</div>
 						</div>

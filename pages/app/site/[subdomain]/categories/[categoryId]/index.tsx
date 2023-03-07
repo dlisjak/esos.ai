@@ -16,7 +16,6 @@ import type { ChangeEvent } from 'react';
 
 import type { WithSiteCategory } from '@/types';
 import BlurImage from '@/components/BlurImage';
-import CloudinaryUploadWidget from '@/components/Cloudinary';
 import { placeholderBlurhash } from '@/lib/utils';
 import getSlug from 'speakingurl';
 import { Category } from '@prisma/client';
