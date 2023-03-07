@@ -3,6 +3,7 @@ const withMDX = require('@next/mdx')()
 module.exports = withMDX({
   images: {
     domains: [
+      "esosai.s3.eu-central-1.amazonaws.com",
       "res.cloudinary.com",
       "abs.twimg.com",
       "pbs.twimg.com",

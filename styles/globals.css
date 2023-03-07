@@ -11,3 +11,7 @@ html {
 		-webkit-mask-image: -webkit-radial-gradient(white, black);
 	}
 }
+
+.fileUpload {
+	display: block !important;
+}

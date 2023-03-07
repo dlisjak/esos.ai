@@ -263,10 +263,12 @@ export async function updatePost(
 		customDomain,
 	} = req.body;
 
-	if (!id || typeof id !== 'string' || !session?.user?.id) {
+	if (!id || typeof id !== 'string' || !categoryId || !session?.user?.id) {
 		return res
 			.status(400)
-			.json({ error: 'Missing or misconfigured site ID or session ID' });
+			.json({
+				error: 'Missing or misconfigured post ID, CategoryId or session ID',
+			});
 	}
 
 	const site = await prisma.site.findFirst({

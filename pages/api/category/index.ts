@@ -11,14 +11,6 @@ import { HttpMethod } from '@/types';
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-export const config = {
-	api: {
-		bodyParser: {
-			sizeLimit: '4mb',
-		},
-	},
-};
-
 export default async function category(
 	req: NextApiRequest,
 	res: NextApiResponse

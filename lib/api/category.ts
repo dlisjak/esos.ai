@@ -236,7 +236,7 @@ export async function updateCategory(
 ): Promise<void | NextApiResponse<Category>> {
 	const { id, title, description, parentId, slug, image } = req.body;
 
-	const parent = parentId.length > 1 ? parentId : null;
+	const parent = parentId || null;
 
 	if (!id || typeof id !== 'string' || !session?.user?.id) {
 		return res
@@ -248,7 +248,7 @@ export async function updateCategory(
 		where: {
 			categories: {
 				some: {
-					id,
+					id: id,
 				},
 			},
 			user: {

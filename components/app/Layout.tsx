@@ -208,7 +208,7 @@ export default function Layout({ children }: LayoutProps) {
 										: 'border-transparent'
 								} py-3`}
 							>
-								Category
+								Edit Category
 							</Link>
 						</div>
 					</div>

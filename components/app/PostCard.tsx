@@ -15,21 +15,22 @@ export const StatusIndicator = ({
 	);
 };
 
-const PostCard = ({ subdomain, post, postEditUrl }) => {
+const PostCard = ({ subdomain, post, postEditUrl, removePostClick }) => {
 	if (!post || !postEditUrl) return <></>;
+	const { id, image, title, slug, category, published } = post;
 
 	return (
 		<div className="relative bg-white p-4 flex items-end rounded drop-shadow-sm">
 			<div className="w-full flex overflow-hidden">
 				<div className="relative h-[120px]">
 					<Link href={postEditUrl}>
-						{post.image ? (
+						{image ? (
 							<BlurImage
-								alt={post.title ?? 'Unknown Thumbnail'}
+								alt={title ?? 'Unknown Thumbnail'}
 								width={240}
 								height={120}
 								className="h-full object-cover"
-								src={post.image}
+								src={image}
 							/>
 						) : (
 							<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-3xl">
@@ -41,17 +42,17 @@ const PostCard = ({ subdomain, post, postEditUrl }) => {
 				<div className="flex flex-col relative px-4">
 					<div className="flex items-center">
 						<Link href={postEditUrl} className="hover:underline">
-							<h2 className="text-xl font-semibold mb-1">{post.title}</h2>
+							<h2 className="text-xl font-semibold mb-1">{title}</h2>
 						</Link>
 					</div>
 					<p className="text-sm flex bg-slate-100 px-1 right-1 rounded w-auto line-clamp-1">
-						/{post.slug}
+						/{slug}
 					</p>
 					<Link
-						href={`/site/${subdomain}/categories/${post.category?.id}`}
+						href={`/site/${subdomain}/categories/${category?.id}`}
 						className="hover:underline"
 					>
-						<p>{post.category?.title}</p>
+						<p>{category?.title}</p>
 					</Link>
 				</div>
 			</div>
@@ -60,9 +61,7 @@ const PostCard = ({ subdomain, post, postEditUrl }) => {
 					className="flex items-center justify-center rounded px-1 tracking-wide text-white bg-slate-400 duration-200 hover:bg-slate-600"
 					href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${
 						process.env.NEXT_PUBLIC_DOMAIN_URL
-					}${post.category?.slug ? '/' + post.category?.slug : ''}/${
-						post.slug
-					}`}
+					}${category?.slug ? '/' + category?.slug : ''}/${slug}`}
 					onClick={(e) => e.stopPropagation()}
 					rel="noreferrer"
 					target="_blank"
@@ -70,15 +69,21 @@ const PostCard = ({ subdomain, post, postEditUrl }) => {
 					↗
 				</Link>
 				<div className="flex h-full space-x-2 items-end justify-between">
+					<button
+						className="flex px-3 py-1 tracking-wide rounded text-white bg-red-600 duration-200 hover:bg-red-500 whitespace-nowrap"
+						onClick={() => removePostClick(id, title)}
+					>
+						Delete
+					</button>
 					<Link
 						className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"
 						href={postEditUrl}
 					>
-						Edit Post
+						Edit
 					</Link>
 				</div>
 			</div>
-			<StatusIndicator published={post.published} className="top-2 left-2" />
+			<StatusIndicator published={published} className="top-2 left-2" />
 		</div>
 	);
 };

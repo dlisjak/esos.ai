@@ -1,9 +1,9 @@
 import TextareaAutosize from 'react-textarea-autosize';
 import toast from 'react-hot-toast';
 import useSWR, { mutate } from 'swr';
-import { useDebounce } from 'use-debounce';
 import { useRouter } from 'next/router';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useS3Upload } from 'next-s3-upload';
 
 import Layout from '@/components/app/Layout';
 import LoadingDots from '@/components/app/loading-dots';
@@ -22,7 +22,7 @@ import getSlug from 'speakingurl';
 import { Category } from '@prisma/client';
 import Container from '@/components/Layout/Container';
 import Header from '@/components/Layout/Header';
-import axios from 'axios';
+import { useSession } from 'next-auth/react';
 
 interface CategoryData {
 	id: string;
@@ -41,8 +41,14 @@ export default function CategoryPage() {
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [imagePreview, setImagePreview] = useState<any>();
 	const [imageData, setImageData] = useState<any>();
+	const { FileInput, uploadToS3 } = useS3Upload();
+	const [publishing, setPublishing] = useState(false);
+	const [disabled, setDisabled] = useState(true);
 
 	const { subdomain, categoryId } = router.query;
+
+	const { data: session } = useSession();
+	const sessionUser = session?.user?.name;
 
 	const { data: category } = useSWR<WithSiteCategory>(
 		router.isReady && `/api/category?categoryId=${categoryId}`,
@@ -61,40 +67,6 @@ export default function CategoryPage() {
 			revalidateOnFocus: false,
 		}
 	);
-
-	const [savedState, setSavedState] = useState(
-		category
-			? `Last saved at ${Intl.DateTimeFormat('en', { month: 'short' }).format(
-					new Date(category?.updatedAt)
-			  )} ${Intl.DateTimeFormat('en', { day: '2-digit' }).format(
-					new Date(category?.updatedAt)
-			  )} ${Intl.DateTimeFormat('en', {
-					hour: 'numeric',
-					minute: 'numeric',
-			  }).format(new Date(category?.updatedAt))}`
-			: 'Saving changes...'
-	);
-
-	async function deleteCategory(categoryId: string) {
-		setDeletingCategory(true);
-
-		try {
-			const res = await fetch(`/api/category?categoryId=${categoryId}`, {
-				method: HttpMethod.DELETE,
-			});
-
-			if (res.ok) {
-				toast.success(`Category Deleted`);
-				setTimeout(() => {
-					router.push(`/site/${subdomain}/categories`);
-				}, 100);
-			}
-		} catch (error) {
-			console.error(error);
-		} finally {
-			setDeletingCategory(false);
-		}
-	}
 
 	const [data, setData] = useState<CategoryData>({
 		id: '',
@@ -117,58 +89,7 @@ export default function CategoryPage() {
 				image: category.image ?? '',
 				imageBlurhash: category.imageBlurhash ?? '',
 			});
-	}, [categoryId, category]);
-
-	const [debouncedData] = useDebounce(data, 1000);
-
-	const saveChanges = useCallback(
-		async (data: CategoryData) => {
-			setSavedState('Saving changes...');
-
-			try {
-				const response = await fetch('/api/category', {
-					method: HttpMethod.PUT,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						id: categoryId,
-						title: data.title,
-						description: data.description,
-						slug: data.slug,
-						parentId: data.parentId,
-					}),
-				});
-
-				if (response.ok) {
-					const responseData = await response.json();
-					setSavedState(
-						`Last save ${Intl.DateTimeFormat('en', { month: 'short' }).format(
-							new Date(responseData.updatedAt)
-						)} ${Intl.DateTimeFormat('en', { day: '2-digit' }).format(
-							new Date(responseData.updatedAt)
-						)} at ${Intl.DateTimeFormat('en', {
-							hour: 'numeric',
-							minute: 'numeric',
-						}).format(new Date(responseData.updatedAt))}`
-					);
-				} else {
-					setSavedState('Failed to save.');
-					toast.error('Failed to save');
-				}
-			} catch (error) {
-				console.error(error);
-			}
-		},
-		[categoryId]
-	);
-
-	useEffect(() => {
-		if (debouncedData.title) saveChanges(debouncedData);
-	}, [debouncedData, saveChanges]);
-
-	const [publishing, setPublishing] = useState(false);
-	const [disabled, setDisabled] = useState(true);
+	}, [category]);
 
 	useEffect(() => {
 		if (data.title && data.slug && data.description && !publishing)
@@ -176,68 +97,48 @@ export default function CategoryPage() {
 		else setDisabled(true);
 	}, [publishing, data]);
 
-	useEffect(() => {
-		function clickedSave(e: KeyboardEvent) {
-			let charCode = String.fromCharCode(e.which).toLowerCase();
+	const uploadImage = async (file) => {
+		const path = `${sessionUser}/${subdomain}/${data.id}`;
 
-			if ((e.ctrlKey || e.metaKey) && charCode === 's') {
-				e.preventDefault();
-				saveChanges(data);
-			}
-		}
-
-		window.addEventListener('keydown', clickedSave);
-
-		return () => window.removeEventListener('keydown', clickedSave);
-	}, [data, saveChanges]);
-
-	const uploadImage = async (imageData) => {
-		const formData = new FormData();
-		formData.append('file', imageData);
-		formData.append('fileName', imageData.name);
-
-		const config = {
-			headers: {
-				'content-type': 'multipart/form-data',
+		const { url } = await uploadToS3(file, {
+			endpoint: {
+				request: {
+					body: {
+						path,
+					},
+				},
 			},
-		};
-
-		try {
-			const response = await axios.post('/api/upload', formData, config);
-
-			console.log(response);
-		} catch (e) {
-			console.error(e);
-		} finally {
-		}
+		});
+		return url;
 	};
 
 	async function publish() {
 		setPublishing(true);
+		let imageUrl;
 
 		if (imageData) {
-			const res = await uploadImage(imageData);
-			console.log(res);
+			imageUrl = await uploadImage(imageData);
 		}
 
-		return;
 		try {
-			const formData = new FormData();
-			formData.append('id', categoryId?.toString() || '');
-			formData.append('title', data.title);
-			formData.append('description', data.description);
-			formData.append('slug', data.slug);
-			formData.append('parentId', data.parentId);
-			formData.append('image', imageData);
-
 			const response = await fetch(`/api/category`, {
 				method: HttpMethod.PUT,
-				body: formData,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					id: categoryId,
+					title: data.title,
+					description: data.description,
+					slug: data.slug,
+					parentId: data.parentId,
+					image: imageUrl,
+				}),
 			});
 
 			if (response.ok) {
 				toast.success('Successfuly Published Category!');
-				// mutate(`/api/category?categoryId=${categoryId}`);
+				mutate(`/api/category?categoryId=${categoryId}`);
 				// router.push(
 				// 	`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}/site/${subdomain}/categories`
 				// );
@@ -249,11 +150,28 @@ export default function CategoryPage() {
 		}
 	}
 
-	const handleImageSelect = async (e) => {
-		if (!e.target.files || e.target.files.length === 0) return;
-		const { files } = e.target;
-		const selectedFiles = files as FileList;
-		const file = selectedFiles[0];
+	async function deleteCategory(categoryId: string) {
+		setDeletingCategory(true);
+
+		try {
+			const res = await fetch(`/api/category?categoryId=${categoryId}`, {
+				method: HttpMethod.DELETE,
+			});
+
+			if (res.ok) {
+				toast.success(`Category Deleted`);
+				setTimeout(() => {
+					router.push(`/site/${subdomain}/categories`);
+				}, 100);
+			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setDeletingCategory(false);
+		}
+	}
+
+	const handleImageSelect = async (file) => {
 		const imagePreviewSrc = URL.createObjectURL(file);
 
 		setImagePreview(imagePreviewSrc);
@@ -271,8 +189,6 @@ export default function CategoryPage() {
 			slug: slug,
 		});
 	};
-
-	console.log(imageData);
 
 	return (
 		<>
@@ -318,7 +234,9 @@ export default function CategoryPage() {
 					</div>
 					<div className="flex w-full space-x-4">
 						<div className="flex flex-col w-full">
-							<p>Slug</p>
+							<p>
+								Slug<span className="text-red-600">*</span>
+							</p>
 							<input
 								className="w-full max-w-[24rem] px-5 py-3 text-gray-700 bg-white rounded placeholder-gray-400"
 								name="slug"
@@ -363,7 +281,9 @@ export default function CategoryPage() {
 						</div>
 					</div>
 					<div>
-						<p className="mt-8">Description</p>
+						<p className="mt-8">
+							Description<span className="text-red-600">*</span>
+						</p>
 						<TextareaAutosize
 							name="description"
 							onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
@@ -386,10 +306,9 @@ export default function CategoryPage() {
 									data.image ? '' : 'animate-pulse bg-gray-300 h-150'
 								} relative w-full border-2 border-gray-800 border-dashed rounded overflow-hidden`}
 							>
-								<input
-									className="absolute cursor-pointer z-50 opacity-0 left-0 top-0 bottom-0 right-0"
+								<FileInput
+									className="fileUpload absolute cursor-pointer z-50 opacity-0 left-0 top-0 bottom-0 right-0"
 									onChange={handleImageSelect}
-									type="file"
 								/>
 								{(imagePreview || data.image) && (
 									<BlurImage
@@ -414,9 +333,10 @@ export default function CategoryPage() {
 					<div className="space-y-2 w-full mt-4">
 						<h2 className="text-2xl">Delete Category</h2>
 						<p>
-							Permanently delete your site and all of its contents. This will
-							also remove all the corresponding posts. This action is not
-							reversible – please continue with caution.
+							Permanently delete the &quot;{data.title}&quot; category and all
+							of its contents. This will also remove all the corresponding
+							posts. This action is not reversible – please continue with
+							caution.
 						</p>
 						<button
 							onClick={() => {
@@ -432,6 +352,7 @@ export default function CategoryPage() {
 					<div className="max-w-screen-xl mx-auto px-10 sm:px-20 h-full flex justify-between items-center">
 						<p>
 							{disabled &&
+								!publishing &&
 								'Category must have a title, description, and a slug to be published.'}
 						</p>
 						<button
