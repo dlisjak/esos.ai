@@ -76,7 +76,7 @@ export default function Prompts() {
 			});
 
 			if (res.ok) {
-				mutatePrompts;
+				mutatePrompts();
 				toast.success('Prompt Created');
 			}
 		} catch (error) {
@@ -117,8 +117,7 @@ export default function Prompts() {
 					<>
 						<div className="text-center">
 							<p className="text-2xl my-4 text-gray-600">
-								No Acess Token added. Click &quot;Add Access Token&quot; to add
-								one.
+								No Prompts added. Click &quot;Add Prompt&quot; to add one.
 							</p>
 						</div>
 					</>

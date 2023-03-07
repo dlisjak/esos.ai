@@ -204,16 +204,16 @@ export default function CategoryPosts() {
 					<div className="grid gap-y-4 w-5/6 mx-auto">
 						<p className="text-gray-600 mb-3">
 							Are you sure you want to delete your post:{' '}
-							<b>{deletingPostTitle}</b>? This action is not reversible. Type in
-							the <b>id</b> of your post (<b>{deletingPostId}</b>) to confirm.
+							<b>{deletingPostTitle}</b>? This action is not reversible. Type in{' '}
+							<span className="bg-slate-200 px-1">delete</span> to confirm.
 						</p>
 						<div className="border border-gray-700 rounded flex flex-start items-center overflow-hidden">
 							<input
 								className="w-full px-5 py-3 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-r-lg placeholder-gray-400"
 								type="text"
 								name="name"
-								placeholder={deletingPostId ?? ''}
-								pattern={deletingPostId ?? 'Post Slug'}
+								placeholder="delete"
+								pattern="delete"
 							/>
 						</div>
 					</div>

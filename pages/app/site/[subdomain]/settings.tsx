@@ -5,7 +5,6 @@ import toast from 'react-hot-toast';
 import useSWR from 'swr';
 import { useS3Upload } from 'next-s3-upload';
 
-import BlurImage from '@/components/BlurImage';
 import DomainCard from '@/components/app/DomainCard';
 import Layout from '@/components/app/Layout';
 import LoadingDots from '@/components/app/loading-dots';
@@ -21,6 +20,7 @@ import Container from '@/components/Layout/Container';
 import { useSession } from 'next-auth/react';
 import { useSite } from '@/lib/queries';
 import Loader from '@/components/app/Loader';
+import Image from 'next/image';
 
 interface SettingsData
 	extends Pick<
@@ -386,7 +386,7 @@ export default function SiteSettings() {
 											onChange={handleImageSelect}
 										/>
 										{(imagePreview || data.image) && (
-											<BlurImage
+											<Image
 												src={imagePreview || data.image}
 												alt="Upload Category Image"
 												width={800}
@@ -456,17 +456,17 @@ export default function SiteSettings() {
 					<h2 className=" text-2xl mb-6">Delete Site</h2>
 					<div className="grid gap-y-4 w-5/6 mx-auto">
 						<p className="text-gray-600 mb-3">
-							Are you sure you want to delete your site? This action is not
-							reversible. Type in the full name of your site (<b>{data.name}</b>
-							) to confirm.
+							Are you sure you want to delete your site: <b>{data.name}</b>?
+							This action is not reversible. Type in{' '}
+							<span className="bg-slate-200 px-1">delete</span> to confirm.
 						</p>
 						<div className="border border-gray-700 rounded flex flex-start items-center overflow-hidden">
 							<input
 								className="w-full px-5 py-3 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-r-lg placeholder-gray-400"
 								type="text"
 								name="name"
-								placeholder={data.name ?? ''}
-								pattern={data.name ?? 'Site Name'}
+								placeholder="delete"
+								pattern="delete"
 							/>
 						</div>
 					</div>

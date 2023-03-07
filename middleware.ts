@@ -39,7 +39,14 @@ export default async function middleware(req: NextRequest) {
 			url.pathname = '/';
 			return NextResponse.redirect(url);
 		}
+
+		if (url.pathname === '/prompts') {
+			url.pathname = '/app/prompts';
+			return NextResponse.rewrite(url);
+		}
+
 		url.pathname = `/app${url.pathname}`;
+
 		return NextResponse.rewrite(url);
 	}
 

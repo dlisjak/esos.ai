@@ -1,5 +1,5 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import BlurImage from '../BlurImage';
 
 export const StatusIndicator = ({
 	published,
@@ -24,19 +24,13 @@ const PostCard = ({ subdomain, post, postEditUrl, removePostClick }) => {
 			<div className="w-full flex overflow-hidden">
 				<div className="relative h-[120px]">
 					<Link href={postEditUrl}>
-						{image ? (
-							<BlurImage
-								alt={title ?? 'Unknown Thumbnail'}
-								width={240}
-								height={120}
-								className="h-full object-cover"
-								src={image}
-							/>
-						) : (
-							<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-3xl">
-								?
-							</div>
-						)}
+						<Image
+							alt={title}
+							width={240}
+							height={120}
+							className="h-full object-cover"
+							src={image}
+						/>
 					</Link>
 				</div>
 				<div className="flex flex-col relative px-4">

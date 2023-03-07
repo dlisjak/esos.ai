@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import BlurImage from './BlurImage';
+import Image from 'next/image';
 
 import type { Post } from '@prisma/client';
 import { placeholderBlurhash, toDateString } from '@/lib/utils';
@@ -16,7 +16,7 @@ export default function BlogCard({ data }: BlogCardProps) {
 		<Link href={`/${data.slug}`}>
 			<div className="rounded-2xl border-2 border-gray-100 overflow-hidden shadow-md bg-white hover:shadow-xl hover:-translate-y-1 transition-all ease duration-200">
 				{data.image ? (
-					<BlurImage
+					<Image
 						src={data.image}
 						alt={data.title ?? 'Blog Post'}
 						width={500}

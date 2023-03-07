@@ -296,17 +296,18 @@ export default function SiteCategories() {
 					<h2 className=" text-2xl mb-6">Delete Category</h2>
 					<div className="grid gap-y-4 w-5/6 mx-auto">
 						<p className="text-gray-600 mb-3">
-							Are you sure you want to delete your category? This action is not
-							reversible. Type in the full title of your category (
-							<b>{deletingPostCategoryTitle}</b>) to confirm.
+							Are you sure you want to delete your category:{' '}
+							<b>{deletingPostCategoryTitle}</b>? This action is not reversible.
+							Type in <span className="bg-slate-200 px-1">delete</span> to
+							confirm.
 						</p>
 						<div className="border border-gray-700 rounded flex flex-start items-center overflow-hidden">
 							<input
 								className="w-full px-5 py-3 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-r-lg placeholder-gray-400"
 								type="text"
 								name="name"
-								placeholder={deletingPostCategoryTitle ?? ''}
-								pattern={deletingPostCategoryTitle ?? 'Category Name'}
+								placeholder="delete"
+								pattern="delete"
 							/>
 						</div>
 					</div>

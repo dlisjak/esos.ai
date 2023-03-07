@@ -1,5 +1,5 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import BlurImage from '../BlurImage';
 import { StatusIndicator } from './PostCard';
 
 const SiteCard = ({ site }) => {
@@ -20,19 +20,13 @@ const SiteCard = ({ site }) => {
 			<div className="w-full flex rounded overflow-hidden">
 				<div className="relative h-[120px]">
 					<Link href={siteOverviewUrl}>
-						{site.image ? (
-							<BlurImage
-								alt={site.title ?? 'Unknown Thumbnail'}
-								width={240}
-								height={120}
-								className="h-full object-cover"
-								src={site.image}
-							/>
-						) : (
-							<div className="absolute flex items-center justify-center w-full h-full bg-gray-100 text-gray-500 text-3xl">
-								?
-							</div>
-						)}
+						<Image
+							alt={site.title}
+							width={240}
+							height={120}
+							className="h-full object-cover"
+							src={site.image}
+						/>
 					</Link>
 				</div>
 				<div className="flex flex-col items-start relative px-4">

@@ -12,7 +12,6 @@ import { HttpMethod } from '@/types';
 
 import type { ChangeEvent } from 'react';
 
-import BlurImage from '@/components/BlurImage';
 import { placeholderBlurhash } from '@/lib/utils';
 import getSlug from 'speakingurl';
 import Container from '@/components/Layout/Container';
@@ -20,6 +19,7 @@ import Header from '@/components/Layout/Header';
 import { useSession } from 'next-auth/react';
 import { useCategories, useCategory } from '@/lib/queries';
 import Loader from '@/components/app/Loader';
+import Image from 'next/image';
 
 interface CategoryData {
 	id: string;
@@ -294,19 +294,17 @@ export default function CategoryPage() {
 									className="fileUpload absolute cursor-pointer z-50 opacity-0 left-0 top-0 bottom-0 right-0"
 									onChange={handleImageSelect}
 								/>
-								{(imagePreview || data.image) && (
-									<BlurImage
-										src={imagePreview || data.image}
-										alt="Upload Category Image"
-										width={800}
-										height={500}
-										placeholder="blur"
-										className="rounded cursor-pointer w-full h-full object-contain"
-										blurDataURL={
-											imagePreview || data.image || placeholderBlurhash
-										}
-									/>
-								)}
+								<Image
+									src={imagePreview || data.image}
+									alt="Upload Category Image"
+									width={800}
+									height={500}
+									placeholder="blur"
+									className="rounded cursor-pointer w-full h-full object-contain"
+									blurDataURL={
+										imagePreview || data.image || placeholderBlurhash
+									}
+								/>
 							</div>
 						</div>
 						<div className="w-full h-full">
@@ -370,17 +368,17 @@ export default function CategoryPage() {
 						<h2 className=" text-2xl mb-6">Delete Category</h2>
 						<div className="grid gap-y-4 w-5/6 mx-auto">
 							<p className="text-gray-600 mb-3">
-								Are you sure you want to delete your category? This action is
-								not reversible. Type in the full title of your category (
-								<b>{data.title}</b>) to confirm.
+								Are you sure you want to delete your category:{' '}
+								<b>{data.title}</b>? This action is not reversible. Type in{' '}
+								<span className="bg-slate-200 px-1">delete</span> to confirm.
 							</p>
 							<div className="border border-gray-700 rounded flex flex-start items-center overflow-hidden">
 								<input
 									className="w-full px-5 py-3 text-gray-700 bg-white border-none focus:outline-none focus:ring-0 rounded-none rounded-r-lg placeholder-gray-400"
 									type="text"
 									name="name"
-									placeholder={data.title ?? ''}
-									pattern={data.title ?? 'Category Name'}
+									placeholder="delete"
+									pattern="delete"
 								/>
 							</div>
 						</div>

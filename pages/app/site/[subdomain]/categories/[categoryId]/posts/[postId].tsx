@@ -11,7 +11,6 @@ import { HttpMethod } from '@/types';
 
 import type { ChangeEvent } from 'react';
 
-import BlurImage from '@/components/BlurImage';
 import { placeholderBlurhash } from '@/lib/utils';
 import getSlug from 'speakingurl';
 import { StatusIndicator } from '@/components/app/PostCard';
@@ -19,6 +18,7 @@ import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
 import { useSession } from 'next-auth/react';
 import { useCategories, usePost } from '@/lib/queries';
+import Image from 'next/image';
 
 interface PostData {
 	title: string;
@@ -326,19 +326,17 @@ export default function Post() {
 									className="fileUpload absolute cursor-pointer z-50 opacity-0 left-0 top-0 bottom-0 right-0"
 									onChange={handleImageSelect}
 								/>
-								{(imagePreview || data.image) && (
-									<BlurImage
-										src={imagePreview || data.image}
-										alt="Upload Category Image"
-										width={800}
-										height={500}
-										placeholder="blur"
-										className="rounded cursor-pointer w-full h-full object-contain"
-										blurDataURL={
-											imagePreview || data.image || placeholderBlurhash
-										}
-									/>
-								)}
+								<Image
+									src={imagePreview || data.image}
+									alt="Upload Category Image"
+									width={800}
+									height={500}
+									placeholder="blur"
+									className="rounded cursor-pointer w-full h-full object-contain"
+									blurDataURL={
+										imagePreview || data.image || placeholderBlurhash
+									}
+								/>
 							</div>
 						</div>
 					</div>

@@ -1,6 +1,6 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
-import BlurImage from '../BlurImage';
 import { StatusIndicator } from './PostCard';
 
 export const CategoryList = ({
@@ -59,8 +59,8 @@ const CategoryCard = ({
 					<div className="relative h-[120px]">
 						<Link href={categoryPostsUrl}>
 							{image ? (
-								<BlurImage
-									alt={title ?? 'Unknown Thumbnail'}
+								<Image
+									alt={title}
 									width={240}
 									height={120}
 									className="h-full object-cover"

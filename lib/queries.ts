@@ -184,15 +184,12 @@ export const usePrompts = () => {
 };
 
 export const usePrompt = (promptId) => {
-	const router = useRouter();
-
 	const {
 		data: prompt,
 		error,
 		mutate,
 	} = useSWR<Prompt>(`/api/prompt?promptId=${promptId}`, fetcher, {
 		dedupingInterval: 1000,
-		onError: () => router.push('/'),
 		revalidateOnFocus: false,
 	});
 
