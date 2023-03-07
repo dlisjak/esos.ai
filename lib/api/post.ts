@@ -88,10 +88,7 @@ export async function getPost(
 					},
 			  });
 
-		return res.status(200).json({
-			posts,
-			site,
-		});
+		return res.status(200).json(posts);
 	} catch (error) {
 		console.error(error);
 		return res.status(500).end(error);
@@ -264,11 +261,9 @@ export async function updatePost(
 	} = req.body;
 
 	if (!id || typeof id !== 'string' || !categoryId || !session?.user?.id) {
-		return res
-			.status(400)
-			.json({
-				error: 'Missing or misconfigured post ID, CategoryId or session ID',
-			});
+		return res.status(400).json({
+			error: 'Missing or misconfigured post ID, CategoryId or session ID',
+		});
 	}
 
 	const site = await prisma.site.findFirst({

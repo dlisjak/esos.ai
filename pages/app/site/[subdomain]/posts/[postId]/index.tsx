@@ -1,26 +1,24 @@
 import TextareaAutosize from 'react-textarea-autosize';
 import toast from 'react-hot-toast';
-import useSWR, { mutate } from 'swr';
 import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
 import { useS3Upload } from 'next-s3-upload';
 
 import Layout from '@/components/app/Layout';
 import LoadingDots from '@/components/app/loading-dots';
-import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
 import type { ChangeEvent } from 'react';
 
-import type { WithSitePost } from '@/types';
 import BlurImage from '@/components/BlurImage';
 import { placeholderBlurhash } from '@/lib/utils';
 import getSlug from 'speakingurl';
-import { Category } from '@prisma/client';
 import { StatusIndicator } from '@/components/app/PostCard';
 import Container from '@/components/Layout/Container';
 import Header from '@/components/Layout/Header';
 import { useSession } from 'next-auth/react';
+import Loader from '@/components/app/Loader';
+import { useCategories, usePost } from '@/lib/queries';
 
 interface PostData {
 	title: string;
@@ -72,23 +70,9 @@ export default function Post() {
 	const { data: session } = useSession();
 	const sessionUser = session?.user?.name;
 
-	const { data: post } = useSWR<WithSitePost>(
-		router.isReady && `/api/post?postId=${postId}`,
-		fetcher,
-		{
-			dedupingInterval: 1000,
-			onError: () => router.push('/'),
-			revalidateOnFocus: false,
-		}
-	);
+	const { post, isLoading, isError, mutatePost } = usePost(postId);
 
-	const { data: categories } = useSWR<Category[]>(
-		router.isReady && `/api/category`,
-		fetcher,
-		{
-			revalidateOnFocus: false,
-		}
-	);
+	const { categories } = useCategories();
 
 	const [data, setData] = useState<PostData>({
 		title: '',
@@ -123,6 +107,21 @@ export default function Post() {
 		else setDisabled(true);
 	}, [publishing, data]);
 
+	const uploadImage = async (file) => {
+		const path = `${sessionUser}/${subdomain}/${data.categoryId}/${postId}`;
+
+		const { url } = await uploadToS3(file, {
+			endpoint: {
+				request: {
+					body: {
+						path,
+					},
+				},
+			},
+		});
+		return url;
+	};
+
 	async function draft() {
 		setDrafting(true);
 
@@ -140,13 +139,11 @@ export default function Post() {
 					image: data.image,
 					categoryId: data.categoryId,
 					published: false,
-					subdomain: post?.site?.subdomain,
-					customDomain: post?.site?.customDomain,
 				}),
 			});
 
 			if (response.ok) {
-				mutate(`/api/post?postId=${postId}`);
+				mutatePost();
 				toast.success('Draft succesfully saved');
 			}
 		} catch (error) {
@@ -155,21 +152,6 @@ export default function Post() {
 			setDrafting(false);
 		}
 	}
-
-	const uploadImage = async (file) => {
-		const path = `${sessionUser}/${subdomain}/${data.categoryId}/${postId}`;
-
-		const { url } = await uploadToS3(file, {
-			endpoint: {
-				request: {
-					body: {
-						path,
-					},
-				},
-			},
-		});
-		return url;
-	};
 
 	async function publish() {
 		if (
@@ -202,13 +184,11 @@ export default function Post() {
 					categoryId: data.categoryId,
 					published: true,
 					image: imageUrl,
-					subdomain: post?.site?.subdomain,
-					customDomain: post?.site?.customDomain,
 				}),
 			});
 
 			if (response.ok) {
-				mutate(`/api/post?postId=${postId}`);
+				mutatePost();
 				router.push(
 					`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}/site/${subdomain}/posts`
 				);
@@ -246,9 +226,11 @@ export default function Post() {
 		}
 	};
 
+	if (isLoading) return <Loader />;
+
 	return (
 		<>
-			<Layout siteId={post?.site?.id}>
+			<Layout>
 				<Header>
 					<h1 className="text-4xl">Edit Post</h1>
 				</Header>

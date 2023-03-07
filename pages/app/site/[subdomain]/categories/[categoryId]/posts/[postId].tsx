@@ -1,6 +1,5 @@
 import TextareaAutosize from 'react-textarea-autosize';
 import toast from 'react-hot-toast';
-import useSWR, { mutate } from 'swr';
 import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
 import { useS3Upload } from 'next-s3-upload';
@@ -8,21 +7,18 @@ import { useS3Upload } from 'next-s3-upload';
 import Layout from '@/components/app/Layout';
 import Loader from '@/components/app/Loader';
 import LoadingDots from '@/components/app/loading-dots';
-import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
 import type { ChangeEvent } from 'react';
 
-import type { WithSitePost } from '@/types';
 import BlurImage from '@/components/BlurImage';
-import CloudinaryUploadWidget from '@/components/Cloudinary';
 import { placeholderBlurhash } from '@/lib/utils';
 import getSlug from 'speakingurl';
-import { Category } from '@prisma/client';
 import { StatusIndicator } from '@/components/app/PostCard';
 import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
 import { useSession } from 'next-auth/react';
+import { useCategories, usePost } from '@/lib/queries';
 
 interface PostData {
 	title: string;
@@ -73,24 +69,9 @@ export default function Post() {
 	const { subdomain, categoryId, postId } = router.query;
 	const sessionUser = session?.user?.name;
 
-	const { data: post } = useSWR<WithSitePost>(
-		router.isReady && `/api/post?postId=${postId}`,
-		fetcher,
-		{
-			dedupingInterval: 1000,
-			onError: () =>
-				router.push(`/site/${subdomain}/categories/${categoryId}/posts`),
-			revalidateOnFocus: false,
-		}
-	);
+	const { post, isLoading, isError, mutatePost } = usePost(postId);
 
-	const { data: categories } = useSWR<Category[]>(
-		router.isReady && `/api/category`,
-		fetcher,
-		{
-			revalidateOnFocus: false,
-		}
-	);
+	const { categories } = useCategories();
 
 	const [data, setData] = useState<PostData>({
 		title: '',
@@ -159,13 +140,11 @@ export default function Post() {
 					image: imageUrl,
 					categoryId: categoryId,
 					published: false,
-					subdomain: post?.site?.subdomain,
-					customDomain: post?.site?.customDomain,
 				}),
 			});
 
 			if (response.ok) {
-				mutate(`/api/post?postId=${postId}`);
+				mutatePost();
 				toast.success('Draft succesfully saved');
 			}
 		} catch (error) {
@@ -200,13 +179,11 @@ export default function Post() {
 					categoryId: categoryId,
 					image: imageUrl,
 					published: true,
-					subdomain: post?.site?.subdomain,
-					customDomain: post?.site?.customDomain,
 				}),
 			});
 
 			if (response.ok) {
-				mutate(`/api/post?postId=${postId}`);
+				mutatePost();
 				router.push(`/site/${subdomain}/categories/${categoryId}/posts`);
 			}
 		} catch (error) {
@@ -234,9 +211,11 @@ export default function Post() {
 		});
 	};
 
+	if (isLoading) return <Loader />;
+
 	return (
 		<>
-			<Layout siteId={post?.site?.id}>
+			<Layout>
 				<Header>
 					<div className="flex justify-between items-center">
 						<h1 className="text-4xl">Edit Post</h1>

@@ -2,24 +2,19 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import getSlug from 'speakingurl';
 import { toast } from 'react-hot-toast';
-import useSWR, { mutate } from 'swr';
 
 import Layout from '@/components/app/Layout';
 import LoadingDots from '@/components/app/loading-dots';
 import Modal from '@/components/Modal';
 import { CategoryList } from '@/components/app/CategoryCard';
 
-import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
-import type { Category, Post } from '@prisma/client';
 import AddNewButton from '@/components/app/AddNewButton';
 import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
-
-interface CategoryWithPosts extends Category {
-	posts: Post[];
-}
+import Loader from '@/components/app/Loader';
+import { useCategories } from '@/lib/queries';
 
 export default function SiteCategories() {
 	const [showCategoryModal, setShowCategoryModal] = useState<boolean>(false);
@@ -38,14 +33,7 @@ export default function SiteCategories() {
 	const router = useRouter();
 	const { subdomain } = router.query;
 
-	const { data: categories, mutate: mutateCategories } =
-		useSWR<Array<CategoryWithPosts> | null>(
-			`/api/category?subdomain=${subdomain}`,
-			fetcher,
-			{
-				revalidateOnFocus: false,
-			}
-		);
+	const { categories, isLoading, mutateCategories } = useCategories();
 
 	async function createCategory(subdomain: string | string[] | undefined) {
 		if (!subdomain) return;
@@ -67,9 +55,7 @@ export default function SiteCategories() {
 			if (res.ok) {
 				const { categoryId } = await res.json();
 				toast.success(`Category Created`);
-				setTimeout(() => {
-					router.push(`/site/${subdomain}/categories/${categoryId}`);
-				}, 100);
+				router.push(`/site/${subdomain}/categories/${categoryId}`);
 			}
 		} catch (error) {
 			console.error(error);
@@ -101,11 +87,9 @@ export default function SiteCategories() {
 			if (res.ok) {
 				const data = await res.json();
 				toast.success(`Post Created`);
-				setTimeout(() => {
-					router.push(
-						`/site/${subdomain}/categories/${categoryId}/posts/${data.postId}`
-					);
-				}, 100);
+				router.push(
+					`/site/${subdomain}/categories/${categoryId}/posts/${data.postId}`
+				);
 			}
 		} catch (error) {
 			console.error(error);
@@ -172,20 +156,28 @@ export default function SiteCategories() {
 					</AddNewButton>
 				</div>
 			</Header>
+
 			<Container dark>
-				{categories && categories?.length > 0 ? (
-					<CategoryList
-						categories={categories}
-						subdomain={subdomain}
-						addPostClick={handleAddPostClick}
-						removePostClick={handleRemovePostClick}
-					/>
+				{isLoading ? (
+					<Loader className="my-12 h-auto" />
 				) : (
-					<div className="text-center">
-						<p className="text-2xl my-4 text-gray-600">
-							No categories yet. Click &quot;Add Category&quot; to create one.
-						</p>
-					</div>
+					<>
+						{categories && categories?.length > 0 ? (
+							<CategoryList
+								categories={categories}
+								subdomain={subdomain}
+								addPostClick={handleAddPostClick}
+								removePostClick={handleRemovePostClick}
+							/>
+						) : (
+							<div className="text-center">
+								<p className="text-2xl my-4 text-gray-600">
+									No categories yet. Click &quot;Add Category&quot; to create
+									one.
+								</p>
+							</div>
+						)}
+					</>
 				)}
 			</Container>
 			<Modal showModal={showCategoryModal} setShowModal={setShowCategoryModal}>

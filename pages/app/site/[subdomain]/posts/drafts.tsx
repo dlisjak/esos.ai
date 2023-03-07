@@ -1,26 +1,20 @@
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
-import useSWR, { mutate } from 'swr';
 import getSlug from 'speakingurl';
 
 import Layout from '@/components/app/Layout';
 import Modal from '@/components/Modal';
 import LoadingDots from '@/components/app/loading-dots';
 
-import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
-import type { Post, Site } from '@prisma/client';
 import PostCard from '@/components/app/PostCard';
 import { toast } from 'react-hot-toast';
 import AddNewButton from '@/components/app/AddNewButton';
 import Container from '@/components/Layout/Container';
 import Header from '@/components/Layout/Header';
-
-interface SitePostData {
-	posts: Array<Post>;
-	site: Site | null;
-}
+import Loader from '@/components/app/Loader';
+import { useSubdomainPosts } from '@/lib/queries';
 
 export default function Drafts() {
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -34,15 +28,10 @@ export default function Drafts() {
 	const router = useRouter();
 	const { subdomain } = router.query;
 
-	const { data, mutate: mutateDrafts } = useSWR<SitePostData>(
-		subdomain && `/api/post?subdomain=${subdomain}&published=false`,
-		fetcher,
-		{
-			revalidateOnFocus: false,
-		}
+	const { posts, isLoading, mutateSubdomainPosts } = useSubdomainPosts(
+		subdomain,
+		false
 	);
-
-	const posts = data?.posts;
 
 	async function createPost(subdomain: string | string[] | undefined) {
 		if (!subdomain) return;
@@ -64,9 +53,7 @@ export default function Drafts() {
 			if (res.ok) {
 				const data = await res.json();
 				toast.success('Post Created');
-				setTimeout(() => {
-					router.push(`/site/${subdomain}/posts/${data.postId}`);
-				}, 100);
+				router.push(`/site/${subdomain}/posts/${data.postId}`);
 			}
 		} catch (error) {
 			console.error(error);
@@ -84,7 +71,7 @@ export default function Drafts() {
 
 			if (res.ok) {
 				toast.success(`Post Deleted`);
-				mutateDrafts();
+				mutateSubdomainPosts();
 			}
 		} catch (error) {
 			console.error(error);
@@ -119,25 +106,29 @@ export default function Drafts() {
 				</div>
 			</Header>
 			<Container dark>
-				<div className="grid gap-y-4">
-					{posts && posts?.length > 0 ? (
-						posts?.map((post) => (
-							<PostCard
-								post={post}
-								postEditUrl={`/site/${subdomain}/posts/${post.id}`}
-								subdomain={subdomain}
-								removePostClick={handleRemovePostClick}
-								key={post.id}
-							/>
-						))
-					) : (
-						<div className="text-center">
-							<p className="text-2xl my-4 text-gray-600">
-								No posts yet. Click &quot;Add Post&quot; to create one.
-							</p>
-						</div>
-					)}
-				</div>
+				{isLoading ? (
+					<Loader className="my-12 h-auto" />
+				) : (
+					<div className="grid gap-y-4">
+						{posts && posts?.length > 0 ? (
+							posts?.map((post) => (
+								<PostCard
+									post={post}
+									postEditUrl={`/site/${subdomain}/posts/${post.id}`}
+									subdomain={subdomain}
+									removePostClick={handleRemovePostClick}
+									key={post.id}
+								/>
+							))
+						) : (
+							<div className="text-center">
+								<p className="text-2xl my-4 text-gray-600">
+									No posts yet. Click &quot;Add Post&quot; to create one.
+								</p>
+							</div>
+						)}
+					</div>
+				)}
 			</Container>
 
 			<Modal showModal={showModal} setShowModal={setShowModal}>

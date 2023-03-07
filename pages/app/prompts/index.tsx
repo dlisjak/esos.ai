@@ -1,19 +1,17 @@
 import { useRef, useState } from 'react';
-import useSWR, { mutate } from 'swr';
-import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
-import type { Prompt } from '@prisma/client';
 
 import Layout from '@/components/app/Layout';
 import LoadingDots from '@/components/app/loading-dots';
 import Modal from '@/components/Modal';
 
-import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 import PromptCard from '@/components/app/PromptCard';
 import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
 import AddNewButton from '@/components/app/AddNewButton';
+import { usePrompts } from '@/lib/queries';
+import Loader from '@/components/app/Loader';
 
 export default function Prompts() {
 	const [showCreatePostModal, setShowCreatePromptModal] =
@@ -25,14 +23,7 @@ export default function Prompts() {
 	const promptCommandRef = useRef<HTMLTextAreaElement | null>(null);
 	const promptHintRef = useRef<HTMLInputElement | null>(null);
 
-	const { data: session } = useSession();
-	const sessionId = session?.user?.id;
-
-	const { data: prompts } = useSWR<Array<Prompt>>(
-		sessionId && '/api/prompt',
-		fetcher,
-		{ revalidateOnFocus: false }
-	);
+	const { prompts, isLoading, mutatePrompts } = usePrompts();
 
 	async function testPrompt(promptId, command) {
 		setTestingPrompt(true);
@@ -48,7 +39,7 @@ export default function Prompts() {
 			});
 
 			if (res.ok) {
-				mutate(`/api/prompt`);
+				mutatePrompts();
 				toast.success(`Prompt Works!`);
 			}
 		} catch (error) {
@@ -85,7 +76,7 @@ export default function Prompts() {
 			});
 
 			if (res.ok) {
-				mutate('/api/prompt');
+				mutatePrompts;
 				toast.success('Prompt Created');
 			}
 		} catch (error) {
@@ -95,6 +86,8 @@ export default function Prompts() {
 			setShowCreatePromptModal(false);
 		}
 	}
+
+	if (isLoading) return <Loader />;
 
 	return (
 		<Layout>

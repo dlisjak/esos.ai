@@ -1,11 +1,11 @@
-import useSWR, { mutate } from 'swr';
+import { mutate } from 'swr';
 import { useState } from 'react';
 import LoadingDots from '@/components/app/loading-dots';
-import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
 import type { Site } from '@prisma/client';
 import Link from 'next/link';
+import { useDomainCheck } from '@/lib/queries';
 
 type DomainData = Pick<
 	Site,
@@ -17,11 +17,10 @@ interface DomainCardProps<T = DomainData> {
 }
 
 export default function DomainCard({ data }: DomainCardProps) {
-	const { data: valid, isValidating } = useSWR<Site>(
-		`/api/domain/check?domain=${data.customDomain}`,
-		fetcher,
-		{ revalidateOnMount: true, refreshInterval: 5000 }
+	const { valid, isValidating, mutateDomainCheck } = useDomainCheck(
+		data.customDomain
 	);
+
 	const [recordType, setRecordType] = useState('CNAME');
 	const [removing, setRemoving] = useState(false);
 	const subdomain = // if domain is a subdomain
@@ -59,9 +58,7 @@ export default function DomainCard({ data }: DomainCardProps) {
 				</Link>
 				<div className="flex space-x-3">
 					<button
-						onClick={() => {
-							mutate(`/api/domain/check?domain=${data.customDomain}`);
-						}}
+						onClick={() => mutateDomainCheck()}
 						disabled={isValidating}
 						className={`${
 							isValidating

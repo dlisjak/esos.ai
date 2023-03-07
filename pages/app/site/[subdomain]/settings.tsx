@@ -2,11 +2,10 @@ import { useDebounce } from 'use-debounce';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import useSWR, { mutate } from 'swr';
+import useSWR from 'swr';
 import { useS3Upload } from 'next-s3-upload';
 
 import BlurImage from '@/components/BlurImage';
-import CloudinaryUploadWidget from '@/components/Cloudinary';
 import DomainCard from '@/components/app/DomainCard';
 import Layout from '@/components/app/Layout';
 import LoadingDots from '@/components/app/loading-dots';
@@ -20,6 +19,8 @@ import { Theme } from '@prisma/client';
 import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
 import { useSession } from 'next-auth/react';
+import { useSite } from '@/lib/queries';
+import Loader from '@/components/app/Loader';
 
 interface SettingsData
 	extends Pick<
@@ -49,14 +50,7 @@ export default function SiteSettings() {
 	const { subdomain } = router.query;
 	const sessionUser = session?.user?.name;
 
-	const { data: settings } = useSWR<Site | null>(
-		subdomain && `/api/site?subdomain=${subdomain}`,
-		fetcher,
-		{
-			onError: () => router.push('/'),
-			revalidateOnFocus: false,
-		}
-	);
+	const { site, isLoading, isError, mutateSite } = useSite(subdomain);
 
 	const { data: themes } = useSWR<Theme[] | null>(
 		subdomain && `/api/theme`,
@@ -78,8 +72,8 @@ export default function SiteSettings() {
 	});
 
 	useEffect(() => {
-		if (settings) setData(settings);
-	}, [settings]);
+		if (site) setData(site);
+	}, [site]);
 
 	async function saveSiteSettings(data: SettingsData) {
 		setSaving(true);
@@ -97,7 +91,7 @@ export default function SiteSettings() {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					currentSubdomain: settings?.subdomain ?? undefined,
+					currentSubdomain: site?.subdomain ?? undefined,
 					...data,
 					id: data.id,
 					image: imageUrl,
@@ -105,13 +99,11 @@ export default function SiteSettings() {
 			});
 
 			if (res.ok) {
-				const data = await res.json();
-				mutate(`/api/site?subdomain=${settings?.subdomain}`);
-				mutate(`/api/site?subdomain=${data?.subdomain}`);
+				mutateSite();
 				toast.success(`Changes Saved`);
 			}
 		} catch (error) {
-			toast.error('Failed to save settings');
+			toast.error('Failed to save site');
 			console.error(error);
 		} finally {
 			setSaving(false);
@@ -133,6 +125,7 @@ export default function SiteSettings() {
 			setDeletingSite(false);
 		}
 	}
+
 	const [debouncedSubdomain] = useDebounce(data?.subdomain, 1500);
 	const [subdomainError, setSubdomainError] = useState<string | null>(null);
 
@@ -156,12 +149,12 @@ export default function SiteSettings() {
 		}
 
 		if (
-			debouncedSubdomain !== settings?.subdomain &&
+			debouncedSubdomain !== site?.subdomain &&
 			debouncedSubdomain &&
 			debouncedSubdomain?.length > 0
 		)
 			checkSubdomain();
-	}, [debouncedSubdomain, settings?.subdomain]);
+	}, [debouncedSubdomain, site?.subdomain]);
 
 	async function handleCustomDomain() {
 		const customDomain = data.customDomain;
@@ -182,7 +175,7 @@ export default function SiteSettings() {
 					domain: customDomain,
 				};
 			setError(null);
-			mutate(`/api/site?subdomain=${subdomain}`);
+			mutateSite();
 		} catch (error) {
 			setError(error);
 		} finally {
@@ -211,6 +204,8 @@ export default function SiteSettings() {
 		setImagePreview(imagePreviewSrc);
 		return setImageData(file);
 	};
+
+	if (isLoading) return <Loader />;
 
 	return (
 		<Layout>
@@ -288,7 +283,7 @@ export default function SiteSettings() {
 						</div>
 						<div className="flex flex-col space-y-2 w-full">
 							<h2 className=" text-2xl">Custom Domain</h2>
-							{settings?.customDomain ? (
+							{site?.customDomain ? (
 								<DomainCard data={data} />
 							) : (
 								<form

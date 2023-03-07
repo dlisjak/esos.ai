@@ -1,19 +1,20 @@
 import { useEffect, useState } from 'react';
-import useSWR, { mutate } from 'swr';
-import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
 import type { Prompt } from '@prisma/client';
 
 import Layout from '@/components/app/Layout';
 import LoadingDots from '@/components/app/loading-dots';
 
-import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
 import { useRouter } from 'next/router';
+import { usePrompt } from '@/lib/queries';
+import Loader from '@/components/app/Loader';
 
 export default function Prompt() {
+	const router = useRouter();
+	const { promptId } = router.query;
 	const [saving, setSaving] = useState(false);
 	const [testing, setTesting] = useState(false);
 	const [deleting, setDeleting] = useState(false);
@@ -24,21 +25,8 @@ export default function Prompt() {
 	const [promptVariables, setPromptVariables] = useState('');
 	const [promptVariablesError, setPromptVariablesError] = useState(false);
 	const [promptOutput, setPromptOutput] = useState('');
-	const router = useRouter();
-	const { promptId } = router.query;
 
-	const { data: session } = useSession();
-	const sessionId = session?.user?.id;
-
-	const { data: prompt } = useSWR<Prompt>(
-		promptId && sessionId && `/api/prompt?promptId=${promptId}`,
-		fetcher,
-		{
-			dedupingInterval: 1000,
-			onError: () => router.push(`/prompts`),
-			revalidateOnFocus: false,
-		}
-	);
+	const { prompt, isLoading, mutatePrompt } = usePrompt(promptId);
 
 	useEffect(() => {
 		setPromptName(prompt?.name ?? '');
@@ -65,7 +53,7 @@ export default function Prompt() {
 			});
 
 			if (res.ok) {
-				mutate(`/api/prompt?promptId=${promptId}`);
+				mutatePrompt();
 				if (exit) {
 					router.push('/prompts');
 				}
@@ -121,7 +109,7 @@ export default function Prompt() {
 			});
 
 			if (res.ok) {
-				mutate(`/api/prompts`);
+				mutatePrompt();
 				router.push('/prompts/');
 				toast.success('Prompt deleted');
 			}
@@ -131,6 +119,8 @@ export default function Prompt() {
 			setSaving(false);
 		}
 	}
+
+	if (isLoading) return <Loader />;
 
 	return (
 		<Layout>

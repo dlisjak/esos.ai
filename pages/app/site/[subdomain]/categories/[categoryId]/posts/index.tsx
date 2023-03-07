@@ -1,25 +1,20 @@
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
-import useSWR from 'swr';
 import getSlug from 'speakingurl';
 
 import Layout from '@/components/app/Layout';
 import Modal from '@/components/Modal';
 import LoadingDots from '@/components/app/loading-dots';
 
-import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
-import type { Category, Post } from '@prisma/client';
 import PostCard from '@/components/app/PostCard';
 import { toast } from 'react-hot-toast';
 import AddNewButton from '@/components/app/AddNewButton';
 import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
-
-interface CategoryWithPosts extends Category {
-	posts: Post[];
-}
+import { useCategory } from '@/lib/queries';
+import Loader from '@/components/app/Loader';
 
 export default function CategoryPosts() {
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -33,13 +28,8 @@ export default function CategoryPosts() {
 	const router = useRouter();
 	const { subdomain, categoryId } = router.query;
 
-	const { data: category, mutate: mutateCategory } = useSWR<CategoryWithPosts>(
-		subdomain && `/api/category?categoryId=${categoryId}`,
-		fetcher,
-		{
-			revalidateOnFocus: false,
-		}
-	);
+	const { category, isLoading, isError, mutateCategory } =
+		useCategory(categoryId);
 
 	async function createPost(subdomain: string | string[] | undefined) {
 		if (!subdomain) return;
@@ -106,6 +96,8 @@ export default function CategoryPosts() {
 		setDeletingPostTitle(postTitle);
 		setShowDeletePostModal(true);
 	};
+
+	if (isLoading) return <Loader />;
 
 	return (
 		<Layout>

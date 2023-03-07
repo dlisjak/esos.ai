@@ -1,6 +1,5 @@
 import TextareaAutosize from 'react-textarea-autosize';
 import toast from 'react-hot-toast';
-import useSWR, { mutate } from 'swr';
 import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
 import { useS3Upload } from 'next-s3-upload';
@@ -9,19 +8,18 @@ import Layout from '@/components/app/Layout';
 import LoadingDots from '@/components/app/loading-dots';
 import Modal from '@/components/Modal';
 
-import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
 import type { ChangeEvent } from 'react';
 
-import type { WithSiteCategory } from '@/types';
 import BlurImage from '@/components/BlurImage';
 import { placeholderBlurhash } from '@/lib/utils';
 import getSlug from 'speakingurl';
-import { Category } from '@prisma/client';
 import Container from '@/components/Layout/Container';
 import Header from '@/components/Layout/Header';
 import { useSession } from 'next-auth/react';
+import { useCategories, useCategory } from '@/lib/queries';
+import Loader from '@/components/app/Loader';
 
 interface CategoryData {
 	id: string;
@@ -49,23 +47,10 @@ export default function CategoryPage() {
 	const { data: session } = useSession();
 	const sessionUser = session?.user?.name;
 
-	const { data: category } = useSWR<WithSiteCategory>(
-		router.isReady && `/api/category?categoryId=${categoryId}`,
-		fetcher,
-		{
-			dedupingInterval: 1000,
-			onError: () => router.push('/'),
-			revalidateOnFocus: false,
-		}
-	);
+	const { category, isLoading, isError, mutateCategory } =
+		useCategory(categoryId);
 
-	const { data: categories } = useSWR<Category[]>(
-		router.isReady && `/api/category`,
-		fetcher,
-		{
-			revalidateOnFocus: false,
-		}
-	);
+	const { categories } = useCategories();
 
 	const [data, setData] = useState<CategoryData>({
 		id: '',
@@ -137,7 +122,7 @@ export default function CategoryPage() {
 
 			if (response.ok) {
 				toast.success('Successfuly Published Category!');
-				mutate(`/api/category?categoryId=${categoryId}`);
+				mutateCategory();
 				router.push(`/site/${subdomain}/categories`);
 			}
 		} catch (error) {
@@ -187,9 +172,11 @@ export default function CategoryPage() {
 		});
 	};
 
+	if (isLoading) return <Loader />;
+
 	return (
 		<>
-			<Layout siteId={category?.site?.id}>
+			<Layout>
 				<Header className="">
 					<div className="flex justify-between items-center">
 						<h1 className="text-4xl">Edit Category</h1>

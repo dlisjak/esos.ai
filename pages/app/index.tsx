@@ -4,16 +4,15 @@ import Modal from '@/components/Modal';
 import LoadingDots from '@/components/app/loading-dots';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import useSWR from 'swr';
 import { useDebounce } from 'use-debounce';
-import { fetcher } from '@/lib/fetcher';
 import { HttpMethod } from '@/types';
 
-import type { Site } from '@prisma/client';
 import SiteCard from '@/components/app/SiteCard';
 import AddNewButton from '@/components/app/AddNewButton';
 import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
+import { useSites } from '@/lib/queries';
+import Loader from '@/components/app/Loader';
 
 export default function AppIndex() {
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -26,32 +25,10 @@ export default function AppIndex() {
 	const siteNameRef = useRef<HTMLInputElement | null>(null);
 	const siteSubdomainRef = useRef<HTMLInputElement | null>(null);
 
-	useEffect(() => {
-		async function checkSubDomain() {
-			if (debouncedSubdomain.length > 0) {
-				const response = await fetch(
-					`/api/domain/check?domain=${debouncedSubdomain}&subdomain=1`
-				);
-				const available = await response.json();
-				if (available) {
-					setError(null);
-				} else {
-					setError(
-						`${debouncedSubdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`
-					);
-				}
-			}
-		}
-		checkSubDomain();
-	}, [debouncedSubdomain]);
-
 	const { data: session } = useSession();
 	const sessionId = session?.user?.id;
 
-	const { data: sites } = useSWR<Array<Site>>(
-		sessionId && `/api/site`,
-		fetcher
-	);
+	const { sites, isLoading } = useSites();
 
 	async function createSite() {
 		setCreatingSite(true);
@@ -75,6 +52,27 @@ export default function AppIndex() {
 		router.push(`/site/${data.subdomain}/settings`);
 		setCreatingSite(false);
 	}
+
+	useEffect(() => {
+		async function checkSubDomain() {
+			if (debouncedSubdomain.length > 0) {
+				const response = await fetch(
+					`/api/domain/check?domain=${debouncedSubdomain}&subdomain=1`
+				);
+				const available = await response.json();
+				if (available) {
+					setError(null);
+				} else {
+					setError(
+						`${debouncedSubdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`
+					);
+				}
+			}
+		}
+		checkSubDomain();
+	}, [debouncedSubdomain]);
+
+	if (isLoading) return <Loader />;
 
 	return (
 		<Layout>

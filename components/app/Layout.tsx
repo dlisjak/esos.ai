@@ -7,14 +7,9 @@ import { signOut } from 'next-auth/react';
 import Loader from './Loader';
 import useRequireAuth from '../../lib/useRequireAuth';
 
-import type { WithChildren } from '@/types';
 import TopNavLink from './NavLink/TopNavLink';
 
-interface LayoutProps extends WithChildren {
-	siteId?: string;
-}
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children }) {
 	const router = useRouter();
 	const { subdomain, categoryId } = router.query;
 
