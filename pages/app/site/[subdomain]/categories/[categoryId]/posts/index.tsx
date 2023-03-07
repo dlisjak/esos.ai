@@ -14,7 +14,7 @@ import AddNewButton from '@/components/app/AddNewButton';
 import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
 import { useCategory } from '@/lib/queries';
-import Loader from '@/components/app/Loader';
+import ContainerLoader from '@/components/app/ContainerLoader';
 
 export default function CategoryPosts() {
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -140,7 +140,7 @@ export default function CategoryPosts() {
 			</Header>
 			<Container dark>
 				{isLoading ? (
-					<Loader className="my-12 h-auto" />
+					<ContainerLoader />
 				) : (
 					<div className="grid gap-y-4">
 						{category && category?.posts && category?.posts?.length > 0 ? (

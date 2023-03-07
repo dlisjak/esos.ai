@@ -13,7 +13,7 @@ import { HttpMethod } from '@/types';
 import AddNewButton from '@/components/app/AddNewButton';
 import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
-import Loader from '@/components/app/Loader';
+import ContainerLoader from '@/components/app/ContainerLoader';
 import { useCategories } from '@/lib/queries';
 
 export default function SiteCategories() {
@@ -159,7 +159,7 @@ export default function SiteCategories() {
 
 			<Container dark>
 				{isLoading ? (
-					<Loader className="my-12 h-auto" />
+					<ContainerLoader />
 				) : categories && categories?.length > 0 ? (
 					<CategoryList
 						categories={categories}

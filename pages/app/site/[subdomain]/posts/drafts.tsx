@@ -13,7 +13,7 @@ import { toast } from 'react-hot-toast';
 import AddNewButton from '@/components/app/AddNewButton';
 import Container from '@/components/Layout/Container';
 import Header from '@/components/Layout/Header';
-import Loader from '@/components/app/Loader';
+import ContainerLoader from '@/components/app/ContainerLoader';
 import { useSubdomainPosts } from '@/lib/queries';
 
 export default function Drafts() {
@@ -134,7 +134,7 @@ export default function Drafts() {
 			</Header>
 			<Container dark>
 				{isLoading ? (
-					<Loader className="my-12 h-auto" />
+					<ContainerLoader />
 				) : (
 					<div className="grid gap-y-4">
 						{posts && posts?.length > 0 ? (

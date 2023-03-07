@@ -11,7 +11,7 @@ import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
 import AddNewButton from '@/components/app/AddNewButton';
 import { usePrompts } from '@/lib/queries';
-import Loader from '@/components/app/Loader';
+import ContainerLoader from '@/components/app/ContainerLoader';
 
 export default function Prompts() {
 	const [showCreatePostModal, setShowCreatePromptModal] =
@@ -101,7 +101,7 @@ export default function Prompts() {
 			</Header>
 			<Container dark>
 				{isLoading ? (
-					<Loader className="my-12 h-auto" />
+					<ContainerLoader />
 				) : prompts && prompts.length > 0 ? (
 					<div className="grid grid-cols-3 gap-x-4 gap-y-4">
 						{prompts?.map((prompt) => (

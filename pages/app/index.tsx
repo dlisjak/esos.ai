@@ -12,7 +12,7 @@ import AddNewButton from '@/components/app/AddNewButton';
 import Header from '@/components/Layout/Header';
 import Container from '@/components/Layout/Container';
 import { useSites } from '@/lib/queries';
-import Loader from '@/components/app/Loader';
+import ContainerLoader from '@/components/app/ContainerLoader';
 
 export default function AppIndex() {
 	const [showModal, setShowModal] = useState<boolean>(false);
@@ -84,7 +84,7 @@ export default function AppIndex() {
 			</Header>
 			<Container dark>
 				{isLoading ? (
-					<Loader className="my-12 h-auto" />
+					<ContainerLoader />
 				) : (
 					<div className="grid gap-y-4">
 						{sites && sites.length > 0 ? (
