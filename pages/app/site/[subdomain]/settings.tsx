@@ -217,7 +217,7 @@ export default function SiteSettings() {
             <div className="my-4 flex flex-col space-y-4">
               <div className="flex w-full  space-x-8">
                 <div className="flex w-full flex-col space-y-2">
-                  <h2 className=" text-2xl">Name</h2>
+                  <h2 className="text-xl">Name</h2>
                   <div className="flex max-w-lg items-center overflow-hidden rounded border border-gray-700">
                     <input
                       className="w-full rounded-none border-none  bg-white px-5 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
@@ -235,7 +235,7 @@ export default function SiteSettings() {
                   </div>
                 </div>
                 <div className="flex w-full flex-col space-y-2">
-                  <h2 className="text-2xl">Font</h2>
+                  <h2 className="text-xl">Font</h2>
                   <div className="flex w-full max-w-lg items-center overflow-hidden rounded border border-gray-700">
                     <select
                       onChange={(e) =>
@@ -256,7 +256,7 @@ export default function SiteSettings() {
               </div>
               <div className="flex w-full  space-x-8">
                 <div className="flex w-full flex-col space-y-2">
-                  <h2 className=" text-2xl">Subdomain</h2>
+                  <h2 className="text-xl">Subdomain</h2>
                   <div className="flex max-w-lg items-center rounded border border-gray-700">
                     <input
                       className="w-1/2 rounded-none rounded-l-lg  border-none bg-white px-5 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
@@ -283,7 +283,7 @@ export default function SiteSettings() {
                   )}
                 </div>
                 <div className="flex w-full flex-col space-y-2">
-                  <h2 className=" text-2xl">Custom Domain</h2>
+                  <h2 className="text-xl">Custom Domain</h2>
                   {site?.customDomain ? (
                     <DomainCard data={data} />
                   ) : (
@@ -377,7 +377,7 @@ export default function SiteSettings() {
               <div className="flex w-full space-x-8">
                 <div className="w-full">
                   <div className="relative flex w-full max-w-lg flex-col space-y-2">
-                    <h2 className="text-2xl">Logo Image</h2>
+                    <h2 className="text-xl">Logo Image</h2>
                     <div className="w-full max-w-lg">
                       <div
                         className={`relative h-[480px] w-[480px] ${
@@ -405,7 +405,7 @@ export default function SiteSettings() {
                 </div>
                 <div className="flex w-full flex-col justify-between">
                   <div className="mb-auto flex w-full flex-col">
-                    <h2 className="text-2xl">Theme</h2>
+                    <h2 className="text-xl">Theme</h2>
                     <div className="flex w-full max-w-lg items-center overflow-hidden rounded border border-gray-700">
                       <select
                         onChange={(e) =>
@@ -429,7 +429,7 @@ export default function SiteSettings() {
                     </div>
                   </div>
                   <div className="flex w-full flex-col space-y-2">
-                    <h2 className="text-2xl">Delete Site</h2>
+                    <h2 className="text-xl">Delete Site</h2>
                     <p>
                       Permanently delete your site and all of its contents from
                       our platform. This action is not reversible – please
@@ -456,7 +456,7 @@ export default function SiteSettings() {
               }}
               className="inline-block w-full max-w-md overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
             >
-              <h2 className=" mb-6 text-2xl">Delete Site</h2>
+              <h2 className="mb-6 text-xl">Delete Site</h2>
               <div className="mx-auto grid w-5/6 gap-y-4">
                 <p className="mb-3 text-gray-600">
                   Are you sure you want to delete your site: <b>{data.name}</b>?

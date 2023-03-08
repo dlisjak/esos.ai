@@ -8,6 +8,7 @@ import Loader from "./Loader";
 import useRequireAuth from "../../lib/useRequireAuth";
 
 import TopNavLink from "./NavLink/TopNavLink";
+import { useCredits } from "@/lib/queries";
 
 export default function Layout({ children }) {
   const router = useRouter();
@@ -52,6 +53,7 @@ export default function Layout({ children }) {
     "Create a fullstack application with multi-tenancy and custom domains support using Next.js, Prisma, and PostgreSQL";
 
   const session = useRequireAuth();
+  const { credits } = useCredits();
   if (!session) return <Loader />;
 
   return (
@@ -83,7 +85,7 @@ export default function Layout({ children }) {
           <meta name="twitter:description" content={description} />
           <meta name="twitter:image" content={logo} />
         </Head>
-        <div className="fixed left-0 right-0 z-50 h-16 border-b border-gray-200 bg-white px-4">
+        <div className="fixed left-0 right-0 z-40 h-16 border-b border-gray-200 bg-white px-4">
           <div className="mx-auto flex h-full max-w-screen-xl items-center justify-between">
             <div className="flex items-center">
               {session.user && session.user.image && (
@@ -102,17 +104,21 @@ export default function Layout({ children }) {
               <div className="ml-6 mr-2 h-8 border border-gray-300" />
               <TopNavLink href="/">Sites</TopNavLink>
               <TopNavLink href="/prompts">Prompts</TopNavLink>
+              <TopNavLink href="/account">Account</TopNavLink>
             </div>
-            <button
-              className="text-gray-500 transition-all duration-150 ease-in-out hover:text-gray-700"
-              onClick={() => signOut()}
-            >
-              Logout
-            </button>
+            <div className="flex items-center">
+              <div className="mr-4">Credits: {credits}</div>
+              <button
+                className="text-gray-500 transition-all duration-150 ease-in-out hover:text-gray-700"
+                onClick={() => signOut()}
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
         {sitePage && (
-          <div className="fixed left-0 right-0 top-16  z-50 border-b border-gray-200 bg-white px-4">
+          <div className="fixed left-0 right-0 top-16  z-40 border-b border-gray-200 bg-white px-4">
             <div className="mx-auto flex max-w-screen-xl items-center justify-between">
               <button className="ml-3 block" onClick={() => router.back()}>
                 ← Back
@@ -164,7 +170,7 @@ export default function Layout({ children }) {
           </div>
         )}
         {postPage && (
-          <div className="fixed left-0 right-0 top-[7.2rem] z-50 border-b border-gray-200 bg-white px-4">
+          <div className="fixed left-0 right-0 top-[7.2rem] z-40 border-b border-gray-200 bg-white px-4">
             <div className="mx-auto flex max-w-screen-lg items-center justify-center space-x-16">
               <Link
                 href={`/site/${subdomain}/posts`}
@@ -196,7 +202,7 @@ export default function Layout({ children }) {
           </div>
         )}
         {categoryPage && (
-          <div className="fixed left-0 right-0 top-[7.2rem] z-50 border-b border-gray-200 bg-white">
+          <div className="fixed left-0 right-0 top-[7.2rem] z-40 border-b border-gray-200 bg-white">
             <div className="mx-auto flex max-w-screen-lg items-center justify-center space-x-16">
               <Link
                 href={`/site/${subdomain}/categories/${categoryId}/posts`}

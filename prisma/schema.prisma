@@ -24,6 +24,7 @@ model User {
   sessions      Session[]
   sites         Site[]
   prompts       Prompt[]
+  credits       Int?      @default(50)
   accessToken   String?   @db.LongText
 }
 

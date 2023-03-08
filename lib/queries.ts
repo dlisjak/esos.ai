@@ -3,7 +3,7 @@ import useSWR from "swr";
 
 import fetcher from "./fetcher";
 
-import { Category, Post, Prompt, Site } from "@prisma/client";
+import { Category, Post, Prompt, Site, User } from "@prisma/client";
 
 interface CategoryWithPosts extends Category {
   posts: Post[];
@@ -239,5 +239,39 @@ export const usePrompt = (promptId) => {
     isLoading: !error && !prompt,
     isError: error,
     mutatePrompt: mutate,
+  };
+};
+
+export const useUser = () => {
+  const {
+    data: user,
+    error,
+    mutate,
+  } = useSWR<User>(`/api/user`, fetcher, {
+    revalidateOnFocus: false,
+  });
+
+  return {
+    user: user,
+    isLoading: !error && !user,
+    isError: error,
+    mutateCredits: mutate,
+  };
+};
+
+export const useCredits = () => {
+  const {
+    data: user,
+    error,
+    mutate,
+  } = useSWR<User>(`/api/user`, fetcher, {
+    revalidateOnFocus: false,
+  });
+
+  return {
+    credits: user?.credits,
+    isLoading: !error && !user,
+    isError: error,
+    mutateCredits: mutate,
   };
 };
