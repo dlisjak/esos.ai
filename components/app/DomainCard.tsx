@@ -1,198 +1,198 @@
-import { mutate } from 'swr';
-import { useState } from 'react';
-import LoadingDots from '@/components/app/loading-dots';
-import { HttpMethod } from '@/types';
+import { mutate } from "swr";
+import { useState } from "react";
+import LoadingDots from "@/components/app/loading-dots";
+import { HttpMethod } from "@/types";
 
-import type { Site } from '@prisma/client';
-import Link from 'next/link';
-import { useDomainCheck } from '@/lib/queries';
+import type { Site } from "@prisma/client";
+import Link from "next/link";
+import { useDomainCheck } from "@/lib/queries";
 
 type DomainData = Pick<
-	Site,
-	'customDomain' | 'id' | 'image' | 'imageBlurhash' | 'name' | 'subdomain'
+  Site,
+  "customDomain" | "id" | "image" | "imageBlurhash" | "name" | "subdomain"
 >;
 
 interface DomainCardProps<T = DomainData> {
-	data: T;
+  data: T;
 }
 
 export default function DomainCard({ data }: DomainCardProps) {
-	const { valid, isValidating, mutateDomainCheck } = useDomainCheck(
-		data.customDomain
-	);
+  const { valid, isValidating, mutateDomainCheck } = useDomainCheck(
+    data.customDomain
+  );
 
-	const [recordType, setRecordType] = useState('CNAME');
-	const [removing, setRemoving] = useState(false);
-	const subdomain = // if domain is a subdomain
-		data.customDomain && data.customDomain.split('.').length > 2
-			? data.customDomain.split('.')[0]
-			: '';
+  const [recordType, setRecordType] = useState("CNAME");
+  const [removing, setRemoving] = useState(false);
+  const subdomain = // if domain is a subdomain
+    data.customDomain && data.customDomain.split(".").length > 2
+      ? data.customDomain.split(".")[0]
+      : "";
 
-	return (
-		<div className="w-full max-w-2xl mt-10 border border-black rounded py-10">
-			<div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 justify-between px-10">
-				<Link
-					className="text-xl font-semibold flex justify-center sm:justify-start items-center"
-					href={`http://${data.customDomain}`}
-					rel="noreferrer"
-					target="_blank"
-				>
-					{data.customDomain}
-					<span className="inline-block ml-2">
-						<svg
-							viewBox="0 0 24 24"
-							width="20"
-							height="20"
-							stroke="currentColor"
-							strokeWidth="1.5"
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							fill="none"
-							shapeRendering="geometricPrecision"
-						>
-							<path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-							<path d="M15 3h6v6" />
-							<path d="M10 14L21 3" />
-						</svg>
-					</span>
-				</Link>
-				<div className="flex space-x-3">
-					<button
-						onClick={() => mutateDomainCheck()}
-						disabled={isValidating}
-						className={`${
-							isValidating
-								? 'cursor-not-allowed bg-gray-100'
-								: 'bg-white hover:text-black hover:border-black'
-						} text-gray-500 border-gray-200 py-1.5 w-24 text-sm border-solid border rounded focus:outline-none transition-all ease-in-out duration-150`}
-					>
-						{isValidating ? <LoadingDots /> : 'Refresh'}
-					</button>
-					<button
-						onClick={async () => {
-							setRemoving(true);
-							await fetch(
-								`/api/domain?domain=${data.customDomain}&siteId=${data.id}`,
-								{
-									method: HttpMethod.DELETE,
-								}
-							).then((res) => {
-								setRemoving(false);
-								if (res.ok) {
-									mutate(`/api/site?siteId=${data.id}`);
-								} else {
-									alert('Error removing domain');
-								}
-							});
-						}}
-						disabled={removing}
-						className={`${
-							removing ? 'cursor-not-allowed bg-gray-100' : ''
-						}bg-red-500 text-white border-red-500 hover:text-red-500 hover:bg-white py-1.5 w-24 text-sm border-solid border rounded focus:outline-none transition-all ease-in-out duration-150`}
-					>
-						{removing ? <LoadingDots /> : 'Remove'}
-					</button>
-				</div>
-			</div>
+  return (
+    <div className="mt-10 w-full max-w-2xl rounded border border-black py-10">
+      <div className="flex flex-col justify-between space-y-4 px-10 sm:flex-row sm:space-x-4">
+        <Link
+          className="flex items-center justify-center text-xl font-semibold sm:justify-start"
+          href={`http://${data.customDomain}`}
+          rel="noreferrer"
+          target="_blank"
+        >
+          {data.customDomain}
+          <span className="ml-2 inline-block">
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              shapeRendering="geometricPrecision"
+            >
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+              <path d="M15 3h6v6" />
+              <path d="M10 14L21 3" />
+            </svg>
+          </span>
+        </Link>
+        <div className="flex space-x-3">
+          <button
+            onClick={() => mutateDomainCheck()}
+            disabled={isValidating}
+            className={`${
+              isValidating
+                ? "cursor-not-allowed bg-gray-100"
+                : "bg-white hover:border-black hover:text-black"
+            } w-24 rounded border border-solid border-gray-200 py-1.5 text-sm text-gray-500 transition-all duration-150 ease-in-out focus:outline-none`}
+          >
+            {isValidating ? <LoadingDots /> : "Refresh"}
+          </button>
+          <button
+            onClick={async () => {
+              setRemoving(true);
+              await fetch(
+                `/api/domain?domain=${data.customDomain}&subdomain=${data.subdomain}`,
+                {
+                  method: HttpMethod.DELETE,
+                }
+              ).then((res) => {
+                setRemoving(false);
+                if (res.ok) {
+                  mutate(`/api/site?subdomain=${data.subdomain}`);
+                } else {
+                  alert("Error removing domain");
+                }
+              });
+            }}
+            disabled={removing}
+            className={`${
+              removing ? "cursor-not-allowed bg-gray-100" : ""
+            }bg-red-500 w-24 rounded border border-solid border-red-500 py-1.5 text-sm text-white transition-all duration-150 ease-in-out hover:bg-white hover:text-red-500 focus:outline-none`}
+          >
+            {removing ? <LoadingDots /> : "Remove"}
+          </button>
+        </div>
+      </div>
 
-			<div className="flex items-center space-x-3 my-3 px-10">
-				<svg
-					viewBox="0 0 24 24"
-					width="24"
-					height="24"
-					strokeWidth="1.5"
-					strokeLinecap="round"
-					strokeLinejoin="round"
-					shapeRendering="geometricPrecision"
-				>
-					<circle cx="12" cy="12" r="10" fill={valid ? '#1976d2' : '#d32f2f'} />
-					{valid ? (
-						<>
-							<path
-								d="M8 11.8571L10.5 14.3572L15.8572 9"
-								fill="none"
-								stroke="white"
-							/>
-						</>
-					) : (
-						<>
-							<path d="M15 9l-6 6" stroke="white" />
-							<path d="M9 9l6 6" stroke="white" />
-						</>
-					)}
-				</svg>
-				<p
-					className={`${
-						valid ? 'text-black font-normal' : 'text-red-700 font-medium'
-					} text-sm`}
-				>
-					{valid ? 'Valid' : 'Invalid'} Configuration
-				</p>
-			</div>
+      <div className="my-3 flex items-center space-x-3 px-10">
+        <svg
+          viewBox="0 0 24 24"
+          width="24"
+          height="24"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          shapeRendering="geometricPrecision"
+        >
+          <circle cx="12" cy="12" r="10" fill={valid ? "#1976d2" : "#d32f2f"} />
+          {valid ? (
+            <>
+              <path
+                d="M8 11.8571L10.5 14.3572L15.8572 9"
+                fill="none"
+                stroke="white"
+              />
+            </>
+          ) : (
+            <>
+              <path d="M15 9l-6 6" stroke="white" />
+              <path d="M9 9l6 6" stroke="white" />
+            </>
+          )}
+        </svg>
+        <p
+          className={`${
+            valid ? "font-normal text-black" : "font-medium text-red-700"
+          } text-sm`}
+        >
+          {valid ? "Valid" : "Invalid"} Configuration
+        </p>
+      </div>
 
-			{!valid && (
-				<>
-					<div className="w-full border-t border-gray-100 mt-5 mb-8" />
+      {!valid && (
+        <>
+          <div className="mt-5 mb-8 w-full border-t border-gray-100" />
 
-					<div className="px-10">
-						<div className="flex justify-start space-x-4">
-							<button
-								onClick={() => setRecordType('CNAME')}
-								className={`${
-									recordType == 'CNAME'
-										? 'text-black border-black'
-										: 'text-gray-400 border-white'
-								} text-sm border-b-2 pb-1 transition-all ease duration-150`}
-							>
-								CNAME Record (subdomains)
-							</button>
-							{/* if the custom domain is a subdomain, only show CNAME record */}
-							{!subdomain && (
-								<button
-									onClick={() => setRecordType('A')}
-									className={`${
-										recordType == 'A'
-											? 'text-black border-black'
-											: 'text-gray-400 border-white'
-									} text-sm border-b-2 pb-1 transition-all ease duration-150`}
-								>
-									A Record (apex domain)
-								</button>
-							)}
-						</div>
-						<div className="my-3 text-left">
-							<p className="my-5 text-sm">
-								Set the following record on your DNS provider to continue:
-							</p>
-							<div className="flex justify-start items-center space-x-10 bg-gray-50 p-2 rounded">
-								<div>
-									<p className="text-sm font-bold">Type</p>
-									<p className="text-sm font-mono mt-2">{recordType}</p>
-								</div>
-								<div>
-									<p className="text-sm font-bold">Name</p>
-									{/* if the custom domain is a subdomain, the CNAME record is the subdomain */}
-									<p className="text-sm font-mono mt-2">
-										{recordType === 'A'
-											? '@'
-											: recordType == 'CNAME' && subdomain
-											? subdomain
-											: 'www'}
-									</p>
-								</div>
-								<div>
-									<p className="text-sm font-bold">Value</p>
-									<p className="text-sm font-mono mt-2">
-										{recordType == 'CNAME'
-											? `cname.${process.env.NEXT_PUBLIC_DOMAIN_URL}`
-											: `76.76.21.21`}
-									</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</>
-			)}
-		</div>
-	);
+          <div className="px-10">
+            <div className="flex justify-start space-x-4">
+              <button
+                onClick={() => setRecordType("CNAME")}
+                className={`${
+                  recordType == "CNAME"
+                    ? "border-black text-black"
+                    : "border-white text-gray-400"
+                } ease border-b-2 pb-1 text-sm transition-all duration-150`}
+              >
+                CNAME Record (subdomains)
+              </button>
+              {/* if the custom domain is a subdomain, only show CNAME record */}
+              {!subdomain && (
+                <button
+                  onClick={() => setRecordType("A")}
+                  className={`${
+                    recordType == "A"
+                      ? "border-black text-black"
+                      : "border-white text-gray-400"
+                  } ease border-b-2 pb-1 text-sm transition-all duration-150`}
+                >
+                  A Record (apex domain)
+                </button>
+              )}
+            </div>
+            <div className="my-3 text-left">
+              <p className="my-5 text-sm">
+                Set the following record on your DNS provider to continue:
+              </p>
+              <div className="flex items-center justify-start space-x-10 rounded bg-gray-50 p-2">
+                <div>
+                  <p className="text-sm font-bold">Type</p>
+                  <p className="mt-2 font-mono text-sm">{recordType}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-bold">Name</p>
+                  {/* if the custom domain is a subdomain, the CNAME record is the subdomain */}
+                  <p className="mt-2 font-mono text-sm">
+                    {recordType === "A"
+                      ? "@"
+                      : recordType == "CNAME" && subdomain
+                      ? subdomain
+                      : "www"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-bold">Value</p>
+                  <p className="mt-2 font-mono text-sm">
+                    {recordType == "CNAME"
+                      ? `cname.${process.env.NEXT_PUBLIC_DOMAIN_URL}`
+                      : `76.76.21.21`}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }

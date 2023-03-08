@@ -17,6 +17,8 @@ export const config = {
 export default async function middleware(req: NextRequest) {
   const url = req.nextUrl;
 
+  console.log(url);
+
   // Get hostname of request (e.g. demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}, demo.localhost:3000)
   const hostname =
     req.headers.get("host") || `demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
@@ -63,6 +65,8 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
 
+  console.log(currentHost);
+  console.log(path);
   // rewrite everything else to `/_sites/[site] dynamic route
   return NextResponse.rewrite(
     new URL(`/_sites/${currentHost}${path}`, req.url)
