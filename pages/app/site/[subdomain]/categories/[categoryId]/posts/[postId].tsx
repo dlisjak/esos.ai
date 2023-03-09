@@ -17,7 +17,6 @@ import ContainerLoader from "@/components/app/ContainerLoader";
 import Container from "@/components/Layout/Container";
 
 import { useCategories, useCredits, usePost, usePrompts } from "@/lib/queries";
-import { placeholderBlurhash } from "@/lib/utils";
 import { HttpMethod } from "@/types";
 
 interface PostData {
@@ -405,9 +404,7 @@ export default function Post() {
                         height={500}
                         placeholder="blur"
                         className="h-full w-full cursor-pointer rounded object-contain"
-                        blurDataURL={
-                          imagePreview || data.image || placeholderBlurhash
-                        }
+                        blurDataURL={imagePreview || data.image}
                       />
                     )}
                   </div>

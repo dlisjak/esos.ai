@@ -13,18 +13,11 @@ import { HttpMethod } from "@/types";
 
 import type { ChangeEvent } from "react";
 
-import { placeholderBlurhash } from "@/lib/utils";
 import getSlug from "speakingurl";
 import Container from "@/components/Layout/Container";
 import Header from "@/components/Layout/Header";
 import { useSession } from "next-auth/react";
-import {
-  useCategories,
-  useCategory,
-  useCredits,
-  usePrompts,
-} from "@/lib/queries";
-import Loader from "@/components/app/Loader";
+import { useCategories, useCategory, usePrompts } from "@/lib/queries";
 import Image from "next/image";
 import ContainerLoader from "@/components/app/ContainerLoader";
 
@@ -308,9 +301,7 @@ export default function CategoryPage() {
                       height={500}
                       placeholder="blur"
                       className="h-full w-full cursor-pointer rounded object-contain"
-                      blurDataURL={
-                        imagePreview || data.image || placeholderBlurhash
-                      }
+                      blurDataURL={imagePreview || data.image}
                     />
                   )}
                 </div>

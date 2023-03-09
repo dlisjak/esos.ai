@@ -16,7 +16,6 @@ import Modal from "@/components/Modal";
 
 import type { ChangeEvent } from "react";
 import { HttpMethod } from "@/types";
-import { placeholderBlurhash } from "@/lib/utils";
 import { useCategories, useCredits, usePost, usePrompts } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
 
@@ -397,9 +396,7 @@ export default function Post() {
                       height={500}
                       placeholder="blur"
                       className="h-full w-full cursor-pointer rounded object-contain"
-                      blurDataURL={
-                        imagePreview || data.image || placeholderBlurhash
-                      }
+                      blurDataURL={imagePreview || data.image}
                     />
                   )}
                 </div>

@@ -4,7 +4,6 @@ import type { Session } from "next-auth";
 import prisma from "@/lib/prisma";
 
 import type { Site } from ".prisma/client";
-import { placeholderBlurhash } from "../utils";
 
 /**
  * Get Site
@@ -96,7 +95,6 @@ export async function createSite(
         subdomain: sub.length > 0 ? sub : cuid(),
         logo: "/logo.png",
         image: `/placeholder.png`,
-        imageBlurhash: placeholderBlurhash,
         user: {
           connect: {
             id: userId,

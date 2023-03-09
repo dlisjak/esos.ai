@@ -4,7 +4,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import type { Category } from ".prisma/client";
 import { revalidate } from "@/lib/revalidate";
-import { placeholderBlurhash } from "@/lib/utils";
 
 /**
  * Get Category
@@ -143,7 +142,6 @@ export async function createCategory(
     const response = await prisma.category.create({
       data: {
         image: `/placeholder.png`,
-        imageBlurhash: placeholderBlurhash,
         title,
         slug,
         site: {
