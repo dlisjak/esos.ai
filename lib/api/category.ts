@@ -271,7 +271,6 @@ export async function updateCategory(
         slug,
         parentId: parent,
         image: image,
-        imageBlurhash: undefined,
       },
     });
 

@@ -9,7 +9,7 @@ import { useDomainCheck } from "@/lib/queries";
 
 type DomainData = Pick<
   Site,
-  "customDomain" | "id" | "image" | "imageBlurhash" | "name" | "subdomain"
+  "customDomain" | "id" | "image" | "name" | "subdomain"
 >;
 
 interface DomainCardProps<T = DomainData> {

@@ -182,7 +182,6 @@ export async function deleteSite(
  *  - currentSubdomain
  *  - name
  *  - image
- *  - imageBlurhash
  *
  * @param req - Next.js API Request
  * @param res - Next.js API Response
@@ -192,8 +191,7 @@ export async function updateSite(
   res: NextApiResponse,
   session: Session
 ): Promise<void | NextApiResponse<Site>> {
-  const { id, currentSubdomain, name, font, image, imageBlurhash, themeId } =
-    req.body;
+  const { id, currentSubdomain, name, font, image, themeId } = req.body;
 
   if (!session?.user.id) return res.status(401).end("Unauthorized");
 
@@ -224,7 +222,6 @@ export async function updateSite(
         font,
         subdomain,
         image,
-        imageBlurhash,
         themeId,
       },
     });

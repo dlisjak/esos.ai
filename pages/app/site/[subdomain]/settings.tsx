@@ -24,14 +24,7 @@ import ContainerLoader from "@/components/app/ContainerLoader";
 interface SettingsData
   extends Pick<
     Site,
-    | "id"
-    | "name"
-    | "font"
-    | "subdomain"
-    | "customDomain"
-    | "image"
-    | "imageBlurhash"
-    | "themeId"
+    "id" | "name" | "font" | "subdomain" | "customDomain" | "image" | "themeId"
   > {}
 
 export default function SiteSettings() {
@@ -66,7 +59,6 @@ export default function SiteSettings() {
     subdomain: null,
     customDomain: null,
     image: null,
-    imageBlurhash: null,
     themeId: "",
   });
 

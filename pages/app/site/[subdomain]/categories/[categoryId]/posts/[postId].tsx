@@ -25,7 +25,6 @@ interface PostData {
   content: string;
   categoryId: string;
   image: string;
-  imageBlurhash: string;
 }
 
 const CONTENT_PLACEHOLDER = `Write some content. Markdown supported:
@@ -85,7 +84,6 @@ export default function Post() {
     content: "",
     categoryId: "",
     image: "",
-    imageBlurhash: "",
   });
 
   useEffect(() => {
@@ -96,7 +94,6 @@ export default function Post() {
         content: post.content ?? "",
         categoryId: post.categoryId ?? "",
         image: post.image ?? "",
-        imageBlurhash: post.imageBlurhash ?? "",
       });
   }, [post, categoryId]);
 

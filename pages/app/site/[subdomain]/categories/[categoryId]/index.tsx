@@ -28,7 +28,6 @@ interface CategoryData {
   slug: string;
   parentId: string;
   image: string;
-  imageBlurhash: string;
 }
 
 export default function CategoryPage() {
@@ -59,7 +58,6 @@ export default function CategoryPage() {
     slug: "",
     parentId: "",
     image: "",
-    imageBlurhash: "",
   });
 
   useEffect(() => {
@@ -71,7 +69,6 @@ export default function CategoryPage() {
         parentId: category.parentId ?? "",
         slug: category.slug ?? "",
         image: category.image ?? "",
-        imageBlurhash: category.imageBlurhash ?? "",
       });
   }, [category]);
 

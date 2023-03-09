@@ -203,7 +203,6 @@ export async function deletePost(
  *  - content
  *  - slug
  *  - image
- *  - imageBlurhash
  *  - published
  *
  * @param req - Next.js API Request

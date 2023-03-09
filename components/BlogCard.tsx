@@ -5,10 +5,7 @@ import type { Post } from "@prisma/client";
 import { toDateString } from "@/lib/utils";
 
 interface BlogCardProps {
-  data: Pick<
-    Post,
-    "slug" | "image" | "imageBlurhash" | "title" | "description" | "createdAt"
-  >;
+  data: Pick<Post, "slug" | "image" | "title" | "description" | "createdAt">;
 }
 
 export default function BlogCard({ data }: BlogCardProps) {
