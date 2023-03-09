@@ -21,7 +21,8 @@ export default function Dashboard() {
 
   const { posts, isLoading: isLoadingPosts } = usePosts(subdomain, true);
 
-  const { categories, isLoading: isLoadingCategories } = useCategories();
+  const { categories, isLoading: isLoadingCategories } =
+    useCategories(subdomain);
   const { posts: draftPosts, isLoading: isLoadingDraftPosts } = usePosts(
     subdomain,
     false

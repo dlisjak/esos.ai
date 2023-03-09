@@ -157,14 +157,14 @@ export const useLatestPosts = (subdomain, limit) => {
   };
 };
 
-export const useCategories = () => {
+export const useCategories = (subdomain) => {
   const router = useRouter();
 
   const {
     data: categories,
     error,
     mutate,
-  } = useSWR<Category[]>(`/api/category`, fetcher, {
+  } = useSWR<Category[]>(`/api/category?subdomain=${subdomain}`, fetcher, {
     dedupingInterval: 1000,
     onError: () => router.push("/"),
     revalidateOnFocus: false,

@@ -33,7 +33,7 @@ export default function SiteCategories() {
   const router = useRouter();
   const { subdomain } = router.query;
 
-  const { categories, isLoading, mutateCategories } = useCategories();
+  const { categories, isLoading, mutateCategories } = useCategories(subdomain);
 
   async function createCategory(subdomain: string | string[] | undefined) {
     if (!subdomain) return;

@@ -48,7 +48,7 @@ export default function CategoryPage() {
 
   const { category, isLoading, mutateCategory } = useCategory(categoryId);
 
-  const { categories } = useCategories();
+  const { categories } = useCategories(subdomain);
   const { prompts } = usePrompts();
 
   const [data, setData] = useState<CategoryData>({

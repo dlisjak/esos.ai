@@ -74,7 +74,7 @@ export default function Post() {
 
   const { post, isLoading, mutatePost } = usePost(postId);
 
-  const { categories } = useCategories();
+  const { categories } = useCategories(subdomain);
   const { prompts } = usePrompts();
   const { mutateCredits } = useCredits();
 
