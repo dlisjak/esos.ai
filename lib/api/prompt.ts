@@ -1,11 +1,10 @@
-import prisma from "@/lib/prisma";
-
-import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "pages/api/auth/[...nextauth]";
-import type { Prompt, User } from ".prisma/client";
 import type { Session } from "next-auth";
+import { NextApiRequest, NextApiResponse } from "next";
+
+import prisma from "@/lib/prisma";
 import { openai } from "@/lib/openai";
+
+import type { Prompt } from ".prisma/client";
 
 /**
  * Get Prompt

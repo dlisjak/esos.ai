@@ -29,7 +29,6 @@ html {
 .w-md-editor-toolbar > ul > li > button[data-name="title1"] > div {
   font-size: 2rem !important;
 }
-
 .w-md-editor-toolbar > ul > li > button[data-name="title2"] > div {
   font-size: 1.75rem !important;
 }

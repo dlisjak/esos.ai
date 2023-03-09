@@ -1,7 +1,8 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+import { Session } from "next-auth";
+
 import prisma from "@/lib/prisma";
 import { HttpMethod } from "@/types";
-
-import type { NextApiRequest, NextApiResponse } from "next";
 
 /**
  * Add Domain
@@ -14,12 +15,15 @@ import type { NextApiRequest, NextApiResponse } from "next";
  */
 export async function createDomain(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
+  session: Session
 ): Promise<void | NextApiResponse> {
   const { domain, subdomain } = req.query;
 
   if (Array.isArray(domain) || Array.isArray(subdomain))
     return res.status(400).end("Bad request. Query parameters are not valid.");
+
+  if (!session.user.id) return res.status(400).end("Session Invalid");
 
   try {
     const response = await fetch(
@@ -70,12 +74,15 @@ export async function createDomain(
  */
 export async function deleteDomain(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
+  session: Session
 ): Promise<void | NextApiResponse> {
   const { domain, subdomain } = req.query;
 
   if (Array.isArray(domain) || Array.isArray(subdomain))
     res.status(400).end("Bad request. Query parameters cannot be an array.");
+
+  if (!session.user.id) return res.status(400).end("Session Invalid");
 
   try {
     const response = await fetch(

@@ -1,14 +1,10 @@
-import type { Session } from 'next-auth';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
+import type { Session } from "next-auth";
+import { NextApiRequest, NextApiResponse } from "next";
 
-import prisma from '@/lib/prisma';
-import { authOptions } from 'pages/api/auth/[...nextauth]';
-import type { Category } from '.prisma/client';
-import { revalidate } from '@/lib/revalidate';
-import { getBlurDataURL, placeholderBlurhash } from '@/lib/utils';
-
-import type { WithSitePost } from '@/types';
+import prisma from "@/lib/prisma";
+import type { Category } from ".prisma/client";
+import { revalidate } from "@/lib/revalidate";
+import { placeholderBlurhash } from "@/lib/utils";
 
 /**
  * Get Category
@@ -22,91 +18,91 @@ import type { WithSitePost } from '@/types';
  * @param session - NextAuth.js session
  */
 export async function getCategory(
-	req: NextApiRequest,
-	res: NextApiResponse,
-	session: Session
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
 ): Promise<void | NextApiResponse<Array<Category> | (Category | null)>> {
-	const { subdomain, siteId, categoryId } = req.query;
+  const { subdomain, siteId, categoryId } = req.query;
 
-	if (
-		Array.isArray(categoryId) ||
-		Array.isArray(subdomain) ||
-		Array.isArray(siteId) ||
-		!session.user.id
-	)
-		return res.status(400).end('Bad request. Query parameters are not valid.');
+  if (
+    Array.isArray(categoryId) ||
+    Array.isArray(subdomain) ||
+    Array.isArray(siteId) ||
+    !session.user.id
+  )
+    return res.status(400).end("Bad request. Query parameters are not valid.");
 
-	try {
-		if (categoryId) {
-			const category = await prisma.category.findFirst({
-				where: {
-					id: categoryId,
-					site: {
-						user: {
-							id: session.user.id,
-						},
-					},
-				},
-				include: {
-					parent: true,
-					posts: {
-						include: {
-							category: true,
-						},
-						orderBy: [
-							{
-								isFeatured: 'desc',
-							},
-							{
-								createdAt: 'desc',
-							},
-						],
-					},
-				},
-			});
+  try {
+    if (categoryId) {
+      const category = await prisma.category.findFirst({
+        where: {
+          id: categoryId,
+          site: {
+            user: {
+              id: session.user.id,
+            },
+          },
+        },
+        include: {
+          parent: true,
+          posts: {
+            include: {
+              category: true,
+            },
+            orderBy: [
+              {
+                isFeatured: "desc",
+              },
+              {
+                createdAt: "desc",
+              },
+            ],
+          },
+        },
+      });
 
-			return res.status(200).json(category);
-		}
+      return res.status(200).json(category);
+    }
 
-		const site = await prisma.site.findFirst({
-			where: {
-				subdomain: subdomain,
-				user: {
-					id: session.user.id,
-				},
-			},
-		});
+    const site = await prisma.site.findFirst({
+      where: {
+        subdomain: subdomain,
+        user: {
+          id: session.user.id,
+        },
+      },
+    });
 
-		const categories = !site
-			? []
-			: await prisma.category.findMany({
-					where: {
-						siteId: site.id,
-					},
-					orderBy: {
-						title: 'asc',
-					},
-					include: {
-						parent: true,
-						children: {
-							include: {
-								posts: true,
-								children: {
-									include: {
-										posts: true,
-									},
-								},
-							},
-						},
-						posts: true,
-					},
-			  });
+    const categories = !site
+      ? []
+      : await prisma.category.findMany({
+          where: {
+            siteId: site.id,
+          },
+          orderBy: {
+            title: "asc",
+          },
+          include: {
+            parent: true,
+            children: {
+              include: {
+                posts: true,
+                children: {
+                  include: {
+                    posts: true,
+                  },
+                },
+              },
+            },
+            posts: true,
+          },
+        });
 
-		return res.status(200).json(categories);
-	} catch (error) {
-		console.error(error);
-		return res.status(500).end(error);
-	}
+    return res.status(200).json(categories);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
 }
 
 /**
@@ -120,51 +116,51 @@ export async function getCategory(
  * @param res - Next.js API Response
  */
 export async function createCategory(
-	req: NextApiRequest,
-	res: NextApiResponse,
-	session: Session
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
 ): Promise<void | NextApiResponse<Array<Category> | (Category | null)>> {
-	const { subdomain } = req.query;
-	const { title, slug } = req.body;
+  const { subdomain } = req.query;
+  const { title, slug } = req.body;
 
-	if (!subdomain || typeof subdomain !== 'string' || !session?.user?.id) {
-		return res
-			.status(400)
-			.json({ error: 'Missing or misconfigured site ID or session ID' });
-	}
+  if (!subdomain || typeof subdomain !== "string" || !session?.user?.id) {
+    return res
+      .status(400)
+      .json({ error: "Missing or misconfigured site ID or session ID" });
+  }
 
-	const site = await prisma.site.findFirst({
-		where: {
-			subdomain: subdomain,
-			user: {
-				id: session.user.id,
-			},
-		},
-	});
-	if (!site) return res.status(404).end('Site not found');
+  const site = await prisma.site.findFirst({
+    where: {
+      subdomain: subdomain,
+      user: {
+        id: session.user.id,
+      },
+    },
+  });
+  if (!site) return res.status(404).end("Site not found");
 
-	try {
-		const response = await prisma.category.create({
-			data: {
-				image: `/placeholder.png`,
-				imageBlurhash: placeholderBlurhash,
-				title,
-				slug,
-				site: {
-					connect: {
-						id: site.id,
-					},
-				},
-			},
-		});
+  try {
+    const response = await prisma.category.create({
+      data: {
+        image: `/placeholder.png`,
+        imageBlurhash: placeholderBlurhash,
+        title,
+        slug,
+        site: {
+          connect: {
+            id: site.id,
+          },
+        },
+      },
+    });
 
-		return res.status(201).json({
-			categoryId: response.id,
-		});
-	} catch (error) {
-		console.error(error);
-		return res.status(500).end(error);
-	}
+    return res.status(201).json({
+      categoryId: response.id,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
 }
 
 /**
@@ -177,51 +173,51 @@ export async function createCategory(
  * @param res - Next.js API Response
  */
 export async function deleteCategory(
-	req: NextApiRequest,
-	res: NextApiResponse,
-	session: Session
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
 ): Promise<void | NextApiResponse> {
-	const { categoryId } = req.query;
+  const { categoryId } = req.query;
 
-	if (!categoryId || typeof categoryId !== 'string' || !session?.user?.id) {
-		return res
-			.status(400)
-			.json({ error: 'Missing or misconfigured site ID or session ID' });
-	}
+  if (!categoryId || typeof categoryId !== "string" || !session?.user?.id) {
+    return res
+      .status(400)
+      .json({ error: "Missing or misconfigured site ID or session ID" });
+  }
 
-	try {
-		const response = await prisma.category.delete({
-			where: {
-				id: categoryId,
-			},
-			include: {
-				site: {
-					select: { subdomain: true, customDomain: true },
-				},
-			},
-		});
+  try {
+    const response = await prisma.category.delete({
+      where: {
+        id: categoryId,
+      },
+      include: {
+        site: {
+          select: { subdomain: true, customDomain: true },
+        },
+      },
+    });
 
-		if (response?.site?.subdomain) {
-			// revalidate for subdomain
-			await revalidate(
-				`https://${response.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
-				response.site.subdomain, // siteId
-				response.slug // slugname for the post
-			);
-		}
-		if (response?.site?.customDomain)
-			// revalidate for custom domain
-			await revalidate(
-				`https://${response.site.customDomain}`, // hostname to be revalidated
-				response.site.customDomain, // siteId
-				response.slug // slugname for the post
-			);
+    if (response?.site?.subdomain) {
+      // revalidate for subdomain
+      await revalidate(
+        `https://${response.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
+        response.site.subdomain, // siteId
+        response.slug // slugname for the post
+      );
+    }
+    if (response?.site?.customDomain)
+      // revalidate for custom domain
+      await revalidate(
+        `https://${response.site.customDomain}`, // hostname to be revalidated
+        response.site.customDomain, // siteId
+        response.slug // slugname for the post
+      );
 
-		return res.status(200).end();
-	} catch (error) {
-		console.error(error);
-		return res.status(500).end(error);
-	}
+    return res.status(200).end();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
 }
 
 /**
@@ -238,52 +234,52 @@ export async function deleteCategory(
  * @param res - Next.js API Response
  */
 export async function updateCategory(
-	req: NextApiRequest,
-	res: NextApiResponse,
-	session: Session
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
 ): Promise<void | NextApiResponse<Category>> {
-	const { id, title, description, parentId, slug, image } = req.body;
+  const { id, title, description, parentId, slug, image } = req.body;
 
-	const parent = parentId || null;
+  const parent = parentId || null;
 
-	if (!id || typeof id !== 'string' || !session?.user?.id) {
-		return res
-			.status(400)
-			.json({ error: 'Missing or misconfigured site ID or session ID' });
-	}
+  if (!id || typeof id !== "string" || !session?.user?.id) {
+    return res
+      .status(400)
+      .json({ error: "Missing or misconfigured site ID or session ID" });
+  }
 
-	const site = await prisma.site.findFirst({
-		where: {
-			categories: {
-				some: {
-					id: id,
-				},
-			},
-			user: {
-				id: session.user.id,
-			},
-		},
-	});
-	if (!site) return res.status(404).end('Site not found');
+  const site = await prisma.site.findFirst({
+    where: {
+      categories: {
+        some: {
+          id: id,
+        },
+      },
+      user: {
+        id: session.user.id,
+      },
+    },
+  });
+  if (!site) return res.status(404).end("Site not found");
 
-	try {
-		const category = await prisma.category.update({
-			where: {
-				id: id,
-			},
-			data: {
-				title,
-				description,
-				slug,
-				parentId: parent,
-				image: image,
-				imageBlurhash: undefined,
-			},
-		});
+  try {
+    const category = await prisma.category.update({
+      where: {
+        id: id,
+      },
+      data: {
+        title,
+        description,
+        slug,
+        parentId: parent,
+        image: image,
+        imageBlurhash: undefined,
+      },
+    });
 
-		return res.status(200).json(category);
-	} catch (error) {
-		console.error(error);
-		return res.status(500).end(error);
-	}
+    return res.status(200).json(category);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
 }

@@ -1,14 +1,8 @@
-import prisma from '@/lib/prisma';
+import { NextApiRequest, NextApiResponse } from "next";
+import type { Session } from "next-auth";
+import prisma from "@/lib/prisma";
 
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from 'pages/api/auth/[...nextauth]';
-import type { Theme } from '.prisma/client';
-import type { Session } from 'next-auth';
-import { revalidate } from '@/lib/revalidate';
-import { getBlurDataURL, placeholderBlurhash } from '@/lib/utils';
-
-import type { WithSitePost } from '@/types';
+import type { Theme } from ".prisma/client";
 /**
  * Get Theme
  *
@@ -21,36 +15,36 @@ import type { WithSitePost } from '@/types';
  * @param session - NextAuth.js session
  */
 export async function getTheme(
-	req: NextApiRequest,
-	res: NextApiResponse,
-	session: Session
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
 ): Promise<void | NextApiResponse<Array<Theme> | (Theme | null)>> {
-	const { themeId } = req.query;
+  const { themeId } = req.query;
 
-	if (Array.isArray(themeId))
-		return res
-			.status(400)
-			.end('Bad request. themeId parameter cannot be an array.');
+  if (Array.isArray(themeId))
+    return res
+      .status(400)
+      .end("Bad request. themeId parameter cannot be an array.");
 
-	if (!session.user.id)
-		return res.status(500).end('Server failed to get session user ID');
+  if (!session.user.id)
+    return res.status(500).end("Server failed to get session user ID");
 
-	try {
-		if (themeId) {
-			const themes = await prisma.theme.findFirst({
-				where: {
-					id: themeId,
-				},
-			});
+  try {
+    if (themeId) {
+      const themes = await prisma.theme.findFirst({
+        where: {
+          id: themeId,
+        },
+      });
 
-			return res.status(200).json(themes);
-		}
+      return res.status(200).json(themes);
+    }
 
-		const themes = await prisma.theme.findMany({});
+    const themes = await prisma.theme.findMany({});
 
-		return res.status(200).json(themes);
-	} catch (error) {
-		console.error(error);
-		return res.status(500).end(error);
-	}
+    return res.status(200).json(themes);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
 }

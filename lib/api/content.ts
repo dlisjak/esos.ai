@@ -2,9 +2,6 @@ import prisma from "@/lib/prisma";
 import axios from "axios";
 
 import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "pages/api/auth/[...nextauth]";
-import type { Prompt, User } from ".prisma/client";
 import type { Session } from "next-auth";
 
 interface Detect {
@@ -38,8 +35,6 @@ export async function checkPlagiarism(
   if (!session.user.id)
     return res.status(500).end("Server failed to get session user ID");
 
-  console.log(input);
-
   try {
     const { data } = await axios.post(
       `https://enterprise-api.writer.com/content/organization/${process.env.WRITER_ORGANIZATION_ID}/detect`,
@@ -51,6 +46,17 @@ export async function checkPlagiarism(
         },
       }
     );
+
+    await prisma.user.update({
+      where: {
+        id: session.user.id,
+      },
+      data: {
+        credits: {
+          decrement: 1,
+        },
+      },
+    });
 
     return res.status(200).json(data);
   } catch (error) {

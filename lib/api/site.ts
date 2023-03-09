@@ -1,12 +1,10 @@
-import cuid from 'cuid';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from 'pages/api/auth/[...nextauth]';
-import prisma from '@/lib/prisma';
+import cuid from "cuid";
+import { NextApiRequest, NextApiResponse } from "next";
+import type { Session } from "next-auth";
+import prisma from "@/lib/prisma";
 
-import type { Site } from '.prisma/client';
-import type { Session } from 'next-auth';
-import { placeholderBlurhash } from '../utils';
+import type { Site } from ".prisma/client";
+import { placeholderBlurhash } from "../utils";
 
 /**
  * Get Site
@@ -20,47 +18,47 @@ import { placeholderBlurhash } from '../utils';
  * @param session - NextAuth.js session
  */
 export async function getSite(
-	req: NextApiRequest,
-	res: NextApiResponse,
-	session: Session
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
 ): Promise<void | NextApiResponse<Array<Site> | (Site | null)>> {
-	const { subdomain } = req.query;
+  const { subdomain } = req.query;
 
-	if (Array.isArray(subdomain))
-		return res
-			.status(400)
-			.end('Bad request. subdomain parameter cannot be an array.');
+  if (Array.isArray(subdomain))
+    return res
+      .status(400)
+      .end("Bad request. subdomain parameter cannot be an array.");
 
-	if (!session.user.id)
-		return res.status(500).end('Server failed to get session user ID');
+  if (!session.user.id)
+    return res.status(500).end("Server failed to get session user ID");
 
-	try {
-		if (subdomain) {
-			const settings = await prisma.site.findFirst({
-				where: {
-					subdomain: subdomain,
-					user: {
-						id: session.user.id,
-					},
-				},
-			});
+  try {
+    if (subdomain) {
+      const settings = await prisma.site.findFirst({
+        where: {
+          subdomain: subdomain,
+          user: {
+            id: session.user.id,
+          },
+        },
+      });
 
-			return res.status(200).json(settings);
-		}
+      return res.status(200).json(settings);
+    }
 
-		const sites = await prisma.site.findMany({
-			where: {
-				user: {
-					id: session.user.id,
-				},
-			},
-		});
+    const sites = await prisma.site.findMany({
+      where: {
+        user: {
+          id: session.user.id,
+        },
+      },
+    });
 
-		return res.status(200).json(sites);
-	} catch (error) {
-		console.error(error);
-		return res.status(500).end(error);
-	}
+    return res.status(200).json(sites);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
 }
 
 /**
@@ -78,39 +76,43 @@ export async function getSite(
  * @param res - Next.js API Response
  */
 export async function createSite(
-	req: NextApiRequest,
-	res: NextApiResponse
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
 ): Promise<void | NextApiResponse<{
-	siteId: string;
+  siteId: string;
 }>> {
-	const { name, subdomain, userId } = req.body;
+  const { name, subdomain, userId } = req.body;
 
-	const sub = subdomain.replace(/[^a-zA-Z0-9/-]+/g, '');
+  if (!session.user.id)
+    return res.status(500).end("Server failed to get session user ID");
 
-	try {
-		const response = await prisma.site.create({
-			data: {
-				name: name,
-				subdomain: sub.length > 0 ? sub : cuid(),
-				logo: '/logo.png',
-				image: `/placeholder.png`,
-				imageBlurhash: placeholderBlurhash,
-				user: {
-					connect: {
-						id: userId,
-					},
-				},
-			},
-		});
+  const sub = subdomain.replace(/[^a-zA-Z0-9/-]+/g, "");
 
-		return res.status(201).json({
-			siteId: response.id,
-			subdomain: response.subdomain,
-		});
-	} catch (error) {
-		console.error(error);
-		return res.status(500).end(error);
-	}
+  try {
+    const response = await prisma.site.create({
+      data: {
+        name: name,
+        subdomain: sub.length > 0 ? sub : cuid(),
+        logo: "/logo.png",
+        image: `/placeholder.png`,
+        imageBlurhash: placeholderBlurhash,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+    });
+
+    return res.status(201).json({
+      siteId: response.id,
+      subdomain: response.subdomain,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
 }
 
 /**
@@ -123,53 +125,54 @@ export async function createSite(
  * @param res - Next.js API Response
  */
 export async function deleteSite(
-	req: NextApiRequest,
-	res: NextApiResponse
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
 ): Promise<void | NextApiResponse> {
-	const session = await getServerSession(req, res, authOptions);
-	if (!session?.user.id) return res.status(401).end('Unauthorized');
-	const { siteId } = req.query;
+  const { siteId } = req.query;
 
-	if (!siteId || typeof siteId !== 'string') {
-		return res.status(400).json({ error: 'Missing or misconfigured site ID' });
-	}
+  if (!siteId || typeof siteId !== "string") {
+    return res.status(400).json({ error: "Missing or misconfigured site ID" });
+  }
 
-	const site = await prisma.site.findFirst({
-		where: {
-			id: siteId,
-			user: {
-				id: session.user.id,
-			},
-		},
-	});
-	if (!site) return res.status(404).end('Site not found');
+  if (!session?.user.id) return res.status(401).end("Unauthorized");
 
-	if (Array.isArray(siteId))
-		return res
-			.status(400)
-			.end('Bad request. siteId parameter cannot be an array.');
+  const site = await prisma.site.findFirst({
+    where: {
+      id: siteId,
+      user: {
+        id: session.user.id,
+      },
+    },
+  });
+  if (!site) return res.status(404).end("Site not found");
 
-	try {
-		await prisma.$transaction([
-			prisma.post.deleteMany({
-				where: {
-					site: {
-						id: siteId,
-					},
-				},
-			}),
-			prisma.site.delete({
-				where: {
-					id: siteId,
-				},
-			}),
-		]);
+  if (Array.isArray(siteId))
+    return res
+      .status(400)
+      .end("Bad request. siteId parameter cannot be an array.");
 
-		return res.status(200).end();
-	} catch (error) {
-		console.error(error);
-		return res.status(500).end(error);
-	}
+  try {
+    await prisma.$transaction([
+      prisma.post.deleteMany({
+        where: {
+          site: {
+            id: siteId,
+          },
+        },
+      }),
+      prisma.site.delete({
+        where: {
+          id: siteId,
+        },
+      }),
+    ]);
+
+    return res.status(200).end();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
 }
 
 /**
@@ -187,50 +190,50 @@ export async function deleteSite(
  * @param res - Next.js API Response
  */
 export async function updateSite(
-	req: NextApiRequest,
-	res: NextApiResponse
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
 ): Promise<void | NextApiResponse<Site>> {
-	const session = await getServerSession(req, res, authOptions);
-	if (!session?.user.id) return res.status(401).end('Unauthorized');
+  const { id, currentSubdomain, name, font, image, imageBlurhash, themeId } =
+    req.body;
 
-	const { id, currentSubdomain, name, font, image, imageBlurhash, themeId } =
-		req.body;
+  if (!session?.user.id) return res.status(401).end("Unauthorized");
 
-	if (!id || typeof id !== 'string') {
-		return res.status(400).json({ error: 'Missing or misconfigured site ID' });
-	}
+  if (!id || typeof id !== "string") {
+    return res.status(400).json({ error: "Missing or misconfigured site ID" });
+  }
 
-	const site = await prisma.site.findFirst({
-		where: {
-			id,
-			user: {
-				id: session.user.id,
-			},
-		},
-	});
-	if (!site) return res.status(404).end('Site not found');
+  const site = await prisma.site.findFirst({
+    where: {
+      id,
+      user: {
+        id: session.user.id,
+      },
+    },
+  });
+  if (!site) return res.status(404).end("Site not found");
 
-	const sub = req.body.subdomain.replace(/[^a-zA-Z0-9/-]+/g, '');
-	const subdomain = sub.length > 0 ? sub : currentSubdomain;
+  const sub = req.body.subdomain.replace(/[^a-zA-Z0-9/-]+/g, "");
+  const subdomain = sub.length > 0 ? sub : currentSubdomain;
 
-	try {
-		const response = await prisma.site.update({
-			where: {
-				id: id,
-			},
-			data: {
-				name,
-				font,
-				subdomain,
-				image,
-				imageBlurhash,
-				themeId,
-			},
-		});
+  try {
+    const response = await prisma.site.update({
+      where: {
+        id: id,
+      },
+      data: {
+        name,
+        font,
+        subdomain,
+        image,
+        imageBlurhash,
+        themeId,
+      },
+    });
 
-		return res.status(200).json(response);
-	} catch (error) {
-		console.error(error);
-		return res.status(500).end(error);
-	}
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
 }
