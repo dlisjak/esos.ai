@@ -77,7 +77,6 @@ model Post {
   slug          String    @default(cuid())
   isFeatured    Boolean   @default(false)
   image         String?   @db.Text
-  imageBlurhash String?   @db.LongText
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   published     Boolean   @default(false)
@@ -97,7 +96,6 @@ model Category {
   description   String?     @db.Text
   slug          String      @default(cuid())
   image         String?     @db.Text
-  imageBlurhash String?     @db.LongText
   site          Site?       @relation(fields: [siteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   siteId        String?
   posts         Post[]
@@ -117,7 +115,6 @@ model Site {
   logo          String?
   font          String   @default("font-cal")
   image         String?  @db.Text
-  imageBlurhash String?  @db.LongText
   subdomain     String?  @unique
   customDomain  String?  @unique
   createdAt     DateTime @default(now())
@@ -166,5 +163,4 @@ model Example {
   domainCount   Int?
   url           String?
   image         String? @db.Text
-  imageBlurhash String? @db.LongText
 }

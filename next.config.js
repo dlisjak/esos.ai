@@ -6,9 +6,6 @@ module.exports = withMDX(removeImports({
   images: {
     domains: [
       "esosai.s3.eu-central-1.amazonaws.com",
-      "res.cloudinary.com",
-      "abs.twimg.com",
-      "pbs.twimg.com",
       "avatars.githubusercontent.com",
     ],
   },
