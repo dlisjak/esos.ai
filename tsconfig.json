@@ -36,7 +36,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "components/CheckoutForm.jsx"
+    "components/CheckoutForm.jsx",
+    "components/Editorjtsx",
+    "components/TextEditor.jsx"
   ],
   "exclude": ["node_modules"]
 }

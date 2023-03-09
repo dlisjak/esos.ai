@@ -1,6 +1,8 @@
 const withMDX = require('@next/mdx')()
+const removeImports = require('next-remove-imports')();
 
-module.exports = withMDX({
+
+module.exports = withMDX(removeImports({
   images: {
     domains: [
       "esosai.s3.eu-central-1.amazonaws.com",
@@ -16,4 +18,4 @@ module.exports = withMDX({
     appDir: true,
     mdxRs: true,
   },
-});
+}));

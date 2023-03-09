@@ -1,5 +1,5 @@
 html {
-	background-color: #fafafa;
+  background-color: #fafafa;
 }
 
 @tailwind base;
@@ -7,11 +7,41 @@ html {
 @tailwind utilities;
 
 @layer utilities {
-	.overflow-hidden {
-		-webkit-mask-image: -webkit-radial-gradient(white, black);
-	}
+  .overflow-hidden {
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+  }
 }
 
 .fileUpload {
-	display: block !important;
+  display: block !important;
+}
+
+.w-md-editor-toolbar li > button {
+  height: auto !important;
+  line-height: 1 !important;
+}
+
+.w-md-editor-toolbar > ul > li svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.w-md-editor-toolbar > ul > li > button[data-name="title1"] > div {
+  font-size: 2rem !important;
+}
+
+.w-md-editor-toolbar > ul > li > button[data-name="title2"] > div {
+  font-size: 1.75rem !important;
+}
+.w-md-editor-toolbar > ul > li > button[data-name="title3"] > div {
+  font-size: 1.5rem !important;
+}
+.w-md-editor-toolbar > ul > li > button[data-name="title4"] > div {
+  font-size: 1.35rem !important;
+}
+.w-md-editor-toolbar > ul > li > button[data-name="title5"] > div {
+  font-size: 1.25rem !important;
+}
+.w-md-editor-toolbar > ul > li > button[data-name="title6"] > div {
+  font-size: 1.1rem !important;
 }

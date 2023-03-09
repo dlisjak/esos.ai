@@ -1,4 +1,3 @@
-import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
 export const config = {
@@ -16,8 +15,6 @@ export const config = {
 
 export default async function middleware(req: NextRequest) {
   const url = req.nextUrl;
-
-  console.log(url);
 
   // Get hostname of request (e.g. demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}, demo.localhost:3000)
   const hostname =
@@ -65,8 +62,6 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
 
-  console.log(currentHost);
-  console.log(path);
   // rewrite everything else to `/_sites/[site] dynamic route
   return NextResponse.rewrite(
     new URL(`/_sites/${currentHost}${path}`, req.url)
