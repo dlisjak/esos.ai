@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import rewrites from "./rewrites.json";
 
 export const config = {
   matcher: [
@@ -62,8 +63,14 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
 
+  const siteObject = rewrites.find(
+    (rewrite) =>
+      rewrite.customDomain === currentHost || rewrite.subdomain === currentHost
+  );
+
   // rewrite everything else to `/_sites/[site] dynamic route
+  const theme = siteObject?.theme;
   return NextResponse.rewrite(
-    new URL(`/_sites/${currentHost}${path}`, req.url)
+    new URL(`/_sites/${theme}/${currentHost}${path}`, req.url)
   );
 }

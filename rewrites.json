@@ -1,0 +1,12 @@
+[
+  {
+    "subdomain": "baldwin-4",
+    "customDomain": "founder.si",
+    "theme": "classic"
+  },
+  {
+    "subdomain": "baldwin-99",
+    "customDomain": "esos.si",
+    "theme": "modern"
+  }
+]
