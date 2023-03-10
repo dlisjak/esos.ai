@@ -86,6 +86,8 @@ export default async function Index({ params }) {
   const data = await getData(params.site);
   if (!data) return <Loader />;
 
+  console.log("modern");
+
   return (
     <>
       <div className="mb-20 w-full">
