@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Session } from "next-auth";
+import fs from "fs";
+import path from "path";
 
 import prisma from "@/lib/prisma";
 import { HttpMethod } from "@/types";
@@ -56,6 +58,23 @@ export async function createDomain(
       },
     });
 
+    if (fs.existsSync(path.join("public", "rewrites", "index.json"))) {
+      const rewrites = JSON.parse(
+        fs.readFileSync(path.join("public", "rewrites", "index.json"), "utf-8")
+      );
+      const exists = rewrites.find(
+        (rewrite) => rewrite.subdomain === subdomain
+      );
+      if (exists) {
+        exists.customDomain = domain;
+      }
+
+      fs.writeFileSync(
+        path.join("public", "rewrites", "index.json"),
+        JSON.stringify(rewrites)
+      );
+    }
+
     return res.status(200).end();
   } catch (error) {
     console.error(error);
@@ -105,6 +124,23 @@ export async function deleteDomain(
         customDomain: null,
       },
     });
+
+    if (fs.existsSync(path.join("public", "rewrites", "index.json"))) {
+      const rewrites = JSON.parse(
+        fs.readFileSync(path.join("public", "rewrites", "index.json"), "utf-8")
+      );
+      const exists = rewrites.find(
+        (rewrite) => rewrite.subdomain === subdomain
+      );
+      if (exists) {
+        exists.customDomain = null;
+      }
+
+      fs.writeFileSync(
+        path.join("public", "rewrites", "index.json"),
+        JSON.stringify(rewrites)
+      );
+    }
 
     return res.status(200).end();
   } catch (error) {

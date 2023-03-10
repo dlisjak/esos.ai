@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import rewrites from "./rewrites.json";
+import rewrites from "./public/rewrites/index.json";
 
 export const config = {
   matcher: [
