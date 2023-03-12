@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
 
-export default function Home() {
+const Home = () => {
   return (
     <div className="flex h-screen bg-black">
       <Head>
@@ -19,4 +19,6 @@ export default function Home() {
       </div>
     </div>
   );
-}
+};
+
+export default Home;

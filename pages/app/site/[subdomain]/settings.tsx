@@ -101,11 +101,11 @@ export default function SiteSettings() {
     }
   }
 
-  async function deleteSite(siteId: string) {
+  async function deleteSite(subdomain: string) {
     setDeletingSite(true);
 
     try {
-      const response = await fetch(`/api/site?siteId=${siteId}`, {
+      const response = await fetch(`/api/site?subdomain=${subdomain}`, {
         method: HttpMethod.DELETE,
       });
 
@@ -444,7 +444,7 @@ export default function SiteSettings() {
             <form
               onSubmit={async (event) => {
                 event.preventDefault();
-                await deleteSite(data?.id as string);
+                await deleteSite(subdomain as string);
               }}
               className="inline-block w-full max-w-md overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
             >

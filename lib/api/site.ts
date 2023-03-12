@@ -1,8 +1,10 @@
 import cuid from "cuid";
 import { NextApiRequest, NextApiResponse } from "next";
 import type { Session } from "next-auth";
-import prisma from "@/lib/prisma";
+import fs from "fs";
+import path from "path";
 
+import prisma from "@/lib/prisma";
 import type { Site } from ".prisma/client";
 
 /**
@@ -103,6 +105,24 @@ export async function createSite(
       },
     });
 
+    if (fs.existsSync(path.join("public", "rewrites", "index.json"))) {
+      const rewrites = JSON.parse(
+        fs.readFileSync(path.join("public", "rewrites", "index.json"), "utf-8")
+      );
+
+      const obj = {
+        subdomain: subdomain,
+        customDomain: null,
+        theme: "classic",
+      };
+      rewrites.push(obj);
+
+      fs.writeFileSync(
+        path.join("public", "rewrites", "index.json"),
+        JSON.stringify(rewrites)
+      );
+    }
+
     return res.status(201).json({
       siteId: response.id,
       subdomain: response.subdomain,
@@ -127,9 +147,9 @@ export async function deleteSite(
   res: NextApiResponse,
   session: Session
 ): Promise<void | NextApiResponse> {
-  const { siteId } = req.query;
+  const { subdomain } = req.query;
 
-  if (!siteId || typeof siteId !== "string") {
+  if (!subdomain || typeof subdomain !== "string") {
     return res.status(400).json({ error: "Missing or misconfigured site ID" });
   }
 
@@ -137,7 +157,7 @@ export async function deleteSite(
 
   const site = await prisma.site.findFirst({
     where: {
-      id: siteId,
+      subdomain: subdomain,
       user: {
         id: session.user.id,
       },
@@ -145,7 +165,7 @@ export async function deleteSite(
   });
   if (!site) return res.status(404).end("Site not found");
 
-  if (Array.isArray(siteId))
+  if (Array.isArray(subdomain))
     return res
       .status(400)
       .end("Bad request. siteId parameter cannot be an array.");
@@ -155,16 +175,34 @@ export async function deleteSite(
       prisma.post.deleteMany({
         where: {
           site: {
-            id: siteId,
+            subdomain: subdomain,
           },
         },
       }),
       prisma.site.delete({
         where: {
-          id: siteId,
+          subdomain: subdomain,
         },
       }),
     ]);
+
+    if (fs.existsSync(path.join("public", "rewrites", "index.json"))) {
+      const rewrites = JSON.parse(
+        fs.readFileSync(path.join("public", "rewrites", "index.json"), "utf-8")
+      );
+      const idx = rewrites.indexOf(
+        (rewrite) => rewrite.subdomain === subdomain
+      );
+
+      if (idx) {
+        rewrites.splice(idx, 1);
+      }
+
+      fs.writeFileSync(
+        path.join("public", "rewrites", "index.json"),
+        JSON.stringify(rewrites)
+      );
+    }
 
     return res.status(200).end();
   } catch (error) {

@@ -1,95 +1,95 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { StatusIndicator } from './PostCard';
+import Image from "next/image";
+import Link from "next/link";
+import { StatusIndicator } from "./PostCard";
 
 const SiteCard = ({ site }) => {
-	if (!site) return <></>;
+  if (!site) return <></>;
 
-	const siteOverviewUrl = `/site/${site.subdomain}`;
-	const sitePostsUrl = `/site/${site.subdomain}/posts`;
-	const siteCategoriesUrl = `/site/${site.subdomain}/categories`;
-	const siteSettingssUrl = `/site/${site.subdomain}/settings`;
+  const siteOverviewUrl = `/site/${site.subdomain}`;
+  const sitePostsUrl = `/site/${site.subdomain}/posts`;
+  const siteCategoriesUrl = `/site/${site.subdomain}/categories`;
+  const siteSettingssUrl = `/site/${site.subdomain}/settings`;
 
-	const domain = site.customDomain
-		? site.customDomain
-		: `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
+  const domain = site.customDomain
+    ? `https://${site.customDomain}`
+    : `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
 
-	return (
-		<div className="relative bg-white p-4 flex items-end rounded drop-shadow-sm">
-			<div className="w-full flex rounded overflow-hidden">
-				<div className="relative h-[120px]">
-					<Link href={siteOverviewUrl}>
-						<Image
-							alt={site.name}
-							width={240}
-							height={120}
-							className="h-full object-cover"
-							src={site.image}
-						/>
-					</Link>
-				</div>
-				<div className="flex flex-col items-start relative px-4">
-					<div className="flex items-center">
-						<Link href={siteOverviewUrl} className="hover:underline">
-							<h2 className="text-xl font-semibold mb-1">{site.name}</h2>
-						</Link>
-					</div>
-					<p className="text-sm flex bg-slate-100 px-1 right-1 rounded w-auto line-clamp-1">
-						{domain}
-					</p>
-					{!site.customDomain && (
-						<Link
-							href={`/site/${site.subdomain}/settings`}
-							className="flex px-2 py-1 mt-auto text-sm bg-yellow-400 text-white rounded pointer hover:bg-yellow-500"
-						>
-							Configure domain
-						</Link>
-					)}
-				</div>
-			</div>
-			<div className="flex flex-col h-full items-end">
-				<Link
-					className="flex items-center justify-center rounded px-1 tracking-wide text-white bg-slate-400 duration-200 hover:bg-slate-600"
-					href={domain}
-					onClick={(e) => e.stopPropagation()}
-					rel="noreferrer"
-					target="_blank"
-				>
-					↗
-				</Link>
-				<div className="flex h-full space-x-2 items-end justify-between">
-					<Link
-						className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"
-						href={siteOverviewUrl}
-					>
-						Overview
-					</Link>
-					<Link
-						className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"
-						href={sitePostsUrl}
-					>
-						Posts
-					</Link>
-					<Link
-						className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"
-						href={siteCategoriesUrl}
-					>
-						Categories
-					</Link>
-					<Link
-						className="flex px-3 py-1 tracking-wide rounded text-black bg-white border duration-200 hover:border-black whitespace-nowrap"
-						href={siteSettingssUrl}
-					>
-						Settings
-					</Link>
-				</div>
-			</div>
-			<StatusIndicator
-				published={!!site.customDomain}
-				className="top-2 left-2"
-			/>
-		</div>
-	);
+  return (
+    <div className="relative flex items-end rounded bg-white p-4 drop-shadow-sm">
+      <div className="flex w-full overflow-hidden rounded">
+        <div className="relative h-[120px]">
+          <Link href={siteOverviewUrl}>
+            <Image
+              alt={site.name}
+              width={240}
+              height={120}
+              className="h-full object-cover"
+              src={site.image}
+            />
+          </Link>
+        </div>
+        <div className="relative flex flex-col items-start px-4">
+          <div className="flex items-center">
+            <Link href={siteOverviewUrl} className="hover:underline">
+              <h2 className="mb-1 text-xl font-semibold">{site.name}</h2>
+            </Link>
+          </div>
+          <p className="right-1 flex w-auto rounded bg-slate-100 px-1 text-sm line-clamp-1">
+            {domain}
+          </p>
+          {!site.customDomain && (
+            <Link
+              href={`/site/${site.subdomain}/settings`}
+              className="pointer mt-auto flex rounded bg-yellow-400 px-2 py-1 text-sm text-white hover:bg-yellow-500"
+            >
+              Configure domain
+            </Link>
+          )}
+        </div>
+      </div>
+      <div className="flex h-full flex-col items-end">
+        <Link
+          className="flex items-center justify-center rounded bg-slate-400 px-1 tracking-wide text-white duration-200 hover:bg-slate-600"
+          href={domain}
+          onClick={(e) => e.stopPropagation()}
+          rel="noreferrer"
+          target="_blank"
+        >
+          ↗
+        </Link>
+        <div className="flex h-full items-end justify-between space-x-2">
+          <Link
+            className="flex whitespace-nowrap rounded border bg-white px-3 py-1 tracking-wide text-black duration-200 hover:border-black"
+            href={siteOverviewUrl}
+          >
+            Overview
+          </Link>
+          <Link
+            className="flex whitespace-nowrap rounded border bg-white px-3 py-1 tracking-wide text-black duration-200 hover:border-black"
+            href={sitePostsUrl}
+          >
+            Posts
+          </Link>
+          <Link
+            className="flex whitespace-nowrap rounded border bg-white px-3 py-1 tracking-wide text-black duration-200 hover:border-black"
+            href={siteCategoriesUrl}
+          >
+            Categories
+          </Link>
+          <Link
+            className="flex whitespace-nowrap rounded border bg-white px-3 py-1 tracking-wide text-black duration-200 hover:border-black"
+            href={siteSettingssUrl}
+          >
+            Settings
+          </Link>
+        </div>
+      </div>
+      <StatusIndicator
+        published={!!site.customDomain}
+        className="top-2 left-2"
+      />
+    </div>
+  );
 };
 
 export default SiteCard;

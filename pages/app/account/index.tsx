@@ -11,8 +11,6 @@ import { StatusIndicator } from "@/components/app/PostCard";
 export default function Account() {
   const { user, isLoading } = useUser();
 
-  console.log(user);
-
   return (
     <Layout>
       <Header>
@@ -52,6 +50,7 @@ export default function Account() {
                           className="w-full rounded border-l p-2 pl-4"
                           value={user?.name || ""}
                           placeholder="Name"
+                          readOnly
                         />
                       </div>
                     </li>
@@ -70,6 +69,7 @@ export default function Account() {
                           className="w-full rounded border-l p-2 pl-4"
                           placeholder="Email"
                           value={user?.email || ""}
+                          readOnly
                         />
                       </div>
                     </li>
@@ -88,6 +88,7 @@ export default function Account() {
                           className="w-full rounded border-l p-2 pl-4"
                           value={user?.credits || ""}
                           placeholder="0"
+                          readOnly
                         />
                       </div>
                     </li>

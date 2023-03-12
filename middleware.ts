@@ -63,14 +63,23 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
 
-  const siteObject = rewrites.find(
-    (rewrite) =>
-      rewrite.customDomain === currentHost || rewrite.subdomain === currentHost
-  );
+  if (rewrites.length) {
+    const siteObject = rewrites.find(
+      (rewrite: { customDomain: string; subdomain: string; theme: string }) =>
+        rewrite?.customDomain === currentHost ||
+        rewrite?.subdomain === currentHost
+    ) || { customDomain: null, theme: "classic" };
+
+    if (siteObject) {
+      const theme = siteObject?.theme || "classic";
+      return NextResponse.rewrite(
+        new URL(`/_sites/${theme}/${currentHost}${path}`, req.url)
+      );
+    }
+  }
 
   // rewrite everything else to `/_sites/[site] dynamic route
-  const theme = siteObject?.theme;
   return NextResponse.rewrite(
-    new URL(`/_sites/${theme}/${currentHost}${path}`, req.url)
+    new URL(`/_sites/${currentHost}${path}`, req.url)
   );
 }
