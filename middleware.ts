@@ -65,7 +65,11 @@ export default async function middleware(req: NextRequest) {
 
   if (rewrites.length) {
     const siteObject = rewrites.find(
-      (rewrite: { customDomain: string; subdomain: string; theme: string }) =>
+      (rewrite: {
+        customDomain: string | null;
+        subdomain: string;
+        theme: string;
+      }) =>
         rewrite?.customDomain === currentHost ||
         rewrite?.subdomain === currentHost
     ) || { customDomain: null, theme: "classic" };

@@ -86,9 +86,6 @@ const TextEditor = ({ value, setValue }) => {
     }
   }
 
-  console.log({ value });
-  console.log(aiDetected);
-
   return (
     <>
       <div className="w-full">
@@ -117,8 +114,7 @@ const TextEditor = ({ value, setValue }) => {
             </button>
             {aiDetected && (
               <div className="flex flex-col">
-                <div className="px-2">AI: {Math.round(aiDetected[0].score * 100)}%</div>
-                <div className="px-2">Human: {Math.round(aiDetected[1].score * 100)}%</div>
+                <div className="px-2">Content is {Math.round(aiDetected[0].score * 100)}% Human generated</div>
               </div>
             )}
           </div>

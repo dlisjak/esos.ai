@@ -10,14 +10,14 @@ import type { ChangeEvent } from "react";
 
 import Layout from "@/components/app/Layout";
 import LoadingDots from "@/components/app/loading-dots";
-import Modal from "@/components/Modal";
 import { StatusIndicator } from "@/components/app/PostCard";
 import Header from "@/components/Layout/Header";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import Container from "@/components/Layout/Container";
 
-import { useCategories, useCredits, usePost, usePrompts } from "@/lib/queries";
+import { useCategories, usePost } from "@/lib/queries";
 import { HttpMethod } from "@/types";
+import TextEditor from "@/components/TextEditor";
 
 interface PostData {
   title: string;
@@ -26,32 +26,6 @@ interface PostData {
   categoryId: string;
   image: string;
 }
-
-const CONTENT_PLACEHOLDER = `Write some content. Markdown supported:
-
-# A H1 header
-
-## A H2 header
-
-Paragraphs are separated by a blank line.
-
-2nd paragraph. *Italic*, and **bold**. Itemized lists look like:
-
-  * this one
-  * that one
-  * the other one
-
-Ordered lists look like:
-
-  1. first item
-  2. second item
-  3. third item
-
-> Block quotes are written like so.
->
-> They can span multiple paragraphs,
-> if you like.
-`;
 
 export default function Post() {
   const { data: session } = useSession();
@@ -63,11 +37,6 @@ export default function Post() {
   const [publishing, setPublishing] = useState(false);
   const [drafting, setDrafting] = useState(false);
   const [disabled, setDisabled] = useState(true);
-  const [selectedPrompt, setSelectedPrompt] = useState("");
-  const [generateInput, setGenerateInput] = useState("");
-  const [showGenerateModal, setShowGenerateModal] = useState(false);
-  const [generatingResponse, setGeneratingResponse] = useState(false);
-  const [promptVariable, setPromptVariable] = useState("");
 
   const { subdomain, categoryId, postId } = router.query;
   const sessionUser = session?.user?.name;
@@ -75,8 +44,6 @@ export default function Post() {
   const { post, isLoading, mutatePost } = usePost(postId);
 
   const { categories } = useCategories(subdomain);
-  const { prompts } = usePrompts();
-  const { mutateCredits } = useCredits();
 
   const [data, setData] = useState<PostData>({
     title: "",
@@ -214,40 +181,11 @@ export default function Post() {
     });
   };
 
-  const handleGenerate = async () => {
-    if (!generateInput || !selectedPrompt) return;
-    setGeneratingResponse(true);
-
-    try {
-      const response = await fetch(`/api/prompt/generate`, {
-        method: HttpMethod.POST,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          promptVariable,
-          promptId: selectedPrompt,
-        }),
-      });
-
-      if (response.ok) {
-        const body = await response.json();
-
-        if (generateInput === "description") {
-          setData({
-            ...data,
-            content: body,
-          });
-        }
-        toast.success("Prompt executed successfully");
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      mutateCredits();
-      setGeneratingResponse(false);
-      setShowGenerateModal(false);
-    }
+  const handleSetContent = (value) => {
+    setData({
+      ...data,
+      content: value,
+    });
   };
 
   return (
@@ -343,47 +281,11 @@ export default function Post() {
                 <h2 className="mr-auto text-xl">
                   Content<span className="text-red-600">*</span>
                 </h2>
-                <TextareaAutosize
-                  name="content"
-                  onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                    setData({
-                      ...data,
-                      content: (e.target as HTMLTextAreaElement).value,
-                    })
-                  }
-                  minRows={6}
-                  className="mb-3 w-full resize-none rounded border-gray-400 px-2 py-3 text-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0"
-                  placeholder={CONTENT_PLACEHOLDER}
-                  value={data.content}
-                />
-                <div className="flex">
-                  <select
-                    onChange={(e) => {
-                      setSelectedPrompt(e.target.value);
-                      setGenerateInput("description");
-                    }}
-                    value={selectedPrompt}
-                  >
-                    <option value="" disabled>
-                      Select a Prompt
-                    </option>
-                    {prompts?.map((prompt) => (
-                      <option key={prompt.id} value={prompt.id}>
-                        {prompt.name}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    className="flex items-center whitespace-nowrap border border-black bg-black px-3 py-1 tracking-wide text-white duration-200 hover:border hover:bg-white hover:text-black"
-                    onClick={() => setShowGenerateModal(true)}
-                  >
-                    Generate
-                  </button>
-                </div>
+                <TextEditor value={data.content} setValue={handleSetContent} />
               </div>
               <div className="flex items-end space-x-6">
                 <div className="w-full max-w-lg">
-                  <p>Category Image</p>
+                  <p>Post Image</p>
                   <div
                     className={`relative h-[480px] w-[480px] ${
                       data.image ? "" : "h-150 animate-pulse bg-gray-300"
@@ -396,7 +298,7 @@ export default function Post() {
                     {(imagePreview || data.image) && (
                       <Image
                         src={imagePreview || data.image}
-                        alt="Upload Category Image"
+                        alt="Upload Post Image"
                         width={800}
                         height={500}
                         placeholder="blur"
@@ -455,96 +357,6 @@ export default function Post() {
             </footer>
           </>
         )}
-        <Modal
-          showModal={showGenerateModal}
-          setShowModal={setShowGenerateModal}
-        >
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              handleGenerate();
-            }}
-            className="inline-block w-full max-w-md overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
-          >
-            <div className="px-8">
-              <h2 className="mb-6 text-2xl">Use Prompt</h2>
-              <div className="flex-start flex flex-col items-center space-y-4">
-                <div className="flex w-full flex-col">
-                  <label className="mb-1 text-start" htmlFor="name">
-                    Prompt Name
-                  </label>
-                  <input
-                    id="name"
-                    className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
-                    name="name"
-                    required
-                    value={
-                      prompts?.find((prompt) => prompt.id === selectedPrompt)
-                        ?.name || ""
-                    }
-                    readOnly
-                    type="text"
-                  />
-                </div>
-                <div className="flex w-full flex-col">
-                  <label className="mb-1 text-start" htmlFor="name">
-                    Prompt Command
-                  </label>
-                  <textarea
-                    className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
-                    name="command"
-                    required
-                    value={
-                      prompts?.find((prompt) => prompt.id === selectedPrompt)
-                        ?.command || ""
-                    }
-                    readOnly
-                    rows={8}
-                  />
-                </div>
-                <div className="flex w-full flex-col">
-                  <label className="mb-1 text-start" htmlFor="name">
-                    Your Input
-                  </label>
-                  <input
-                    className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
-                    name="hint"
-                    required
-                    placeholder={
-                      prompts?.find((prompt) => prompt.id === selectedPrompt)
-                        ?.hint || ""
-                    }
-                    onChange={(e) => setPromptVariable(e.target.value)}
-                    type="text"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="mt-10 flex w-full items-center justify-between">
-              <button
-                type="button"
-                className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-200 ease-in-out hover:text-black focus:outline-none focus:ring-0"
-                onClick={() => {
-                  setShowGenerateModal(false);
-                }}
-              >
-                CANCEL
-              </button>
-
-              <button
-                type="submit"
-                disabled={generatingResponse}
-                className={`${
-                  generatingResponse
-                    ? "cursor-not-allowed bg-gray-50 text-gray-400"
-                    : "bg-white text-gray-600 hover:text-black"
-                } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-0`}
-              >
-                {generatingResponse ? <LoadingDots /> : "GENERATE RESPONSE"}
-              </button>
-            </div>
-          </form>
-        </Modal>
       </Layout>
     </>
   );

@@ -100,8 +100,8 @@ model Category {
   siteId        String?
   posts         Post[]
   parent        Category?   @relation(name: "categories", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  children      Category[]  @relation(name: "categories")
   parentId      String?
+  children      Category[]  @relation(name: "categories")
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 

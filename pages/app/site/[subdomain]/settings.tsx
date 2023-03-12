@@ -109,7 +109,13 @@ export default function SiteSettings() {
         method: HttpMethod.DELETE,
       });
 
-      if (response.ok) router.push("/");
+      if (response.ok) {
+        router.push("/");
+      } else {
+        toast.error(
+          "Deleting unsuccessful. Please remove all categories and try again."
+        );
+      }
     } catch (error) {
       console.error(error);
     } finally {

@@ -101,7 +101,6 @@ export default async function Index({ params }) {
                     className="h-full w-full object-cover group-hover:scale-105 group-hover:duration-300"
                     width={1300}
                     height={630}
-                    placeholder="blur"
                     src={data.posts[0].image}
                   />
                 ) : (

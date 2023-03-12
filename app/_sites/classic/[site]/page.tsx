@@ -8,6 +8,7 @@ import { toDateString } from "@/lib/utils";
 import Loader from "@/components/app/Loader";
 import { Metadata } from "next";
 import Image from "next/image";
+import Navigation from "@/components/Sites/Navbar";
 
 export const dynamicParams = true;
 
@@ -60,6 +61,21 @@ const getData = async (site) => {
     where: filter,
     include: {
       user: true,
+      categories: {
+        select: {
+          title: true,
+          slug: true,
+          children: {
+            select: {
+              title: true,
+              slug: true,
+            },
+          },
+        },
+        where: {
+          parentId: null,
+        },
+      },
       posts: {
         where: {
           published: true,
@@ -69,6 +85,26 @@ const getData = async (site) => {
             createdAt: "desc",
           },
         ],
+        select: {
+          title: true,
+          slug: true,
+          category: {
+            select: {
+              title: true,
+              slug: true,
+              parent: {
+                select: {
+                  title: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+          image: true,
+          content: true,
+          createdAt: true,
+        },
+        take: 5,
       },
     },
   });
@@ -86,63 +122,79 @@ export default async function Index({ params }) {
   const data = await getData(params.site);
   if (!data) return <Loader />;
 
-  console.log("classic");
+  console.log({ data });
 
   return (
     <>
+      <Navigation categories={data.categories} title={data.name} />
       <div className="mb-20 w-full">
         {data.posts.length > 0 ? (
           <div className="mx-auto w-full max-w-screen-lg md:mb-28 lg:w-5/6">
-            <Link href={`/${data.posts[0].slug}`}>
+            <Link
+              href={`${
+                data.posts[0].category?.parent?.slug
+                  ? "/" + data.posts[0].category?.parent?.slug
+                  : ""
+              }/${data.posts[0].category?.slug}/${data.posts[0].slug}`}
+            >
               <div className="group relative mx-auto h-80 w-full overflow-hidden sm:h-150 lg:rounded">
-                {data.posts[0].image ? (
+                {data.posts[0].image && (
                   <Image
                     alt={data.posts[0].title ?? ""}
-                    className="h-full w-full object-cover group-hover:scale-105 group-hover:duration-300"
+                    className="h-full w-full object-cover"
                     width={1300}
                     height={630}
-                    placeholder="blur"
                     src={data.posts[0].image}
                   />
-                ) : (
-                  <div className="absolute flex h-full w-full select-none items-center justify-center bg-gray-100 text-4xl text-gray-500">
-                    ?
-                  </div>
                 )}
               </div>
-              <div className="mx-auto mt-10 w-5/6 lg:w-full">
-                <h2 className="my-10 text-4xl md:text-6xl">
+            </Link>
+            <div className="mx-auto mt-4 flex w-5/6 flex-col items-start lg:w-full">
+              <Link
+                href={`${
+                  data.posts[0].category?.parent?.slug
+                    ? "/" + data.posts[0].category?.parent?.slug
+                    : ""
+                }/${data.posts[0].category?.slug}`}
+                className="flex w-auto items-center justify-center rounded-full border px-4 py-1"
+              >
+                {data.posts[0].category?.title}
+              </Link>
+              <Link
+                href={`${
+                  data.posts[0].category?.parent?.slug
+                    ? "/" + data.posts[0].category?.parent?.slug
+                    : ""
+                }/${data.posts[0].category?.slug}/${data.posts[0].slug}`}
+              >
+                <h2 className="my-2 text-3xl font-bold hover:underline md:text-4xl">
                   {data.posts[0].title}
                 </h2>
-                <p className="w-full text-base md:text-lg lg:w-2/3">
-                  {data.posts[0].description}
-                </p>
-                <div className="flex w-full items-center justify-start space-x-4">
-                  <div className="relative h-8 w-8 flex-none overflow-hidden rounded-full">
-                    {data.user?.image ? (
-                      <Image
-                        alt={data.user?.name ?? "User Avatar"}
-                        width={100}
-                        height={100}
-                        className="h-full w-full object-cover"
-                        src={data.user?.image}
-                      />
-                    ) : (
-                      <div className="absolute flex h-full w-full select-none items-center justify-center bg-gray-100 text-4xl text-gray-500">
-                        ?
-                      </div>
-                    )}
-                  </div>
-                  <p className="ml-3 inline-block whitespace-nowrap align-middle text-sm font-semibold md:text-base">
-                    {data.user?.name}
-                  </p>
-                  <div className="h-6 border-l border-gray-600" />
-                  <p className="m-auto my-5 w-10/12 text-sm font-light text-gray-500 md:text-base">
-                    {toDateString(data.posts[0].createdAt)}
-                  </p>
+              </Link>
+              <p className="mb-2 w-full text-base line-clamp-2">
+                {data.posts[0].content?.substring(0, 350)}
+              </p>
+              <div className="flex w-full items-center justify-start space-x-4">
+                <div className="relative h-8 w-8 flex-none overflow-hidden rounded-full">
+                  {data.user?.image && (
+                    <Image
+                      alt={data.user?.name ?? "User Avatar"}
+                      width={100}
+                      height={100}
+                      className="h-full w-full object-cover"
+                      src={data.user?.image}
+                    />
+                  )}
                 </div>
+                <p className="ml-3 inline-block whitespace-nowrap align-middle text-sm font-semibold md:text-base">
+                  {data.user?.name}
+                </p>
+                <div className="h-6 border-l border-gray-600" />
+                <p className="m-auto my-2 w-10/12 text-sm font-light text-gray-500 md:text-base">
+                  {toDateString(data.posts[0].createdAt)}
+                </p>
               </div>
-            </Link>
+            </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20">
@@ -156,7 +208,7 @@ export default async function Index({ params }) {
           </div>
         )}
       </div>
-
+      {/* 
       {data.posts.length > 1 && (
         <div className="mx-5 mb-20 max-w-screen-lg lg:mx-24 2xl:mx-auto">
           <h2 className="mb-10 text-4xl">More stories</h2>
@@ -166,7 +218,7 @@ export default async function Index({ params }) {
             ))}
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 }

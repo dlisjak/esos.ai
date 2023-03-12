@@ -13,6 +13,7 @@ import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
 import { useSites } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
+import getSlug from "speakingurl";
 
 export default function AppIndex() {
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -48,8 +49,6 @@ export default function AppIndex() {
       alert("Failed to create site");
     }
 
-    const data = await res.json();
-    router.push(`/site/${data.subdomain}/settings`);
     setCreatingSite(false);
   }
 
@@ -71,6 +70,16 @@ export default function AppIndex() {
     }
     checkSubDomain();
   }, [debouncedSubdomain]);
+
+  const generateSlug = (e) => {
+    const title = e.target.value;
+    const slug = getSlug(title);
+
+    if (siteSubdomainRef) {
+      if (!siteSubdomainRef?.current) return;
+      siteSubdomainRef.current.value = slug;
+    }
+  };
 
   return (
     <Layout>
@@ -121,6 +130,7 @@ export default function AppIndex() {
                 placeholder="Name"
                 ref={siteNameRef}
                 type="text"
+                onBlur={generateSlug}
               />
             </div>
             <div className="flex-start flex items-center rounded border border-gray-700">
