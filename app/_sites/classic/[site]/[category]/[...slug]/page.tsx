@@ -4,6 +4,7 @@ import Loader from "@/components/Loader";
 import Navigation from "@/components/Sites/Navbar";
 import PostBody from "app/_sites/classic/components/PostBody";
 import CategoryLayout from "app/_sites/classic/components/CategoryLayout";
+import Footer from "app/_sites/classic/components/Footer";
 
 export const dynamicParams = true;
 
@@ -80,8 +81,10 @@ const getData = async (site, slugObj) => {
 
   const data = await prisma.site.findUnique({
     where: filter,
-    include: {
+    select: {
+      description: true,
       user: true,
+      name: true,
       categories: {
         select: {
           title: true,
@@ -109,7 +112,28 @@ const getData = async (site, slugObj) => {
       slug: true,
       content: true,
       image: true,
-      category: true,
+      createdAt: true,
+      category: {
+        select: {
+          title: true,
+          slug: true,
+          posts: {
+            where: {
+              slug: {
+                not: slug,
+              },
+            },
+            select: {
+              title: true,
+              slug: true,
+              image: true,
+              content: true,
+              createdAt: true,
+              category: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -165,17 +189,16 @@ export default async function Category({ params }) {
   const { data, post, category } = response;
 
   if (!data) return <Loader />;
-
-  console.log({ post });
-  console.log({ category });
-
   return (
     <>
       <Navigation categories={data.categories} title={data.name} />
-      <div className="container mx-auto mb-20 w-full max-w-screen-xl">
-        {post && <PostBody post={post} user={data.user} />}
-        {category && <CategoryLayout category={category} user={data.user} />}
-      </div>
+      {post && <PostBody post={post} user={data.user} />}
+      {category && (
+        <div className="container mx-auto mb-20 w-full max-w-screen-xl">
+          <CategoryLayout category={category} user={data.user} />
+        </div>
+      )}
+      <Footer site={data} />
     </>
   );
 }

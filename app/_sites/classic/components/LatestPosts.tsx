@@ -1,6 +1,7 @@
 import { toDateString } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import CategoryBubble from "./CategoryBubble";
 
 const LatestPosts = ({ posts, user }) => {
   return (
@@ -29,16 +30,14 @@ const LatestPosts = ({ posts, user }) => {
             </Link>
             <div className="mx-auto mt-4 flex w-full flex-col items-start px-4 xl:px-0">
               <div className="flex">
-                <Link
+                <CategoryBubble
                   href={`${
                     post.category?.parent?.slug
                       ? "/" + post.category?.parent?.slug
                       : ""
                   }/${post.category?.slug}`}
-                  className="mr-4 flex w-auto items-center justify-center whitespace-nowrap rounded-full border px-4 py-1"
-                >
-                  {post.category?.title}
-                </Link>
+                  title={post.category?.title}
+                />
                 <div className="flex w-full items-center justify-start space-x-2 xl:space-x-4">
                   <p className="m-auto my-2 whitespace-nowrap text-sm font-light text-gray-500 md:text-base">
                     {toDateString(post.createdAt)}

@@ -1,8 +1,9 @@
 import { toDateString } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import CategoryBubble from "./CategoryBubble";
 
-const PostCard = ({ className, post, user }) => {
+const PostCard = ({ className = "", post, user, h3 = false }) => {
   return (
     <div className={className}>
       <Link
@@ -24,16 +25,14 @@ const PostCard = ({ className, post, user }) => {
       </Link>
       <div className="mx-auto mt-4 flex w-full flex-col items-start px-4 xl:px-0">
         <div className="flex">
-          <Link
+          <CategoryBubble
             href={`${
               post.category?.parent?.slug
                 ? "/" + post.category?.parent?.slug
                 : ""
             }/${post.category?.slug}`}
-            className="mr-4 flex w-auto items-center justify-center whitespace-nowrap rounded-full border px-4 py-1"
-          >
-            {post.category?.title}
-          </Link>
+            title={post.category.title}
+          />
           <div className="flex w-full items-center justify-start space-x-2 xl:space-x-4">
             <p className="m-auto my-2 whitespace-nowrap text-sm font-light text-gray-500 md:text-base">
               {toDateString(post.createdAt)}
@@ -60,9 +59,15 @@ const PostCard = ({ className, post, user }) => {
             post.category?.parent?.slug ? "/" + post.category?.parent?.slug : ""
           }/${post.category?.slug}/${post.slug}`}
         >
-          <h2 className="my-2 text-3xl font-bold hover:underline md:text-4xl">
-            {post.title}
-          </h2>
+          {h3 ? (
+            <h3 className="my-2 text-2xl font-bold hover:underline md:text-3xl">
+              {post.title}
+            </h3>
+          ) : (
+            <h2 className="my-2 text-3xl font-bold hover:underline md:text-4xl">
+              {post.title}
+            </h2>
+          )}
         </Link>
         <p className="mb-2 w-full text-base line-clamp-2">
           {post.content?.substring(0, 350)}
