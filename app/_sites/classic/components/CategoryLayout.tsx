@@ -1,5 +1,6 @@
 import Image from "next/image";
-import React from "react";
+import { MDXRemote } from "next-mdx-remote/rsc";
+
 import CategoryPosts from "./CategoryPosts";
 
 const CategoryLayout = ({ category, user }) => {
@@ -20,7 +21,10 @@ const CategoryLayout = ({ category, user }) => {
         <h1 className="mb-4 text-4xl font-bold md:text-5xl">
           {category?.title}
         </h1>
-        <p className="md:pr-4">{category?.description}</p>
+        <div className="prose md:pr-4">
+          {/* @ts-expect-error Server Component */}
+          <MDXRemote source={category?.description} />
+        </div>
       </div>
       <CategoryPosts posts={category?.posts} user={user} />
     </div>

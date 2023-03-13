@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { MDXRemote } from "next-mdx-remote/rsc";
 
 const PostBody = ({ post, user }) => {
   console.log(post.content);
@@ -17,7 +18,10 @@ const PostBody = ({ post, user }) => {
       </div>
       <div className="col-span-1 mx-4 md:mx-0 lg:col-span-2">
         <h1 className="mb-4 text-4xl font-bold md:text-5xl">{post?.title}</h1>
-        <p>{post?.content}</p>
+        <div className="prose">
+          {/* @ts-expect-error Server Component */}
+          <MDXRemote source={post?.content} />
+        </div>
       </div>
     </div>
   );
