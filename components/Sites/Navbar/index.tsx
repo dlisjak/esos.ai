@@ -7,7 +7,7 @@ const Navigation = ({ categories, title }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="navigation relative z-50 bg-white p-4">
+    <div className="navigation sticky top-0 left-0 right-0 z-50 bg-white p-4 drop-shadow">
       <div className="container-2xl container mx-auto flex items-center justify-between">
         <div className="mr-auto text-2xl">
           <Link href="/">{title}</Link>

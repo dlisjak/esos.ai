@@ -3,8 +3,7 @@ import prisma from "@/lib/prisma";
 import type { _SiteData } from "@/types";
 import Loader from "@/components/app/Loader";
 import Navigation from "@/components/Sites/Navbar";
-import FeaturedPosts from "../components/FeaturedPosts";
-import LatestPosts from "../components/LatestPosts";
+import LatestPosts from "../../components/LatestPosts";
 
 export const dynamicParams = true;
 
@@ -75,42 +74,6 @@ const getData = async (site) => {
     },
   });
 
-  const featuredPosts = await prisma.site.findFirst({
-    where: filter,
-    select: {
-      posts: {
-        where: {
-          isFeatured: true,
-        },
-        select: {
-          title: true,
-          slug: true,
-          content: true,
-          image: true,
-          createdAt: true,
-          category: {
-            select: {
-              title: true,
-              slug: true,
-              parent: {
-                select: {
-                  title: true,
-                  slug: true,
-                },
-              },
-            },
-          },
-        },
-        orderBy: [
-          {
-            createdAt: "desc",
-          },
-        ],
-        take: 5,
-      },
-    },
-  });
-
   const latestPosts = await prisma.site.findFirst({
     where: filter,
     select: {
@@ -141,29 +104,24 @@ const getData = async (site) => {
             createdAt: "desc",
           },
         ],
-        take: 6,
       },
     },
   });
 
   return {
-    featuredPosts: featuredPosts?.posts,
     latestPosts: latestPosts?.posts,
     data,
   };
 };
 
 export default async function Index({ params }) {
-  const { featuredPosts, latestPosts, data } = await getData(params.site);
+  const { latestPosts, data } = await getData(params.site);
   if (!data) return <Loader />;
 
   return (
     <>
       <Navigation categories={data.categories} title={data.name} />
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
-        {featuredPosts && (
-          <FeaturedPosts featuredPosts={featuredPosts} user={data.user} />
-        )}
         {latestPosts && <LatestPosts posts={latestPosts} user={data.user} />}
       </div>
     </>
