@@ -20,6 +20,7 @@ import { useSession } from "next-auth/react";
 import { useCategories, useCategory, usePrompts } from "@/lib/queries";
 import Image from "next/image";
 import ContainerLoader from "@/components/app/ContainerLoader";
+import TitleEditor from "@/components/TitleEditor";
 
 interface CategoryData {
   id: string;
@@ -175,6 +176,20 @@ export default function CategoryPage() {
     });
   };
 
+  const handleSetTitle = (value) => {
+    setData({
+      ...data,
+      title: value,
+    });
+  };
+
+  const handleSetSlug = (value) => {
+    setData({
+      ...data,
+      slug: value,
+    });
+  };
+
   return (
     <Layout>
       <Header className="">
@@ -205,21 +220,11 @@ export default function CategoryPage() {
       ) : (
         <>
           <Container className="pb-24">
-            <div className="mb-4 flex items-center">
-              <TextareaAutosize
-                name="title"
-                onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                  setData({
-                    ...data,
-                    title: (e.target as HTMLTextAreaElement).value,
-                  })
-                }
-                className="mb-2 w-full resize-none border-t-0 border-l-0 border-r-0 border-b px-2 py-4 text-5xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0"
-                placeholder="Untitled Category"
-                value={data.title || ""}
-                onBlur={generateSlug}
-              />
-            </div>
+            <TitleEditor
+              value={data.title}
+              setValue={handleSetTitle}
+              setSlug={handleSetSlug}
+            />
             <div className="flex w-full space-x-4">
               <div className="flex w-full flex-col">
                 <h2 className="text-xl">

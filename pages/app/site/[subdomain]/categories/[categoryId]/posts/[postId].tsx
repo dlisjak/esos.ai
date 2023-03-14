@@ -18,6 +18,7 @@ import Container from "@/components/Layout/Container";
 import { useCategories, usePost } from "@/lib/queries";
 import { HttpMethod } from "@/types";
 import TextEditor from "@/components/TextEditor";
+import TitleEditor from "@/components/TitleEditor";
 
 interface PostData {
   title: string;
@@ -170,21 +171,24 @@ export default function Post() {
     return setImageData(file);
   };
 
-  const generateSlug = (e) => {
-    const title = data.title;
-    const slug = getSlug(title);
-
-    if (!postSlugRef?.current) return;
-    return setData({
-      ...data,
-      slug: slug,
-    });
-  };
-
   const handleSetContent = (value) => {
     setData({
       ...data,
       content: value,
+    });
+  };
+
+  const handleSetTitle = (value) => {
+    setData({
+      ...data,
+      title: value,
+    });
+  };
+
+  const handleSetSlug = (value) => {
+    setData({
+      ...data,
+      slug: value,
     });
   };
 
@@ -219,18 +223,10 @@ export default function Post() {
         ) : (
           <>
             <Container className="pb-24">
-              <TextareaAutosize
-                name="title"
-                onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                  setData({
-                    ...data,
-                    title: (e.target as HTMLTextAreaElement).value,
-                  })
-                }
-                className="mb-2 w-full resize-none border-t-0 border-l-0 border-r-0 border-b px-2 py-4 text-4xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0"
-                placeholder="Untitled Category"
-                value={data.title || ""}
-                onBlur={generateSlug}
+              <TitleEditor
+                value={data.title}
+                setValue={handleSetTitle}
+                setSlug={handleSetSlug}
               />
               <div className="flex w-full space-x-4">
                 <div className="flex w-full flex-col">

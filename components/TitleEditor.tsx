@@ -1,7 +1,5 @@
 import { useState } from "react";
-import dynamic from "next/dynamic";
 import { toast } from "react-hot-toast";
-import rehypeSanitize from "rehype-sanitize";
 
 import Modal from "./Modal";
 import LoadingDots from "./app/loading-dots";
@@ -9,14 +7,10 @@ import LoadingDots from "./app/loading-dots";
 import { useCredits, usePrompts } from "@/lib/queries";
 import { HttpMethod } from "@/types";
 
-import "../node_modules/@uiw/react-md-editor/markdown-editor.css";
-import "../node_modules/@uiw/react-markdown-preview/markdown.css";
+import ReactTextareaAutosize from "react-textarea-autosize";
+import getSlug from "speakingurl";
 
-const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
-
-const TextEditor = ({ value, setValue }) => {
-  const [aiDetected, setAiDetected] = useState(null);
-  const [checkingForAI, setCheckingForAI] = useState(false);
+const TitleEditor = ({ value, setValue, setSlug }) => {
   const [selectedPrompt, setSelectedPrompt] = useState("");
   const [generateInput, setGenerateInput] = useState("");
   const [showGenerateModal, setShowGenerateModal] = useState(false);
@@ -58,67 +52,31 @@ const TextEditor = ({ value, setValue }) => {
     }
   };
 
-  const checkAIContent = async () => {
-    if (!value) return;
-    setCheckingForAI(true);
+  const generateSlug = (e) => {
+    const title = value;
+    const slug = getSlug(title);
 
-    try {
-      const response = await fetch(`/api/content`, {
-        method: HttpMethod.POST,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          input: value,
-        }),
-      });
+    setSlug(slug);
+  };
 
-      if (response.ok) {
-        const body = await response.json();
-        setAiDetected(body);
-        toast.success("Content analyzed successfully");
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      mutateCredits();
-      setCheckingForAI(false);
-    }
-  }
+  const setTitle = (e) => {
+    const title = e.target.value;
+
+    setValue(title);
+  };
 
   return (
     <>
       <div className="w-full">
-        <MDEditor
-          height={480}
-          value={value || ""}
-          onChange={setValue}
-          textareaProps={{
-            placeholder: "Please enter Markdown text",
-          }}
-          previewOptions={{
-            className: "prose",
-            rehypePlugins: [[rehypeSanitize]],
-          }}
+        <ReactTextareaAutosize
+          name="title"
+          onInput={setTitle}
+          className="w-full resize-none border-t-0 border-l-0 border-r-0 border-b px-2 py-4 text-4xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0"
+          placeholder="Untitled Category"
+          value={value}
+          onBlur={generateSlug}
         />
-        <div className="mb-4 flex w-full justify-between pt-2">
-          <div className="flex">
-            <button
-              className={`flex whitespace-nowrap border bg-white items-center px-2 py-1 tracking-wide text-black duration-200 hover:border-black ${checkingForAI
-                ? "cursor-not-allowed bg-gray-50 text-gray-400"
-                : "bg-white text-gray-600 hover:text-black"
-                }`}
-              onClick={() => checkAIContent()}
-              disabled={checkingForAI}
-            >
-              Check for AI
-            </button>
-            {aiDetected && (
-              <div className="flex flex-col">
-                <div className="px-2">Content is {Math.round(aiDetected[0].score * 100)}% Human generated</div>
-              </div>
-            )}
-          </div>
+        <div className="mb-4 flex w-full justify-between">
           <div className="flex">
             <select
               onChange={(e) => {
@@ -221,10 +179,11 @@ const TextEditor = ({ value, setValue }) => {
             <button
               type="submit"
               disabled={generatingResponse}
-              className={`${generatingResponse
-                ? "cursor-not-allowed bg-gray-50 text-gray-400"
-                : "bg-white text-gray-600 hover:text-black"
-                } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-0`}
+              className={`${
+                generatingResponse
+                  ? "cursor-not-allowed bg-gray-50 text-gray-400"
+                  : "bg-white text-gray-600 hover:text-black"
+              } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-0`}
             >
               {generatingResponse ? <LoadingDots /> : "GENERATE RESPONSE"}
             </button>
@@ -235,4 +194,4 @@ const TextEditor = ({ value, setValue }) => {
   );
 };
 
-export default TextEditor;
+export default TitleEditor;

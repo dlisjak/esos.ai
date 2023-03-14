@@ -161,10 +161,12 @@ export default async function Index({ params }) {
     <>
       <Navigation categories={data.categories} title={data.name} />
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
-        {featuredPosts && (
+        {featuredPosts && featuredPosts.length > 0 && (
           <FeaturedPosts featuredPosts={featuredPosts} user={data.user} />
         )}
-        {latestPosts && <LatestPosts posts={latestPosts} user={data.user} />}
+        {latestPosts && latestPosts.length > 0 && (
+          <LatestPosts posts={latestPosts} user={data.user} />
+        )}
       </div>
     </>
   );
