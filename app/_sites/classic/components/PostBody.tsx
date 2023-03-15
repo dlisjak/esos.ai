@@ -14,8 +14,8 @@ const PostBody = ({ post, user }) => {
             {post?.image && (
               <Image
                 className="h-full w-full object-cover"
-                src={post?.image}
-                alt={post?.title || ""}
+                src={post?.image?.src ?? "/placeholder.png"}
+                alt={post?.image?.alt || ""}
                 width={767}
                 height={767}
               />

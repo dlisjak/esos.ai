@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import ReactTextareaAutosize from "react-textarea-autosize";
+import getSlug from "speakingurl";
 
 import Modal from "./Modal";
 import LoadingDots from "./app/loading-dots";
 
 import { useCredits, usePrompts } from "@/lib/queries";
 import { HttpMethod } from "@/types";
-
-import ReactTextareaAutosize from "react-textarea-autosize";
-import getSlug from "speakingurl";
 
 const TitleEditor = ({ value, setValue, setSlug }) => {
   const [selectedPrompt, setSelectedPrompt] = useState("");
@@ -71,7 +70,7 @@ const TitleEditor = ({ value, setValue, setSlug }) => {
         <ReactTextareaAutosize
           name="title"
           onInput={setTitle}
-          className="w-full resize-none border-t-0 border-l-0 border-r-0 border-b px-2 py-4 text-4xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0"
+          className="w-full resize-none border-t-0 border-l-0 border-r-0 border-b px-2 py-2 text-4xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0"
           placeholder="Untitled Category"
           value={value}
           onBlur={generateSlug}

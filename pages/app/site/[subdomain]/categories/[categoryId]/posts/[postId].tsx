@@ -2,11 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import TextareaAutosize from "react-textarea-autosize";
 import toast from "react-hot-toast";
 import { useS3Upload } from "next-s3-upload";
-import getSlug from "speakingurl";
-import type { ChangeEvent } from "react";
 
 import Layout from "@/components/app/Layout";
 import LoadingDots from "@/components/app/loading-dots";
@@ -19,13 +16,14 @@ import { useCategories, usePost } from "@/lib/queries";
 import { HttpMethod } from "@/types";
 import TextEditor from "@/components/TextEditor";
 import TitleEditor from "@/components/TitleEditor";
+import { Image as ImageType } from "@prisma/client";
 
 interface PostData {
   title: string;
   slug: string;
   content: string;
   categoryId: string;
-  image: string;
+  image: ImageType | null;
 }
 
 export default function Post() {
@@ -36,7 +34,6 @@ export default function Post() {
   const [imageData, setImageData] = useState<any>();
   const { FileInput, uploadToS3 } = useS3Upload();
   const [publishing, setPublishing] = useState(false);
-  const [drafting, setDrafting] = useState(false);
   const [disabled, setDisabled] = useState(true);
 
   const { subdomain, categoryId, postId } = router.query;
@@ -51,7 +48,7 @@ export default function Post() {
     slug: "",
     content: "",
     categoryId: "",
-    image: "",
+    image: null,
   });
 
   useEffect(() => {
@@ -61,7 +58,7 @@ export default function Post() {
         slug: post.slug ?? "",
         content: post.content ?? "",
         categoryId: post.categoryId ?? "",
-        image: post.image ?? "",
+        image: post.image ?? { id: "", src: "", alt: "" },
       });
   }, [post, categoryId]);
 
@@ -72,7 +69,7 @@ export default function Post() {
   }, [publishing, data]);
 
   const uploadImage = async (file) => {
-    const path = `${sessionUser}/${subdomain}/${data.categoryId}/${postId}`;
+    const path = `${sessionUser}/${subdomain}/${file.name}`;
 
     const { url } = await uploadToS3(file, {
       endpoint: {
@@ -83,57 +80,23 @@ export default function Post() {
         },
       },
     });
-    return url;
+    const res = await fetch(`/api/imageAlt?imageUrl=${url}`);
+    const alt = await res.json();
+
+    return { src: url, alt };
   };
 
-  async function draft() {
-    if (!postId || !data.title || !data.slug || !data.content || !categoryId)
-      return toast.error("Make sure the post has required data");
-
-    setDrafting(true);
-    let imageUrl;
-
-    if (imageData) {
-      imageUrl = await uploadImage(imageData);
-    }
-
-    try {
-      const response = await fetch(`/api/post`, {
-        method: HttpMethod.PUT,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: postId,
-          title: data.title,
-          slug: data.slug,
-          content: data.content,
-          image: imageUrl,
-          categoryId: categoryId,
-          published: false,
-        }),
-      });
-
-      if (response.ok) {
-        mutatePost();
-        toast.success("Draft succesfully saved");
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setDrafting(false);
-    }
-  }
-
-  async function publish() {
+  async function publish(published = true) {
     if (!postId || !data.title || !data.slug || !data.content || !categoryId)
       return toast.error("Make sure the post has required data");
 
     setPublishing(true);
-    let imageUrl;
+    let image;
 
     if (imageData) {
-      imageUrl = await uploadImage(imageData);
+      image = await uploadImage(imageData);
+    } else {
+      image = data.image;
     }
 
     try {
@@ -147,9 +110,9 @@ export default function Post() {
           title: data.title,
           slug: data.slug,
           content: data.content,
-          categoryId: categoryId,
-          image: imageUrl,
-          published: true,
+          categoryId,
+          published,
+          image,
         }),
       });
 
@@ -277,7 +240,11 @@ export default function Post() {
                 <h2 className="mr-auto text-xl">
                   Content<span className="text-red-600">*</span>
                 </h2>
-                <TextEditor value={data.content} setValue={handleSetContent} />
+                <TextEditor
+                  value={data.content}
+                  setValue={handleSetContent}
+                  dataId={postId}
+                />
               </div>
               <div className="flex items-end space-x-6">
                 <div className="w-full max-w-lg">
@@ -291,15 +258,13 @@ export default function Post() {
                       className="fileUpload absolute left-0 top-0 bottom-0 right-0 z-50 cursor-pointer opacity-0"
                       onChange={handleImageSelect}
                     />
-                    {(imagePreview || data.image) && (
+                    {(imagePreview || data.image?.src) && (
                       <Image
-                        src={imagePreview || data.image}
-                        alt="Upload Post Image"
-                        width={800}
-                        height={500}
-                        placeholder="blur"
+                        src={imagePreview || data.image?.src}
+                        alt={data.image?.alt ?? "Alt text"}
+                        width={480}
+                        height={480}
                         className="h-full w-full cursor-pointer rounded object-contain"
-                        blurDataURL={imagePreview || data.image}
                       />
                     )}
                   </div>
@@ -315,17 +280,17 @@ export default function Post() {
                 </div>
                 <button
                   onClick={async () => {
-                    await draft();
+                    await publish(false);
                   }}
                   title="Draft"
-                  disabled={drafting}
+                  disabled={publishing}
                   className={`ml-auto ${
-                    drafting
+                    publishing
                       ? "cursor-not-allowed border-gray-300 bg-gray-300"
                       : "border-black bg-black hover:bg-white hover:text-black"
                   } mx-2 h-12 w-32 border-2 text-lg text-white transition-all duration-150 ease-in-out focus:outline-none`}
                 >
-                  {drafting ? <LoadingDots /> : "Draft"}
+                  {publishing ? <LoadingDots /> : "Draft"}
                 </button>
                 <button
                   onClick={async () => {

@@ -21,11 +21,11 @@ const LatestPosts = ({ posts, user }) => {
               className="relative flex aspect-square"
             >
               <Image
-                alt={post.title ?? ""}
+                alt={post.image?.alt ?? ""}
                 className="h-full w-full object-cover"
                 width={405}
                 height={405}
-                src={post.image}
+                src={post.image?.src ?? "/placeholder.png"}
               />
             </Link>
             <div className="mx-auto mt-4 flex w-full flex-col items-start px-4 xl:px-0">

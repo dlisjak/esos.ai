@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/prisma";
 import type { Category } from ".prisma/client";
 import { revalidate } from "@/lib/revalidate";
+import { WithAllCategory } from "@/types/category";
 
 /**
  * Get Category
@@ -20,7 +21,9 @@ export async function getCategory(
   req: NextApiRequest,
   res: NextApiResponse,
   session: Session
-): Promise<void | NextApiResponse<Array<Category> | (Category | null)>> {
+): Promise<void | NextApiResponse<
+  Array<WithAllCategory[]> | (WithAllCategory | null)
+>> {
   const { subdomain, siteId, categoryId } = req.query;
 
   if (
@@ -44,6 +47,7 @@ export async function getCategory(
         },
         include: {
           parent: true,
+          image: true,
           posts: {
             include: {
               category: true,
@@ -63,39 +67,31 @@ export async function getCategory(
       return res.status(200).json(category);
     }
 
-    const site = await prisma.site.findFirst({
+    const categories = await prisma.category.findMany({
       where: {
-        subdomain: subdomain,
-        user: {
-          id: session.user.id,
+        site: {
+          subdomain,
         },
       },
-    });
-
-    const categories = !site
-      ? []
-      : await prisma.category.findMany({
-          where: {
-            siteId: site.id,
-          },
-          orderBy: {
-            title: "asc",
-          },
+      orderBy: {
+        title: "asc",
+      },
+      include: {
+        parent: true,
+        image: true,
+        children: {
           include: {
-            parent: true,
+            posts: true,
             children: {
               include: {
                 posts: true,
-                children: {
-                  include: {
-                    posts: true,
-                  },
-                },
               },
             },
-            posts: true,
           },
-        });
+        },
+        posts: true,
+      },
+    });
 
     return res.status(200).json(categories);
   } catch (error) {
@@ -141,7 +137,6 @@ export async function createCategory(
   try {
     const response = await prisma.category.create({
       data: {
-        image: `/placeholder.png`,
         title,
         slug,
         site: {
@@ -261,6 +256,13 @@ export async function updateCategory(
   if (!site) return res.status(404).end("Site not found");
 
   try {
+    const imageResponse = await prisma.image.create({
+      data: {
+        src: image.src,
+        alt: image.alt,
+      },
+    });
+
     const category = await prisma.category.update({
       where: {
         id: id,
@@ -270,7 +272,7 @@ export async function updateCategory(
         description,
         slug,
         parentId: parent,
-        image: image,
+        imageId: imageResponse.id,
       },
     });
 

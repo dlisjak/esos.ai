@@ -29,19 +29,13 @@ const CategoryCard = ({
         <div className="flex w-full overflow-hidden rounded">
           <div className="relative h-[120px]">
             <Link href={categoryPostsUrl}>
-              {image ? (
-                <Image
-                  alt={title}
-                  width={240}
-                  height={120}
-                  className="h-full object-cover"
-                  src={image}
-                />
-              ) : (
-                <div className="absolute flex h-full w-full items-center justify-center bg-gray-100 text-3xl text-gray-500">
-                  ?
-                </div>
-              )}
+              <Image
+                alt={image?.alt ?? "Placeholder image"}
+                width={240}
+                height={120}
+                className="h-full object-cover"
+                src={image?.src ?? "/placeholder.png"}
+              />
             </Link>
           </div>
           <div className="relative flex flex-col px-4">

@@ -20,11 +20,11 @@ const SiteCard = ({ site }) => {
         <div className="relative h-[120px]">
           <Link href={siteOverviewUrl}>
             <Image
-              alt={site.name}
+              alt={site.image?.alt ?? ""}
               width={240}
               height={120}
               className="h-full object-cover"
-              src={site.image}
+              src={site.image?.src ?? "/placeholder.png"}
             />
           </Link>
         </div>

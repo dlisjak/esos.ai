@@ -1,13 +1,11 @@
+import { WithImageSite } from "@/types";
+import { WithAllCategory, WithImageCategory } from "@/types/category";
+import { FeaturedPost, WithSitePost } from "@/types/post";
+import { Post } from "@prisma/client";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 
 import fetcher from "./fetcher";
-
-import { Category, Post, Prompt, Site, User } from "@prisma/client";
-
-interface CategoryWithPosts extends Category {
-  posts: Post[];
-}
 
 export const useSites = () => {
   const router = useRouter();
@@ -16,7 +14,7 @@ export const useSites = () => {
     data: sites,
     error,
     mutate,
-  } = useSWR<Site[]>(`/api/site`, fetcher, {
+  } = useSWR<WithImageSite[]>(`/api/site`, fetcher, {
     dedupingInterval: 1000,
     onError: () => router.push("/"),
     revalidateOnFocus: false,
@@ -37,7 +35,7 @@ export const useSite = (subdomain) => {
     data: site,
     error,
     mutate,
-  } = useSWR<Site>(`/api/site?subdomain=${subdomain}`, fetcher, {
+  } = useSWR<WithImageSite>(`/api/site?subdomain=${subdomain}`, fetcher, {
     dedupingInterval: 1000,
     onError: () => router.push("/"),
     revalidateOnFocus: false,
@@ -57,7 +55,7 @@ export const useDomainCheck = (domain) => {
     error,
     mutate,
     isValidating,
-  } = useSWR<Site>(`/api/domain/check?domain=${domain}`, fetcher, {
+  } = useSWR<any>(`/api/domain/check?domain=${domain}`, fetcher, {
     revalidateOnMount: true,
     refreshInterval: 5000,
   });
@@ -78,7 +76,7 @@ export const usePost = (postId) => {
     data: post,
     error,
     mutate,
-  } = useSWR<Post>(`/api/post?postId=${postId}`, fetcher, {
+  } = useSWR<WithSitePost>(`/api/post?postId=${postId}`, fetcher, {
     dedupingInterval: 1000,
     onError: () => router.push("/"),
     revalidateOnFocus: false,
@@ -99,7 +97,7 @@ export const usePosts = (subdomain, published) => {
     data: posts,
     error,
     mutate,
-  } = useSWR<Array<Post>>(
+  } = useSWR<WithSitePost[]>(
     `/api/post?subdomain=${subdomain}&published=${published}`,
     fetcher,
     {
@@ -123,10 +121,14 @@ export const useFeaturedPosts = (subdomain) => {
     data: posts,
     error,
     mutate,
-  } = useSWR<Array<Post>>(`/api/post/feature?subdomain=${subdomain}`, fetcher, {
-    onError: () => router.push("/"),
-    revalidateOnFocus: false,
-  });
+  } = useSWR<FeaturedPost[]>(
+    `/api/post/feature?subdomain=${subdomain}`,
+    fetcher,
+    {
+      onError: () => router.push("/"),
+      revalidateOnFocus: false,
+    }
+  );
 
   return {
     featuredPosts: posts,
@@ -141,7 +143,7 @@ export const useLatestPosts = (subdomain, limit) => {
     data: posts,
     error,
     mutate,
-  } = useSWR<Array<Post>>(
+  } = useSWR<Post[]>(
     `/api/post/latest?subdomain=${subdomain}&limit=${limit}`,
     fetcher,
     {
@@ -164,11 +166,15 @@ export const useCategories = (subdomain) => {
     data: categories,
     error,
     mutate,
-  } = useSWR<Category[]>(`/api/category?subdomain=${subdomain}`, fetcher, {
-    dedupingInterval: 1000,
-    onError: () => router.push("/"),
-    revalidateOnFocus: false,
-  });
+  } = useSWR<WithImageCategory[]>(
+    `/api/category?subdomain=${subdomain}`,
+    fetcher,
+    {
+      dedupingInterval: 1000,
+      onError: () => router.push("/"),
+      revalidateOnFocus: false,
+    }
+  );
 
   return {
     categories,
@@ -185,7 +191,7 @@ export const useCategory = (categoryId) => {
     data: category,
     error,
     mutate,
-  } = useSWR<CategoryWithPosts>(
+  } = useSWR<WithAllCategory>(
     `/api/category?categoryId=${categoryId}`,
     fetcher,
     {
@@ -210,7 +216,7 @@ export const usePrompts = () => {
     data: prompts,
     error,
     mutate,
-  } = useSWR<Prompt[]>(`/api/prompt`, fetcher, {
+  } = useSWR<any>(`/api/prompt`, fetcher, {
     dedupingInterval: 1000,
     onError: () => router.push("/"),
     revalidateOnFocus: false,
@@ -229,7 +235,7 @@ export const usePrompt = (promptId) => {
     data: prompt,
     error,
     mutate,
-  } = useSWR<Prompt>(`/api/prompt?promptId=${promptId}`, fetcher, {
+  } = useSWR<any>(`/api/prompt?promptId=${promptId}`, fetcher, {
     dedupingInterval: 1000,
     revalidateOnFocus: false,
   });
@@ -247,7 +253,7 @@ export const useUser = () => {
     data: user,
     error,
     mutate,
-  } = useSWR<User>(`/api/user`, fetcher, {
+  } = useSWR<any>(`/api/user`, fetcher, {
     revalidateOnFocus: false,
   });
 
@@ -264,13 +270,29 @@ export const useCredits = () => {
     data: user,
     error,
     mutate,
-  } = useSWR<User>(`/api/user`, fetcher, {
+  } = useSWR<any>(`/api/user`, fetcher, {
     revalidateOnFocus: false,
   });
 
   return {
-    credits: user?.credits,
     isLoading: !error && !user,
+    isError: error,
+    mutateCredits: mutate,
+  };
+};
+
+export const useThemes = () => {
+  const {
+    data: themes,
+    error,
+    mutate,
+  } = useSWR<any>(`/api/theme`, fetcher, {
+    revalidateOnFocus: false,
+  });
+
+  return {
+    themes,
+    isLoading: !error && !themes,
     isError: error,
     mutateCredits: mutate,
   };

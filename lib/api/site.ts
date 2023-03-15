@@ -6,6 +6,7 @@ import path from "path";
 
 import prisma from "@/lib/prisma";
 import type { Site } from ".prisma/client";
+import { WithImageSite } from "@/types";
 
 /**
  * Get Site
@@ -22,7 +23,9 @@ export async function getSite(
   req: NextApiRequest,
   res: NextApiResponse,
   session: Session
-): Promise<void | NextApiResponse<Array<Site> | (Site | null)>> {
+): Promise<void | NextApiResponse<
+  Array<WithImageSite> | (WithImageSite | null)
+>> {
   const { subdomain } = req.query;
 
   if (Array.isArray(subdomain))
@@ -42,6 +45,18 @@ export async function getSite(
             id: session.user.id,
           },
         },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          logo: true,
+          font: true,
+          subdomain: true,
+          customDomain: true,
+          userId: true,
+          themeId: true,
+          image: true,
+        },
       });
 
       return res.status(200).json(settings);
@@ -52,6 +67,9 @@ export async function getSite(
         user: {
           id: session.user.id,
         },
+      },
+      include: {
+        image: true,
       },
     });
 
@@ -95,8 +113,6 @@ export async function createSite(
       data: {
         name: name,
         subdomain: sub.length > 0 ? sub : cuid(),
-        logo: "/logo.png",
-        image: `/placeholder.png`,
         user: {
           connect: {
             id: userId,
@@ -251,6 +267,13 @@ export async function updateSite(
   const subdomain = sub.length > 0 ? sub : currentSubdomain;
 
   try {
+    const imageRes = await prisma.image.create({
+      data: {
+        src: image.src,
+        alt: image.alt,
+      },
+    });
+
     const response = await prisma.site.update({
       where: {
         id: id,
@@ -259,7 +282,7 @@ export async function updateSite(
         name,
         font,
         subdomain,
-        image,
+        imageId: imageRes.id,
         themeId,
       },
     });

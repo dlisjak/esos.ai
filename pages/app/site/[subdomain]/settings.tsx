@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
-import useSWR from "swr";
 import Image from "next/image";
 import { useDebounce } from "use-debounce";
 import toast from "react-hot-toast";
@@ -14,18 +13,20 @@ import Modal from "@/components/Modal";
 import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
 
-import type { Site } from "@prisma/client";
 import { HttpMethod } from "@/types";
-import { fetcher } from "@/lib/fetcher";
-import { Theme } from "@prisma/client";
-import { useSite } from "@/lib/queries";
+import { useSite, useThemes } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
+import { Image as ImageType } from "@prisma/client";
 
-interface SettingsData
-  extends Pick<
-    Site,
-    "id" | "name" | "font" | "subdomain" | "customDomain" | "image" | "themeId"
-  > {}
+interface SiteData {
+  id: string;
+  name: string;
+  font: string;
+  subdomain: string;
+  customDomain: string;
+  image: ImageType | null;
+  themeId: string;
+}
 
 export default function SiteSettings() {
   const router = useRouter();
@@ -42,37 +43,39 @@ export default function SiteSettings() {
   const { subdomain } = router.query;
   const sessionUser = session?.user?.name;
 
-  const { site, isLoading, isError, mutateSite } = useSite(subdomain);
+  const { site, isLoading, mutateSite } = useSite(subdomain);
+  const { themes } = useThemes();
 
-  const { data: themes } = useSWR<Theme[] | null>(
-    subdomain && `/api/theme`,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-    }
-  );
-
-  const [data, setData] = useState<SettingsData>({
+  const [data, setData] = useState<SiteData>({
     id: "",
-    name: null,
+    name: "",
     font: "",
-    subdomain: null,
-    customDomain: null,
+    subdomain: "",
+    customDomain: "",
     image: null,
     themeId: "",
   });
 
   useEffect(() => {
-    if (site) setData(site);
+    if (site)
+      setData({
+        id: site.id,
+        name: site.name ?? "",
+        font: site.font,
+        subdomain: site.subdomain ?? "",
+        customDomain: site.customDomain ?? "",
+        image: site.image,
+        themeId: site.themeId ?? "",
+      });
   }, [site]);
 
-  async function saveSiteSettings(data: SettingsData) {
+  async function saveSiteSettings(data) {
     setSaving(true);
 
-    let imageUrl;
+    let image;
 
     if (imageData) {
-      imageUrl = await uploadImage(imageData);
+      image = await uploadImage(imageData);
     }
 
     try {
@@ -85,7 +88,7 @@ export default function SiteSettings() {
           currentSubdomain: site?.subdomain ?? undefined,
           ...data,
           id: data.id,
-          image: imageUrl,
+          image,
         }),
       });
 
@@ -181,7 +184,7 @@ export default function SiteSettings() {
   }
 
   const uploadImage = async (file) => {
-    const path = `${sessionUser}/${subdomain}/${data.id}`;
+    const path = `${sessionUser}/${subdomain}/${file.name}`;
 
     const { url } = await uploadToS3(file, {
       endpoint: {
@@ -192,7 +195,11 @@ export default function SiteSettings() {
         },
       },
     });
-    return url;
+
+    const res = await fetch(`/api/imageAlt?imageUrl=${url}`);
+    const alt = await res.json();
+
+    return { src: url, alt };
   };
 
   const handleImageSelect = async (file) => {
@@ -386,15 +393,14 @@ export default function SiteSettings() {
                           className="fileUpload absolute left-0 top-0 bottom-0 right-0 z-50 cursor-pointer opacity-0"
                           onChange={handleImageSelect}
                         />
-                        {(imagePreview || data.image) && (
+                        {(imagePreview ||
+                          (data?.image && data?.image?.src)) && (
                           <Image
-                            src={imagePreview || data.image}
-                            alt="Upload Category Image"
-                            width={800}
-                            height={500}
-                            placeholder="blur"
+                            src={imagePreview || data?.image?.src}
+                            alt={data?.image?.alt ?? "placeholder"}
+                            width={480}
+                            height={480}
                             className="h-full w-full cursor-pointer rounded object-contain"
-                            blurDataURL={imagePreview || data.image}
                           />
                         )}
                       </div>

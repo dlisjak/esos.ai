@@ -29,7 +29,7 @@ const Navigation = ({ categories, title }) => {
                 >
                   <span>{title}</span>
                 </Link>
-                <ul className="series-dropdown solid absolute top-8 border bg-white">
+                <ul className="series-dropdown solid absolute top-8 divide-y border bg-white">
                   {children.map((child) => (
                     <li
                       className={`mx-2 border-b lg:border-0`}
@@ -37,7 +37,7 @@ const Navigation = ({ categories, title }) => {
                     >
                       <Link
                         href={`/${slug}/${child.slug}`}
-                        className="flex justify-center rounded p-2 hover:underline"
+                        className="flex justify-start rounded p-2 hover:underline"
                       >
                         {child.title}
                       </Link>

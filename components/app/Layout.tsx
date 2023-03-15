@@ -8,7 +8,6 @@ import Loader from "./Loader";
 import useRequireAuth from "../../lib/useRequireAuth";
 
 import TopNavLink from "./NavLink/TopNavLink";
-import { useCredits } from "@/lib/queries";
 
 export default function Layout({ children }) {
   const router = useRouter();
@@ -53,7 +52,6 @@ export default function Layout({ children }) {
     "Create a fullstack application with multi-tenancy and custom domains support using Next.js, Prisma, and PostgreSQL";
 
   const session = useRequireAuth();
-  const { credits } = useCredits();
   if (!session) return <Loader />;
 
   return (
@@ -107,7 +105,6 @@ export default function Layout({ children }) {
               <TopNavLink href="/account">Account</TopNavLink>
             </div>
             <div className="flex items-center">
-              <div className="mr-4">Credits: {credits}</div>
               <button
                 className="text-gray-500 transition-all duration-150 ease-in-out hover:text-gray-700"
                 onClick={() => signOut()}

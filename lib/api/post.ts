@@ -1,16 +1,10 @@
 import prisma from "@/lib/prisma";
 
 import { NextApiRequest, NextApiResponse } from "next";
-import type { Post, Site } from "@prisma/client";
+import type { Post } from "@prisma/client";
 import type { Session } from "next-auth";
 import { revalidate } from "@/lib/revalidate";
-
-import type { WithSitePost } from "@/types";
-
-interface AllPosts {
-  posts: Array<Post>;
-  site: Site | null;
-}
+import { WithSitePost } from "@/types/post";
 
 /**
  * Get Post
@@ -26,7 +20,7 @@ export async function getPost(
   req: NextApiRequest,
   res: NextApiResponse,
   session: Session
-): Promise<void | NextApiResponse<AllPosts | (WithSitePost | null)>> {
+): Promise<void | NextApiResponse<WithSitePost[] | (WithSitePost | null)>> {
   const { postId, subdomain, categoryId, published } = req.query;
 
   if (
@@ -52,6 +46,7 @@ export async function getPost(
         include: {
           site: true,
           category: true,
+          image: true,
         },
       });
 
@@ -75,7 +70,9 @@ export async function getPost(
         },
       ],
       include: {
+        site: true,
         category: true,
+        image: true,
       },
     });
 
@@ -118,7 +115,6 @@ export async function createPost(
         title,
         slug,
         categoryId,
-        image: `/placeholder.png`,
         site: {
           connect: {
             subdomain: subdomain,
@@ -232,6 +228,13 @@ export async function updatePost(
   }
 
   try {
+    const imageResponse = await prisma.image.create({
+      data: {
+        src: image.src,
+        alt: image.alt,
+      },
+    });
+
     const post = await prisma.post.update({
       where: {
         id: id,
@@ -241,7 +244,7 @@ export async function updatePost(
         content,
         categoryId,
         slug,
-        image,
+        imageId: imageResponse.id,
         published,
       },
     });
@@ -321,7 +324,7 @@ export async function getFeaturedPost(
   req: NextApiRequest,
   res: NextApiResponse,
   session: Session
-): Promise<void | NextApiResponse<Post[]>> {
+): Promise<void | NextApiResponse<WithSitePost[]>> {
   const { subdomain } = req.query;
 
   if (!subdomain || typeof subdomain !== "string" || !session?.user?.id) {
@@ -343,6 +346,7 @@ export async function getFeaturedPost(
       },
       include: {
         category: true,
+        image: true,
       },
     });
 
@@ -365,7 +369,7 @@ export async function getLatestPosts(
   req: NextApiRequest,
   res: NextApiResponse,
   session: Session
-): Promise<void | NextApiResponse<Post[]>> {
+): Promise<void | NextApiResponse<WithSitePost[]>> {
   const { subdomain, limit } = req.query;
 
   if (Array.isArray(limit) || Array.isArray(subdomain) || !session.user.id)

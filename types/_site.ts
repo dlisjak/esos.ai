@@ -1,11 +1,8 @@
-import type { Post, Site, User } from "@prisma/client";
+import type { Image, Post, Site, User } from "@prisma/client";
 
-export interface AdjacentPost
-  extends Pick<
-    Post,
-    "createdAt" | "description" | "image" | "slug" | "title"
-  > {}
-
+export interface WithImageSite extends Site {
+  image: Image | null;
+}
 export interface _SiteData extends Site {
   user: User | null;
   font: "" | "font-lora" | "font-work";

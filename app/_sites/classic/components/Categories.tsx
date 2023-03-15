@@ -12,11 +12,11 @@ const Categories = ({ category, posts, user }) => {
         {posts.map((post) => (
           <div className="col-span-1" key={post.slug}>
             <Image
-              alt={post.title ?? ""}
+              alt={post.image?.alt ?? ""}
               className="h-full w-full object-cover"
               width={850}
               height={630}
-              src={post.image}
+              src={post.image?.src ?? "/placeholder.png"}
             />
           </div>
         ))}

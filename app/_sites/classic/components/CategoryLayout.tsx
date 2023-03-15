@@ -10,8 +10,8 @@ const CategoryLayout = ({ category, user }) => {
         {category?.image && (
           <Image
             className="h-full w-full object-cover"
-            src={category?.image}
-            alt={category?.title || ""}
+            src={category?.image?.src ?? "/placeholder.png"}
+            alt={category?.image?.alt || ""}
             width={767}
             height={767}
           />

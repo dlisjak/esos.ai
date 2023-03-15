@@ -2,19 +2,24 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "react-hot-toast";
 import rehypeSanitize from "rehype-sanitize";
+import { useS3Upload } from "next-s3-upload";
 
-import Modal from "./Modal";
-import LoadingDots from "./app/loading-dots";
+import Modal from "../Modal";
+import LoadingDots from "../app/loading-dots";
 
 import { useCredits, usePrompts } from "@/lib/queries";
 import { HttpMethod } from "@/types";
+import onImagePasted from './onImagePasted';
 
-import "../node_modules/@uiw/react-md-editor/markdown-editor.css";
-import "../node_modules/@uiw/react-markdown-preview/markdown.css";
+import "../../node_modules/@uiw/react-md-editor/markdown-editor.css";
+import "../../node_modules/@uiw/react-markdown-preview/markdown.css";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
-const TextEditor = ({ value, setValue }) => {
+const TextEditor = ({ value, setValue, dataId }) => {
+  const router = useRouter();
   const [aiDetected, setAiDetected] = useState(null);
   const [checkingForAI, setCheckingForAI] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState("");
@@ -22,8 +27,13 @@ const TextEditor = ({ value, setValue }) => {
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [generatingResponse, setGeneratingResponse] = useState(false);
   const [promptVariable, setPromptVariable] = useState("");
+  const { uploadToS3 } = useS3Upload();
   const { prompts } = usePrompts();
   const { mutateCredits } = useCredits();
+  const { data: session } = useSession();
+
+  const { subdomain } = router.query;
+  const sessionUser = session?.user?.name;
 
   const handleGenerate = async () => {
     if (!generateInput || !selectedPrompt) return;
@@ -89,6 +99,7 @@ const TextEditor = ({ value, setValue }) => {
   return (
     <>
       <div className="w-full">
+        <p className="py-1 text-xs italic">Images can be added to content by dragging and dropping</p>
         <MDEditor
           height={480}
           value={value || ""}
@@ -97,8 +108,14 @@ const TextEditor = ({ value, setValue }) => {
             placeholder: "Please enter Markdown text",
           }}
           previewOptions={{
-            className: "prose",
+            className: "prose mx-auto max-w-screen-lg",
             rehypePlugins: [[rehypeSanitize]],
+          }}
+          onPaste={async (event) => {
+            await onImagePasted(event.clipboardData, sessionUser, subdomain, dataId, uploadToS3, setValue);
+          }}
+          onDrop={async (event) => {
+            await onImagePasted(event.dataTransfer, sessionUser, subdomain, dataId, uploadToS3, setValue);
           }}
         />
         <div className="mb-4 flex w-full justify-between pt-2">

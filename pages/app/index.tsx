@@ -21,7 +21,6 @@ export default function AppIndex() {
   const [subdomain, setSubdomain] = useState<string>("");
   const [debouncedSubdomain] = useDebounce(subdomain, 1500);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   const siteNameRef = useRef<HTMLInputElement | null>(null);
   const siteSubdomainRef = useRef<HTMLInputElement | null>(null);

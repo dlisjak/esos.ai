@@ -25,7 +25,6 @@ export default function Posts() {
   const [deletingPostTitle, setDeletingPostTitle] = useState();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingPost, setDeletingPost] = useState(false);
-  const [featuringPost, setFeaturingPost] = useState(false);
   const router = useRouter();
   const { subdomain } = router.query;
 
@@ -96,7 +95,6 @@ export default function Posts() {
 
   const makeFeatured = async (postId, isFeatured) => {
     if (!postId) return;
-    setFeaturingPost(true);
 
     try {
       const res = await fetch(`/api/post/feature?postId=${postId}`, {
@@ -115,8 +113,6 @@ export default function Posts() {
       }
     } catch (error) {
       console.error(error);
-    } finally {
-      setFeaturingPost(false);
     }
   };
 

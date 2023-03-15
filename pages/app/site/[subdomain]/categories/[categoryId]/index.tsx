@@ -1,4 +1,3 @@
-import TextareaAutosize from "react-textarea-autosize";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import { useState, useEffect, useRef } from "react";
@@ -11,16 +10,14 @@ import TextEditor from "@/components/TextEditor";
 
 import { HttpMethod } from "@/types";
 
-import type { ChangeEvent } from "react";
-
-import getSlug from "speakingurl";
 import Container from "@/components/Layout/Container";
 import Header from "@/components/Layout/Header";
 import { useSession } from "next-auth/react";
-import { useCategories, useCategory, usePrompts } from "@/lib/queries";
+import { useCategories, useCategory } from "@/lib/queries";
 import Image from "next/image";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import TitleEditor from "@/components/TitleEditor";
+import { Image as ImageType } from "@prisma/client";
 
 interface CategoryData {
   id: string;
@@ -28,11 +25,10 @@ interface CategoryData {
   description: string;
   slug: string;
   parentId: string;
-  image: string;
+  image: ImageType | null;
 }
 
 export default function CategoryPage() {
-  const router = useRouter();
   const categorySlugRef = useRef<HTMLInputElement | null>(null);
   const [deletingCategory, setDeletingCategory] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -41,15 +37,14 @@ export default function CategoryPage() {
   const { FileInput, uploadToS3 } = useS3Upload();
   const [publishing, setPublishing] = useState(false);
   const [disabled, setDisabled] = useState(true);
+  const router = useRouter();
 
   const { subdomain, categoryId } = router.query;
-
-  const { data: session } = useSession();
-  const sessionUser = session?.user?.name;
-
   const { category, isLoading, mutateCategory } = useCategory(categoryId);
-
   const { categories } = useCategories(subdomain);
+  const { data: session } = useSession();
+
+  const sessionUser = session?.user?.name;
 
   const [data, setData] = useState<CategoryData>({
     id: "",
@@ -57,7 +52,7 @@ export default function CategoryPage() {
     description: "",
     slug: "",
     parentId: "",
-    image: "",
+    image: null,
   });
 
   useEffect(() => {
@@ -68,7 +63,7 @@ export default function CategoryPage() {
         description: category.description ?? "",
         parentId: category.parentId ?? "",
         slug: category.slug ?? "",
-        image: category.image ?? "",
+        image: category.image ?? null,
       });
   }, [category]);
 
@@ -79,7 +74,7 @@ export default function CategoryPage() {
   }, [publishing, data]);
 
   const uploadImage = async (file) => {
-    const path = `${sessionUser}/${subdomain}/${data.id}`;
+    const path = `${sessionUser}/${subdomain}/${file.name}`;
 
     const { url } = await uploadToS3(file, {
       endpoint: {
@@ -90,15 +85,19 @@ export default function CategoryPage() {
         },
       },
     });
-    return url;
+
+    const res = await fetch(`/api/imageAlt?imageUrl=${url}`);
+    const alt = await res.json();
+
+    return { src: url, alt };
   };
 
   async function publish() {
     setPublishing(true);
-    let imageUrl;
+    let image;
 
     if (imageData) {
-      imageUrl = await uploadImage(imageData);
+      image = await uploadImage(imageData);
     }
 
     try {
@@ -113,7 +112,7 @@ export default function CategoryPage() {
           description: data.description,
           slug: data.slug,
           parentId: data.parentId,
-          image: imageUrl,
+          image,
         }),
       });
 
@@ -155,18 +154,6 @@ export default function CategoryPage() {
 
     setImagePreview(imagePreviewSrc);
     return setImageData(file);
-  };
-
-  const generateSlug = () => {
-    const title = data.title;
-    const slug = getSlug(title);
-
-    if (!categorySlugRef?.current) return;
-
-    return setData({
-      ...data,
-      slug: slug,
-    });
   };
 
   const handleSetDescription = (value) => {
@@ -280,6 +267,7 @@ export default function CategoryPage() {
               <TextEditor
                 value={data.description}
                 setValue={handleSetDescription}
+                dataId={categoryId}
               />
             </div>
             <div className="flex items-end space-x-6">
@@ -296,13 +284,11 @@ export default function CategoryPage() {
                   />
                   {(imagePreview || data.image) && (
                     <Image
-                      src={imagePreview || data.image}
-                      alt="Upload Category Image"
-                      width={800}
-                      height={500}
-                      placeholder="blur"
+                      src={imagePreview || data.image?.src}
+                      alt={data.image?.alt ?? "Placeholder Alt"}
+                      width={480}
+                      height={480}
                       className="h-full w-full cursor-pointer rounded object-contain"
-                      blurDataURL={imagePreview || data.image}
                     />
                   )}
                 </div>
