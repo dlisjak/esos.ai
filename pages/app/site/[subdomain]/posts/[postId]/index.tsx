@@ -76,7 +76,7 @@ export default function Post() {
   }, [publishing, data]);
 
   const uploadImage = async (file) => {
-    const path = `${sessionUser}/${subdomain}/${file.name}`;
+    const path = `${sessionUser}/${subdomain}`;
 
     const { url } = await uploadToS3(file, {
       endpoint: {

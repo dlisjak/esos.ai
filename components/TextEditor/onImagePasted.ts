@@ -21,7 +21,7 @@ const onImagePasted = async (
 
   await Promise.all(
     files.map(async (file) => {
-      const path = `${sessionUser}/${subdomain}/${file.name}`;
+      const path = `${sessionUser}/${subdomain}`;
       const { url } = await uploadToS3(file, {
         endpoint: {
           request: {
