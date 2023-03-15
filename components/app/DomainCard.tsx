@@ -7,10 +7,7 @@ import type { Site } from "@prisma/client";
 import Link from "next/link";
 import { useDomainCheck } from "@/lib/queries";
 
-type DomainData = Pick<
-  Site,
-  "customDomain" | "id" | "image" | "name" | "subdomain"
->;
+type DomainData = Pick<Site, "customDomain" | "id" | "name" | "subdomain">;
 
 interface DomainCardProps<T = DomainData> {
   data: T;
