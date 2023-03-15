@@ -83,7 +83,7 @@ export default function Layout({ children }) {
           <meta name="twitter:description" content={description} />
           <meta name="twitter:image" content={logo} />
         </Head>
-        <div className="fixed left-0 right-0 z-40 h-16 border-b border-gray-200 bg-white px-4">
+        <div className="relative z-40 h-16 border-b border-gray-200 bg-white px-4">
           <div className="mx-auto flex h-full max-w-screen-xl items-center justify-between">
             <div className="flex items-center">
               {session.user && session.user.image && (
@@ -115,7 +115,7 @@ export default function Layout({ children }) {
           </div>
         </div>
         {sitePage && (
-          <div className="fixed left-0 right-0 top-16  z-40 border-b border-gray-200 bg-white px-4">
+          <div className="relative z-40 border-b border-gray-200 bg-white px-4">
             <div className="mx-auto flex max-w-screen-xl items-center justify-between">
               <button className="ml-3 block" onClick={() => router.back()}>
                 ← Back
@@ -167,8 +167,8 @@ export default function Layout({ children }) {
           </div>
         )}
         {postPage && (
-          <div className="fixed left-0 right-0 top-[7.2rem] z-40 border-b border-gray-200 bg-white px-4">
-            <div className="mx-auto flex max-w-screen-lg items-center justify-center space-x-16">
+          <div className="relative z-40 border-b border-gray-200 bg-white px-4">
+            <div className="mx-auto flex max-w-screen-xl items-center justify-center space-x-16">
               <Link
                 href={`/site/${subdomain}/posts`}
                 className={`border-b-2 ${
@@ -199,8 +199,8 @@ export default function Layout({ children }) {
           </div>
         )}
         {categoryPage && (
-          <div className="fixed left-0 right-0 top-[7.2rem] z-40 border-b border-gray-200 bg-white">
-            <div className="mx-auto flex max-w-screen-lg items-center justify-center space-x-16">
+          <div className="relative z-40 border-b border-gray-200 bg-white">
+            <div className="mx-auto flex max-w-screen-xl items-center justify-center space-x-16">
               <Link
                 href={`/site/${subdomain}/categories/${categoryId}/posts`}
                 className={`border-b-2 ${
@@ -222,21 +222,7 @@ export default function Layout({ children }) {
             </div>
           </div>
         )}
-        <div
-          className={
-            categoryPostsEditPage ||
-            categoryPostsPage ||
-            postEditPage ||
-            categoryPage ||
-            postPage
-              ? "pt-40"
-              : sitePage
-              ? "pt-28"
-              : "pt-16"
-          }
-        >
-          {children}
-        </div>
+        <div className="">{children}</div>
       </div>
     </>
   );

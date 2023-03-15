@@ -273,7 +273,7 @@ export default function Post() {
             </div>
           </Container>
           <footer className="z-5 fixed inset-x-0 bottom-0 h-20 border-t border-solid border-gray-500 bg-white">
-            <div className="mx-auto flex h-full max-w-screen-lg items-center justify-between">
+            <div className="mx-auto flex h-full max-w-screen-xl items-center justify-between">
               <div className="text-sm">
                 <strong>
                   <p>{post?.published ? "Published" : "Draft"}</p>

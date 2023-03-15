@@ -502,7 +502,7 @@ export default function SiteSettings() {
           </Modal>
 
           <footer className="fixed inset-x-0 bottom-0 z-20 h-20 border-t border-solid border-gray-500 bg-white">
-            <div className="mx-auto flex h-full max-w-screen-lg items-center justify-end">
+            <div className="mx-auto flex h-full max-w-screen-xl items-center justify-end">
               <button
                 onClick={() => {
                   saveSiteSettings(data);
