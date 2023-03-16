@@ -4,6 +4,7 @@ import type { _SiteData } from "@/types";
 import Loader from "@/components/app/Loader";
 import Navigation from "@/components/Sites/Navbar";
 import LatestPosts from "../../components/LatestPosts";
+import { getDictionary } from "app/dictionaries";
 
 export const dynamicParams = true;
 
@@ -114,15 +115,18 @@ const getData = async (site: any) => {
   };
 };
 
-export default async function Index({ params }: any) {
-  const { latestPosts, data } = await getData(params.site);
+export default async function Index({ params: { lang, site } }: any) {
+  const dict = await getDictionary(lang);
+  const { latestPosts, data } = await getData(site);
   if (!data) return <Loader />;
 
   return (
     <>
       <Navigation categories={data.categories} title={data.name} />
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
-        {latestPosts && <LatestPosts posts={latestPosts} user={data.user} />}
+        {latestPosts && (
+          <LatestPosts posts={latestPosts} user={data.user} dict={dict} />
+        )}
       </div>
     </>
   );
