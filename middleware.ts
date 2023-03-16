@@ -76,6 +76,11 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
 
+  console.log(hostname);
+
+  if (hostname) {
+  }
+
   const locale = getLocale(req);
   const pathname = req.nextUrl.pathname;
   const pathnameIsMissingLocale = locales.every(
