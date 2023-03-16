@@ -1,4 +1,4 @@
-import "../../../styles/sites.css";
+import "../styles/sites.css";
 
 export default function RootLayout({
   children,
