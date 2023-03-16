@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import Negotiator from "negotiator";
-
-// import rewrites from "./public/rewrites/index.json";
 
 export const config = {
   matcher: [
@@ -12,36 +9,23 @@ export const config = {
      * 3. /examples (inside /public)
      * 4. all root files inside /public (e.g. /favicon.ico)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/|_next/|_static/|examples/|[\\w-]+\\.\\w+).*)",
   ],
 };
-
-// const locales = ["en", "de", "nl"];
-
-// function getLocale(req: NextRequest) {
-//   const language = new Negotiator(req).language(locales);
-
-//   const defaultLocale = "en";
-
-//   return language || defaultLocale;
-// }
 
 export default async function middleware(req: NextRequest) {
   const url = req.nextUrl;
 
   // Get hostname of request (e.g. demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}, demo.localhost:3000)
-  const hostname = req.headers.get("host") || `demo.esos-digital.vercel.app`;
-
-  console.log(hostname);
+  const hostname =
+    req.headers.get("host") || `demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
 
   // Get the pathname of the request (e.g. /, /about, /blog/first-post)
   const path = url.pathname;
 
-  console.log("path", path);
-
   const currentHost =
     process.env.NODE_ENV === "production" && process.env.VERCEL === "1"
-      ? hostname.replace(".esos-digital.vercel.app", "")
+      ? hostname.replace(`.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, "")
       : hostname.replace(`.localhost:3000`, "");
 
   console.log("currentHost", currentHost);
@@ -73,51 +57,15 @@ export default async function middleware(req: NextRequest) {
   }
 
   // rewrite root application to `/home` folder
-  if (hostname == "localhost:3000" || hostname == "esos-digital.vercel.app") {
-    console.log("home", path);
+  if (
+    hostname === "localhost:3000" ||
+    hostname === `${process.env.NEXT_PUBLIC_DOMAIN_URL}`
+  ) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
 
-  // console.log("hostname 2", hostname);
-
-  // if (hostname) {
-  // }
-
-  // const locale = getLocale(req);
-  // const pathname = req.nextUrl.pathname;
-  // const pathnameIsMissingLocale = locales.every(
-  //   (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  // );
-
-  // // Redirect if there is no locale
-  // if (pathnameIsMissingLocale) {
-  //   // e.g. incoming request is /products
-  //   // The new URL is now /en-US/products
-  //   return NextResponse.redirect(new URL(`/${locale}${path}`, req.url));
-  // }
-
-  // if (rewrites.length) {
-  //   const siteObject = rewrites.find(
-  //     (rewrite: {
-  //       customDomain: string | null;
-  //       subdomain: string;
-  //       theme: string;
-  //     }) =>
-  //       rewrite?.customDomain === currentHost ||
-  //       rewrite?.subdomain === currentHost
-  //   ) || { customDomain: null, theme: "classic" };
-
-  //   if (siteObject) {
-  //     const theme = siteObject?.theme || "classic";
-
-  //     return NextResponse.rewrite(
-  //       new URL(`/_sites/${theme}/${currentHost}${path}`, req.url)
-  //     );
-  //   }
-  // }
-
   // rewrite everything else to `/_sites/[site] dynamic route
   return NextResponse.rewrite(
-    new URL(`/_sites/classic/${currentHost}${path}`, req.url)
+    new URL(`/_sites/${currentHost}${path}`, req.url)
   );
 }
