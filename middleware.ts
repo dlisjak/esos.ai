@@ -33,8 +33,12 @@ export default async function middleware(req: NextRequest) {
   const hostname =
     req.headers.get("host") || `demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
 
+  console.log("hostname", hostname);
+
   // Get the pathname of the request (e.g. /, /about, /blog/first-post)
   const path = url.pathname;
+
+  console.log("path", path);
 
   const currentHost =
     process.env.NODE_ENV === "production" && process.env.VERCEL === "1"
