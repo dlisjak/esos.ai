@@ -28,6 +28,7 @@ function getLocale(req: NextRequest) {
 
 export default async function middleware(req: NextRequest) {
   const url = req.nextUrl;
+  console.log("url", url);
 
   // Get hostname of request (e.g. demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}, demo.localhost:3000)
   const hostname =
