@@ -3,7 +3,6 @@ import Layout from "@/components/app/Layout";
 import Modal from "@/components/Modal";
 import LoadingDots from "@/components/app/loading-dots";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
 import { useDebounce } from "use-debounce";
 import { HttpMethod } from "@/types";
 

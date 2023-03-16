@@ -41,10 +41,10 @@ export default async function middleware(req: NextRequest) {
   console.log("path", path);
 
   const currentHost =
-    process.env.NODE_ENV === "production"
+    process.env.NODE_ENV === "production" && process.env.VERCEL === "1"
       ? hostname
           .replace(`.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, "")
-          .replace("esos-digital.vercel.app", "")
+          .replace(".esos-digital.vercel.app", "")
       : hostname.replace(`.localhost:3000`, "");
 
   console.log("currentHost", currentHost);
@@ -77,9 +77,10 @@ export default async function middleware(req: NextRequest) {
 
   // rewrite root application to `/home` folder
   if (
-    hostname === "localhost:3000" ||
-    hostname === `${process.env.NEXT_PUBLIC_DOMAIN_URL}`
+    hostname == "localhost:3000" ||
+    hostname == `${process.env.NEXT_PUBLIC_DOMAIN_URL}`
   ) {
+    console.log("home", path);
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
 
