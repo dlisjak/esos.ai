@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Negotiator from "negotiator";
 
-import rewrites from "./public/rewrites/index.json";
+// import rewrites from "./public/rewrites/index.json";
 
 export const config = {
   matcher: [
@@ -30,8 +30,7 @@ export default async function middleware(req: NextRequest) {
   const url = req.nextUrl;
 
   // Get hostname of request (e.g. demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}, demo.localhost:3000)
-  const hostname =
-    req.headers.get("host") || `demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
+  const hostname = req.headers.get("host") || `demo.esos-digital.vercel.app`;
 
   // Get the pathname of the request (e.g. /, /about, /blog/first-post)
   const path = url.pathname;
@@ -40,10 +39,7 @@ export default async function middleware(req: NextRequest) {
 
   const currentHost =
     process.env.NODE_ENV === "production" && process.env.VERCEL === "1"
-      ? hostname
-          .replace(".founder.si", "")
-          .replace(".esos-digital.vercel.app", "")
-          .replace(`.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, "")
+      ? hostname.replace(".esos-digital.vercel.app", "")
       : hostname.replace(`.localhost:3000`, "");
 
   console.log("currentHost", currentHost);
@@ -80,43 +76,43 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
 
-  console.log("hostname 2", hostname);
+  // console.log("hostname 2", hostname);
 
-  if (hostname) {
-  }
+  // if (hostname) {
+  // }
 
-  const locale = getLocale(req);
-  const pathname = req.nextUrl.pathname;
-  const pathnameIsMissingLocale = locales.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  );
+  // const locale = getLocale(req);
+  // const pathname = req.nextUrl.pathname;
+  // const pathnameIsMissingLocale = locales.every(
+  //   (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
+  // );
 
-  // Redirect if there is no locale
-  if (pathnameIsMissingLocale) {
-    // e.g. incoming request is /products
-    // The new URL is now /en-US/products
-    return NextResponse.redirect(new URL(`/${locale}${path}`, req.url));
-  }
+  // // Redirect if there is no locale
+  // if (pathnameIsMissingLocale) {
+  //   // e.g. incoming request is /products
+  //   // The new URL is now /en-US/products
+  //   return NextResponse.redirect(new URL(`/${locale}${path}`, req.url));
+  // }
 
-  if (rewrites.length) {
-    const siteObject = rewrites.find(
-      (rewrite: {
-        customDomain: string | null;
-        subdomain: string;
-        theme: string;
-      }) =>
-        rewrite?.customDomain === currentHost ||
-        rewrite?.subdomain === currentHost
-    ) || { customDomain: null, theme: "classic" };
+  // if (rewrites.length) {
+  //   const siteObject = rewrites.find(
+  //     (rewrite: {
+  //       customDomain: string | null;
+  //       subdomain: string;
+  //       theme: string;
+  //     }) =>
+  //       rewrite?.customDomain === currentHost ||
+  //       rewrite?.subdomain === currentHost
+  //   ) || { customDomain: null, theme: "classic" };
 
-    if (siteObject) {
-      const theme = siteObject?.theme || "classic";
+  //   if (siteObject) {
+  //     const theme = siteObject?.theme || "classic";
 
-      return NextResponse.rewrite(
-        new URL(`/_sites/${theme}/${currentHost}${path}`, req.url)
-      );
-    }
-  }
+  //     return NextResponse.rewrite(
+  //       new URL(`/_sites/${theme}/${currentHost}${path}`, req.url)
+  //     );
+  //   }
+  // }
 
   // rewrite everything else to `/_sites/[site] dynamic route
   return NextResponse.rewrite(
