@@ -29,7 +29,7 @@ const CategoryLayout = ({ category, user }: any) => {
       </div>
       <div className="col-span-1 mx-4 md:mx-0 lg:col-span-2">
         <div
-          className="prose md:pr-4"
+          className="prose lg:prose-xl md:pr-4"
           dangerouslySetInnerHTML={{ __html: md.render(category.description) }}
         />
       </div>

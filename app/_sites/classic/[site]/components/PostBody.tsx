@@ -62,7 +62,7 @@ const PostBody = ({ post, user }: any) => {
           </div>
           <div className="col-span-1 px-4 lg:col-span-2 lg:px-0">
             <div
-              className="prose mx-auto lg:mx-0"
+              className="prose mx-auto lg:prose-xl lg:mx-0"
               dangerouslySetInnerHTML={{ __html: md.render(post.content) }}
             />
           </div>
