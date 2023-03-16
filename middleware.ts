@@ -28,13 +28,10 @@ function getLocale(req: NextRequest) {
 
 export default async function middleware(req: NextRequest) {
   const url = req.nextUrl;
-  console.log("url", url);
 
   // Get hostname of request (e.g. demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}, demo.localhost:3000)
   const hostname =
-    req.headers.get("host") || `demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
-
-  console.log("hostname", hostname);
+    req.headers.get("host") || `${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
 
   // Get the pathname of the request (e.g. /, /about, /blog/first-post)
   const path = url.pathname;
@@ -46,7 +43,11 @@ export default async function middleware(req: NextRequest) {
       ? hostname
           .replace(`.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, "")
           .replace(".esos-digital.vercel.app", "")
-      : hostname.replace(`.localhost:3000`, "");
+          .replace(".founder.si", "")
+      : hostname
+          .replace(`.localhost:3000`, "")
+          .replace(".founder.si", "")
+          .replace(".esos-digital.vercel.app", "");
 
   console.log("currentHost", currentHost);
 
@@ -79,7 +80,9 @@ export default async function middleware(req: NextRequest) {
   // rewrite root application to `/home` folder
   if (
     hostname == "localhost:3000" ||
-    hostname == `${process.env.NEXT_PUBLIC_DOMAIN_URL}`
+    hostname == `${process.env.NEXT_PUBLIC_DOMAIN_URL}` ||
+    hostname == "founder.si" ||
+    hostname == "esos.digital.vercel.app"
   ) {
     console.log("home", path);
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
