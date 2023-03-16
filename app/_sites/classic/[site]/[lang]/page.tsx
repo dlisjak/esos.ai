@@ -160,6 +160,7 @@ export default async function Index({ params: { lang, site } }) {
   if (!data) return <Loader />;
 
   console.log(lang);
+  console.log(dict);
 
   return (
     <>
