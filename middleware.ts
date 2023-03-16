@@ -85,7 +85,7 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
 
-  console.log("hostname", hostname);
+  console.log("hostname 2", hostname);
 
   if (hostname) {
   }
