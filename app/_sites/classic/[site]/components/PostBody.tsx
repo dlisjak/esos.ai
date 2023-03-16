@@ -19,8 +19,15 @@ const PostBody = ({ post, user }: any) => {
   return (
     <div className="flex flex-col">
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
-        <div className="mt-4 grid grid-flow-row grid-cols-1 gap-4 lg:mt-8 lg:grid-cols-3 xl:gap-8">
-          <div className="relative col-span-1 aspect-[4/3] lg:aspect-square">
+        <div className="mt-8 grid grid-flow-row grid-cols-1 gap-4 lg:grid-cols-3 xl:gap-8">
+          <div className="order-2 col-span-1 px-4 lg:order-1 lg:col-span-2 xl:px-0">
+            <div
+              className="prose mx-auto lg:prose-xl lg:mx-0"
+              dangerouslySetInnerHTML={{ __html: md.render(post.content) }}
+            />
+          </div>
+
+          <div className="relative col-span-1 aspect-[4/3] lg:order-2 lg:aspect-square">
             <Image
               className="h-full w-full object-cover"
               src={post?.image?.src ?? "/placeholder.png"}
@@ -59,12 +66,6 @@ const PostBody = ({ post, user }: any) => {
                 </p>
               </div>
             </div>
-          </div>
-          <div className="col-span-1 px-4 lg:col-span-2 lg:px-0">
-            <div
-              className="prose mx-auto lg:prose-xl lg:mx-0"
-              dangerouslySetInnerHTML={{ __html: md.render(post.content) }}
-            />
           </div>
         </div>
       </div>

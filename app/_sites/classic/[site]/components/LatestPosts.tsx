@@ -3,11 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import CategoryBubble from "./CategoryBubble";
 
-const LatestPosts = ({ posts, user }: any) => {
+const LatestPosts = ({ posts, user, dict }: any) => {
   return (
-    <div className="my-8 flex w-full flex-col">
+    <div className="flex w-full flex-col">
       <h2 className="mx-2 my-4 text-3xl font-bold hover:underline md:text-4xl xl:mx-0">
-        <Link href="/latest">Latest Posts</Link>
+        <Link href="/latest">{dict.latestPosts}</Link>
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:gap-8">
         {posts.map((post: any) => (

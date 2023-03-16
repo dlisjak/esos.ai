@@ -155,23 +155,23 @@ const getData = async (site: any) => {
 };
 
 export default async function Index({ params: { lang, site } }: any) {
-  console.log(lang);
   const dict = await getDictionary(lang);
   const { featuredPosts, latestPosts, data } = await getData(site);
   if (!data) return <Loader />;
-
-  console.log(lang);
-  console.log(dict);
 
   return (
     <>
       <Navigation categories={data.categories} title={data.name} />
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
         {featuredPosts && featuredPosts.length > 0 && (
-          <FeaturedPosts featuredPosts={featuredPosts} user={data.user} />
+          <FeaturedPosts
+            featuredPosts={featuredPosts}
+            user={data.user}
+            dict={dict}
+          />
         )}
         {latestPosts && latestPosts.length > 0 && (
-          <LatestPosts posts={latestPosts} user={data.user} />
+          <LatestPosts posts={latestPosts} user={data.user} dict={dict} />
         )}
       </div>
     </>

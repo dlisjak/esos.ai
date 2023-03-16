@@ -1,4 +1,4 @@
-import "../styles/sites.css";
+import "../../../../../styles/sites.css";
 
 interface LangObject {
   lang: string;

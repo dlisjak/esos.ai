@@ -1,6 +1,4 @@
 {
-  "home": {
-    "latestPosts": "Latest Posts2",
-    "featuredPosts": "Featured Posts"
-  }
+  "latestPosts": "Neueste Beiträge",
+  "featuredPosts": "Ausgewählte Beiträge"
 }
