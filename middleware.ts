@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { match } from "@formatjs/intl-localematcher";
 import Negotiator from "negotiator";
 
 import rewrites from "./public/rewrites/index.json";
@@ -39,8 +38,12 @@ export default async function middleware(req: NextRequest) {
 
   const currentHost =
     process.env.NODE_ENV === "production" && process.env.VERCEL === "1"
-      ? hostname.replace(`.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, "")
+      ? hostname
+          .replace(`.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, "")
+          .replace("esos-digital.vercel.app", "")
       : hostname.replace(`.localhost:3000`, "");
+
+  console.log("currentHost", currentHost);
 
   // rewrites for app pages
   if (currentHost == "app") {
@@ -76,7 +79,7 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
 
-  console.log(hostname);
+  console.log("hostname", hostname);
 
   if (hostname) {
   }
