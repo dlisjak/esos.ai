@@ -155,6 +155,7 @@ const getData = async (site: any) => {
 };
 
 export default async function Index({ params: { lang, site } }: any) {
+  console.log(lang);
   const dict = await getDictionary(lang);
   const { featuredPosts, latestPosts, data } = await getData(site);
   if (!data) return <Loader />;

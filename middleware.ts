@@ -1,5 +1,6 @@
-import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
+import { match as matchLocale } from "@formatjs/intl-localematcher";
+import Negotiator from "negotiator";
 
 export const config = {
   matcher: [
@@ -13,6 +14,19 @@ export const config = {
     "/((?!api/|_next/|_static/|examples/|[\\w-]+\\.\\w+).*)",
   ],
 };
+
+const locales = ["en", "de", "nl"];
+
+function getLocale(request: NextRequest): string | undefined {
+  // Negotiator expects plain object so we need to transform headers
+  const negotiatorHeaders: Record<string, string> = {};
+  request.headers.forEach((value, key) => (negotiatorHeaders[key] = value));
+
+  // Use negotiator and intl-localematcher to get best locale
+  let languages = new Negotiator({ headers: negotiatorHeaders }).languages();
+  // @ts-ignore locales are readonly
+  return matchLocale(languages, locales, "en");
+}
 
 export default async function middleware(req: NextRequest) {
   const url = req.nextUrl;
@@ -28,10 +42,6 @@ export default async function middleware(req: NextRequest) {
     process.env.NODE_ENV === "production" && process.env.VERCEL === "1"
       ? hostname.replace(`.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, "")
       : hostname.replace(`.localhost:3000`, "");
-
-  console.log("currentHost", currentHost);
-  console.log("NEXT_PUBLIC_DOMAIN_URL", process.env.NEXT_PUBLIC_DOMAIN_URL);
-  console.log("hostname", hostname);
 
   // rewrites for app pages
   if (currentHost == "app") {
@@ -67,8 +77,21 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
 
+  const pathnameIsMissingLocale = locales.every(
+    (locale) => !path.startsWith(`/${locale}/`) && path !== `/${locale}`
+  );
+
+  // Redirect if there is no locale
+  if (pathnameIsMissingLocale) {
+    const locale = getLocale(req);
+    console.log(`/${locale}/${path}`);
+
+    return NextResponse.redirect(new URL(`/${locale}/${path}`, req.url));
+  }
+
+  console.log(`/_sites/classic/${currentHost}${path}`);
   // rewrite everything else to `/_sites/[site] dynamic route
   return NextResponse.rewrite(
-    new URL(`/_sites/${currentHost}${path}`, req.url)
+    new URL(`/_sites/classic/${currentHost}${path}`, req.url)
   );
 }
