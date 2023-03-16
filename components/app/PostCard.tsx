@@ -40,13 +40,13 @@ const PostCard = ({
             />
           </Link>
         </div>
-        <div className="relative flex flex-col px-4">
+        <div className="relative flex flex-col items-start px-4">
           <div className="flex items-center">
             <Link href={postEditUrl} className="hover:underline">
               <h2 className="mb-1 text-xl font-semibold">{title}</h2>
             </Link>
           </div>
-          <p className="right-1 flex w-auto rounded bg-slate-100 px-1 text-sm line-clamp-1">
+          <p className="right-1 flex w-auto rounded bg-gray-100 px-1 text-sm line-clamp-1">
             /{slug}
           </p>
           <Link

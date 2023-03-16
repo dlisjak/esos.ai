@@ -22,7 +22,7 @@ const SlimCategory = ({ category, subdomain, isChild, isSubChild }) => {
           <h3 className="text-xl font-semibold line-clamp-1">
             {category.title} ({category.posts?.length})
           </h3>
-          <p className="right-1 flex w-auto rounded bg-slate-100 px-1 text-xs line-clamp-1">
+          <p className="right-1 flex w-auto rounded bg-gray-100 px-1 text-xs line-clamp-1">
             /{category.slug}
           </p>
         </div>

@@ -120,23 +120,6 @@ const TextEditor = ({ value, setValue, dataId }) => {
         />
         <div className="mb-4 flex w-full justify-between pt-2">
           <div className="flex">
-            <button
-              className={`flex whitespace-nowrap border bg-white items-center px-2 py-1 tracking-wide text-black duration-200 hover:border-black ${checkingForAI
-                ? "cursor-not-allowed bg-gray-50 text-gray-400"
-                : "bg-white text-gray-600 hover:text-black"
-                }`}
-              onClick={() => checkAIContent()}
-              disabled={checkingForAI}
-            >
-              Check for AI
-            </button>
-            {aiDetected && (
-              <div className="flex flex-col">
-                <div className="px-2">Content is {Math.round(aiDetected[0].score * 100)}% Human generated</div>
-              </div>
-            )}
-          </div>
-          <div className="flex">
             <select
               onChange={(e) => {
                 setSelectedPrompt(e.target.value);
@@ -158,6 +141,23 @@ const TextEditor = ({ value, setValue, dataId }) => {
               onClick={() => setShowGenerateModal(true)}
             >
               Generate
+            </button>
+          </div>
+          <div className="flex">
+            {aiDetected && (
+              <div className="flex flex-col">
+                <div className="px-2">Content is {Math.round(aiDetected[0].score * 100)}% Human generated</div>
+              </div>
+            )}
+            <button
+              className={`flex whitespace-nowrap border bg-white items-center px-2 py-1 tracking-wide text-black duration-200 hover:border-black ${checkingForAI
+                ? "cursor-not-allowed bg-gray-50 text-gray-400"
+                : "bg-white text-gray-600 hover:text-black"
+                }`}
+              onClick={() => checkAIContent()}
+              disabled={checkingForAI}
+            >
+              Check for AI
             </button>
           </div>
         </div>

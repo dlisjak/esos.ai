@@ -34,7 +34,7 @@ const SiteCard = ({ site }) => {
               <h2 className="mb-1 text-xl font-semibold">{site.name}</h2>
             </Link>
           </div>
-          <p className="right-1 flex w-auto rounded bg-slate-100 px-1 text-sm line-clamp-1">
+          <p className="right-1 flex w-auto rounded bg-gray-100 px-1 text-sm line-clamp-1">
             {domain}
           </p>
           {!site.customDomain && (

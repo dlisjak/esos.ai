@@ -73,7 +73,7 @@ export default function CategoryPage() {
     else setDisabled(true);
   }, [publishing, data]);
 
-  const uploadImage = async (file) => {
+  const uploadImage = async (file, title) => {
     const path = `${sessionUser}/${subdomain}`;
 
     const { url } = await uploadToS3(file, {
@@ -86,10 +86,7 @@ export default function CategoryPage() {
       },
     });
 
-    const res = await fetch(`/api/imageAlt?imageUrl=${url}`);
-    const alt = await res.json();
-
-    return { src: url, alt };
+    return { src: url, alt: title };
   };
 
   async function publish() {
@@ -97,7 +94,7 @@ export default function CategoryPage() {
     let image;
 
     if (imageData) {
-      image = await uploadImage(imageData);
+      image = await uploadImage(imageData, data.title);
     }
 
     try {
@@ -218,7 +215,7 @@ export default function CategoryPage() {
                   Slug<span className="text-red-600">*</span>
                 </h2>
                 <input
-                  className="w-full max-w-[24rem] rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
+                  className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
                   name="slug"
                   required
                   placeholder="Category Slug"
@@ -235,7 +232,7 @@ export default function CategoryPage() {
               </div>
               <div className="flex w-full flex-col">
                 <h2 className="text-xl">Parent Category</h2>
-                <div className="flex w-full max-w-lg items-center overflow-hidden rounded border border-gray-700">
+                <div className="flex w-full items-center overflow-hidden rounded border border-gray-700">
                   <select
                     onChange={(e) =>
                       setData((data) => ({
@@ -274,23 +271,19 @@ export default function CategoryPage() {
               <div className="w-full max-w-lg">
                 <h2 className="text-xl">Category Image</h2>
                 <div
-                  className={`relative h-[480px] w-[480px] ${
-                    data.image ? "" : "h-150 animate-pulse bg-gray-300"
-                  } relative w-full overflow-hidden rounded border-2 border-dashed border-gray-800`}
+                  className={`relative relative h-[480px] w-[480px] w-full overflow-hidden rounded border-2 border-dashed border-gray-800`}
                 >
                   <FileInput
                     className="fileUpload absolute left-0 top-0 bottom-0 right-0 z-50 cursor-pointer opacity-0"
                     onChange={handleImageSelect}
                   />
-                  {(imagePreview || data.image) && (
-                    <Image
-                      src={imagePreview || data.image?.src}
-                      alt={data.image?.alt ?? "Placeholder Alt"}
-                      width={480}
-                      height={480}
-                      className="h-full w-full cursor-pointer rounded object-contain"
-                    />
-                  )}
+                  <Image
+                    src={imagePreview || data.image?.src || "/placeholder.png"}
+                    alt={data.image?.alt ?? "Placeholder Alt"}
+                    width={480}
+                    height={480}
+                    className="h-full w-full cursor-pointer rounded object-contain"
+                  />
                 </div>
               </div>
               <div className="h-full w-full">

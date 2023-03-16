@@ -4,6 +4,7 @@ import { toDateString } from "@/lib/utils";
 import Link from "next/link";
 import PostCard from "./PostCard";
 import CategoryBubble from "./CategoryBubble";
+import RelatedPosts from "./RelatedPosts";
 
 const PostBody = ({ post, user }) => {
   return (
@@ -11,15 +12,14 @@ const PostBody = ({ post, user }) => {
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
         <div className="mt-4 grid grid-flow-row grid-cols-1 gap-4 lg:mt-8 lg:grid-cols-3 xl:gap-8">
           <div className="relative col-span-1 aspect-[4/3] lg:aspect-square">
-            {post?.image && (
-              <Image
-                className="h-full w-full object-cover"
-                src={post?.image?.src ?? "/placeholder.png"}
-                alt={post?.image?.alt || ""}
-                width={767}
-                height={767}
-              />
-            )}
+            <Image
+              className="h-full w-full object-cover"
+              src={post?.image?.src ?? "/placeholder.png"}
+              alt={post?.image?.alt || ""}
+              width={767}
+              height={767}
+              priority
+            />
             <div className="m-2 flex justify-center lg:justify-start">
               <CategoryBubble
                 href={`${
@@ -63,18 +63,7 @@ const PostBody = ({ post, user }) => {
         </div>
       </div>
       {post.category.posts.length > 0 && (
-        <div className="mt-8 bg-slate-100 py-8">
-          <div className="container mx-auto mb-4 w-full max-w-screen-xl">
-            <h2 className="mb-8 text-3xl font-bold md:text-4xl">
-              Read More From {post.category.title}
-            </h2>
-            <div className="mt-4 grid grid-cols-3 gap-4">
-              {post.category.posts.map((post) => (
-                <PostCard post={post} user={user} h3 key={post.slug} />
-              ))}
-            </div>
-          </div>
-        </div>
+        <RelatedPosts post={post} user={user} />
       )}
     </div>
   );

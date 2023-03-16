@@ -10,7 +10,7 @@ const SlimPostCard = ({ post, editUrl = "" }) => {
       <StatusIndicator published={post.published} className="top-6 left-0" />
       <div className="ml-4 flex flex-col items-start justify-center">
         <h3 className="text-xl font-semibold line-clamp-1">{post.title}</h3>
-        <p className="right-1 flex w-auto rounded bg-slate-100 px-1 text-xs line-clamp-1">
+        <p className="right-1 flex w-auto rounded bg-gray-100 px-1 text-xs line-clamp-1">
           /{post.slug}
         </p>
       </div>

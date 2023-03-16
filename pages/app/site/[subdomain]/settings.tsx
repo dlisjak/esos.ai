@@ -75,7 +75,7 @@ export default function SiteSettings() {
     let image;
 
     if (imageData) {
-      image = await uploadImage(imageData);
+      image = await uploadImage(imageData, site.subdomain);
     }
 
     try {
@@ -183,7 +183,7 @@ export default function SiteSettings() {
     }
   }
 
-  const uploadImage = async (file) => {
+  const uploadImage = async (file, subdomain) => {
     const path = `${sessionUser}/${subdomain}`;
 
     const { url } = await uploadToS3(file, {
@@ -196,10 +196,7 @@ export default function SiteSettings() {
       },
     });
 
-    const res = await fetch(`/api/imageAlt?imageUrl=${url}`);
-    const alt = await res.json();
-
-    return { src: url, alt };
+    return { src: url, alt: subdomain };
   };
 
   const handleImageSelect = async (file) => {

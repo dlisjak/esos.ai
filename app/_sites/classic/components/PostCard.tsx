@@ -12,15 +12,13 @@ const PostCard = ({ className = "", post, user, h3 = false }) => {
         }/${post.category?.slug}/${post.slug}`}
       >
         <div className="group relative mx-auto aspect-[4/3] w-full overflow-hidden">
-          {post.image && (
-            <Image
-              alt={post.image?.alt ?? ""}
-              className="h-full w-full object-cover"
-              width={850}
-              height={630}
-              src={post.image?.src ?? "/placeholder.png"}
-            />
-          )}
+          <Image
+            alt={post.image?.alt ?? ""}
+            className="h-full w-full object-cover"
+            width={850}
+            height={630}
+            src={post.image?.src ?? "/placeholder.png"}
+          />
         </div>
       </Link>
       <div className="mx-auto mt-4 flex w-full flex-col items-start px-4 xl:px-0">

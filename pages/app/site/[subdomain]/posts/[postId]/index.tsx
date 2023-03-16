@@ -75,7 +75,7 @@ export default function Post() {
     else setDisabled(true);
   }, [publishing, data]);
 
-  const uploadImage = async (file) => {
+  const uploadImage = async (file, alt) => {
     const path = `${sessionUser}/${subdomain}`;
 
     const { url } = await uploadToS3(file, {
@@ -87,9 +87,6 @@ export default function Post() {
         },
       },
     });
-
-    const res = await fetch(`/api/imageAlt?imageUrl=${url}`);
-    const alt = await res.json();
 
     return { src: url, alt };
   };
@@ -108,7 +105,7 @@ export default function Post() {
     let image;
 
     if (imageData) {
-      image = await uploadImage(imageData);
+      image = await uploadImage(imageData, data.title);
     } else {
       image = data.image;
     }
@@ -249,25 +246,19 @@ export default function Post() {
               <div className="w-full max-w-lg">
                 <h2 className="mr-auto text-xl">Image</h2>
                 <div
-                  className={`relative h-[480px] w-[480px] ${
-                    data.image ? "" : "h-150 animate-pulse bg-gray-300"
-                  } relative w-full overflow-hidden rounded border-2 border-dashed border-gray-800`}
+                  className={`relative relative h-[480px] w-[480px] w-full overflow-hidden rounded border-2 border-dashed border-gray-800`}
                 >
                   <FileInput
                     className="fileUpload absolute left-0 top-0 bottom-0 right-0 z-50 cursor-pointer opacity-0"
                     onChange={handleImageSelect}
                   />
-                  {(imagePreview || data.image) && (
-                    <Image
-                      src={
-                        imagePreview || data.image?.src || "/placeholder.png"
-                      }
-                      alt={data.image?.alt ?? ""}
-                      width={480}
-                      height={480}
-                      className="h-full w-full cursor-pointer rounded object-contain"
-                    />
-                  )}
+                  <Image
+                    src={imagePreview || data.image?.src || "/placeholder.png"}
+                    alt={data.image?.alt ?? ""}
+                    width={480}
+                    height={480}
+                    className="h-full w-full cursor-pointer rounded object-contain"
+                  />
                 </div>
               </div>
             </div>
