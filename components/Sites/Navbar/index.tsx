@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-const Navigation = ({ categories, title }) => {
+const Navigation = ({ categories, title }: any) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -21,7 +21,7 @@ const Navigation = ({ categories, title }) => {
           }`}
         >
           {categories &&
-            categories?.map(({ title, slug, children }) => (
+            categories?.map(({ title, slug, children }: any) => (
               <li className="dropdown relative mx-2 sm:mx-4" key={slug}>
                 <Link
                   href={`/${slug}`}
@@ -30,7 +30,7 @@ const Navigation = ({ categories, title }) => {
                   <span>{title}</span>
                 </Link>
                 <ul className="series-dropdown solid absolute top-8 divide-y border bg-white">
-                  {children.map((child) => (
+                  {children.map((child: any) => (
                     <li
                       className={`mx-2 border-b lg:border-0`}
                       key={child.slug}

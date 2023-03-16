@@ -9,7 +9,7 @@ import useRequireAuth from "../../lib/useRequireAuth";
 
 import TopNavLink from "./NavLink/TopNavLink";
 
-export default function Layout({ children }) {
+export default function Layout({ children }: any) {
   const router = useRouter();
   const { subdomain, categoryId } = router.query;
 

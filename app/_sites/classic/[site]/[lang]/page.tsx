@@ -40,7 +40,7 @@ export async function generateStaticParams() {
   return paths;
 }
 
-const getData = async (site) => {
+const getData = async (site: any) => {
   let filter: {
     subdomain?: string;
     customDomain?: string;
@@ -154,7 +154,7 @@ const getData = async (site) => {
   };
 };
 
-export default async function Index({ params: { lang, site } }) {
+export default async function Index({ params: { lang, site } }: any) {
   const dict = await getDictionary(lang);
   const { featuredPosts, latestPosts, data } = await getData(site);
   if (!data) return <Loader />;

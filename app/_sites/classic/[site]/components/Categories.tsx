@@ -1,14 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const Categories = ({ category, posts, user }) => {
+const Categories = ({ category, posts, user }: any) => {
   return (
     <div className="my-8 flex w-full flex-col">
       <h2 className="my-2 text-3xl font-bold hover:underline md:text-4xl">
         <Link href={`/${category.slug}`}>{category.title}</Link>
       </h2>
       <div className="grid gap-4 lg:grid-cols-5 xl:gap-8">
-        {posts.map((post) => (
+        {posts.map((post: any) => (
           <div className="col-span-1" key={post.slug}>
             <Image
               alt={post.image?.alt ?? ""}

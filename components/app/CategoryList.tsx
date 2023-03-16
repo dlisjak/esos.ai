@@ -7,10 +7,10 @@ const CategoryList = ({
   removePostClick,
   isChild = false,
   isSubChild = false,
-}) => {
+}: any) => {
   return (
     <ul className={`flex flex-col ${isChild ? "space-y-2" : "space-y-4"}`}>
-      {categories.map((category) => {
+      {categories.map((category: any) => {
         if (category?.parent?.id && !isChild) return;
         if (category?.parent?.id && !isSubChild) return;
 

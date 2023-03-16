@@ -3,8 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import CategoryBubble from "./CategoryBubble";
 
-const CategoryPosts = ({ posts, user }) => {
-  return posts.map((post) => (
+const CategoryPosts = ({ posts, user }: any) => {
+  return posts.map((post: any) => (
     <div className="col-span-1" key={post.slug}>
       <Link
         href={`${

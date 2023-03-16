@@ -207,7 +207,7 @@ export async function deleteSite(
         fs.readFileSync(path.join("public", "rewrites", "index.json"), "utf-8")
       );
       const idx = rewrites.indexOf(
-        (rewrite) => rewrite.subdomain === subdomain
+        (rewrite: any) => rewrite.subdomain === subdomain
       );
 
       if (idx) {

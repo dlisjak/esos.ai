@@ -73,7 +73,7 @@ export default function CategoryPage() {
     else setDisabled(true);
   }, [publishing, data]);
 
-  const uploadImage = async (file, title) => {
+  const uploadImage = async (file: any, title: any) => {
     const path = `${sessionUser}/${subdomain}`;
 
     const { url } = await uploadToS3(file, {
@@ -93,7 +93,7 @@ export default function CategoryPage() {
     setPublishing(true);
     let image;
 
-    const body = {
+    const body: any = {
       id: categoryId,
       title: data.title,
       description: data.description,
@@ -148,28 +148,28 @@ export default function CategoryPage() {
     }
   }
 
-  const handleImageSelect = async (file) => {
+  const handleImageSelect = async (file: any) => {
     const imagePreviewSrc = URL.createObjectURL(file);
 
     setImagePreview(imagePreviewSrc);
     return setImageData(file);
   };
 
-  const handleSetDescription = (value) => {
+  const handleSetDescription = (value: any) => {
     setData({
       ...data,
       description: value,
     });
   };
 
-  const handleSetTitle = (value) => {
+  const handleSetTitle = (value: any) => {
     setData({
       ...data,
       title: value,
     });
   };
 
-  const handleSetSlug = (value) => {
+  const handleSetSlug = (value: any) => {
     setData({
       ...data,
       slug: value,

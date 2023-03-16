@@ -1,4 +1,4 @@
-const Footer = ({ site }) => {
+const Footer = ({ site }: any) => {
   return (
     <div className="bg-white py-8">
       <div className="mx-auto grid max-w-screen-xl grid-cols-4 gap-8">

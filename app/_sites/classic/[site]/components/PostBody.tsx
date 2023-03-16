@@ -4,11 +4,10 @@ import { toDateString } from "@/lib/utils";
 import CategoryBubble from "./CategoryBubble";
 import RelatedPosts from "./RelatedPosts";
 
-const PostBody = ({ post, user }) => {
+const PostBody = ({ post, user }: any) => {
   const md = new MarkdownIt({
     linkify: true,
     typographer: true,
-    highlight: true,
   })
     .use(require("markdown-it-emoji"))
     .use(require("markdown-it-sub"))

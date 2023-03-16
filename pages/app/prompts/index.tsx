@@ -26,7 +26,7 @@ export default function Prompts() {
   const { prompts, isLoading, mutatePrompts } = usePrompts();
   const { mutateCredits } = useCredits();
 
-  async function testPrompt(promptId, command) {
+  async function testPrompt(promptId: any, command: any) {
     setTestingPrompt(true);
     const data = { command };
 
@@ -110,7 +110,7 @@ export default function Prompts() {
           <ContainerLoader />
         ) : prompts && prompts.length > 0 ? (
           <div className="grid grid-cols-3 gap-x-4 gap-y-4">
-            {prompts?.map((prompt) => (
+            {prompts?.map((prompt: any) => (
               <PromptCard
                 prompt={prompt}
                 testOnClick={testPrompt}

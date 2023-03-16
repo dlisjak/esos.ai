@@ -28,7 +28,7 @@ export const useSites = () => {
   };
 };
 
-export const useSite = (subdomain) => {
+export const useSite = (subdomain: any) => {
   const router = useRouter();
 
   const {
@@ -49,7 +49,7 @@ export const useSite = (subdomain) => {
   };
 };
 
-export const useDomainCheck = (domain) => {
+export const useDomainCheck = (domain: any) => {
   const {
     data: valid,
     error,
@@ -69,7 +69,7 @@ export const useDomainCheck = (domain) => {
   };
 };
 
-export const usePost = (postId) => {
+export const usePost = (postId: any) => {
   const router = useRouter();
 
   const {
@@ -90,7 +90,7 @@ export const usePost = (postId) => {
   };
 };
 
-export const usePosts = (subdomain, published) => {
+export const usePosts = (subdomain: any, published: any) => {
   const router = useRouter();
 
   const {
@@ -114,7 +114,7 @@ export const usePosts = (subdomain, published) => {
   };
 };
 
-export const useFeaturedPosts = (subdomain) => {
+export const useFeaturedPosts = (subdomain: any) => {
   const router = useRouter();
 
   const {
@@ -138,7 +138,7 @@ export const useFeaturedPosts = (subdomain) => {
   };
 };
 
-export const useLatestPosts = (subdomain, limit) => {
+export const useLatestPosts = (subdomain: any, limit: any) => {
   const {
     data: posts,
     error,
@@ -159,7 +159,7 @@ export const useLatestPosts = (subdomain, limit) => {
   };
 };
 
-export const useCategories = (subdomain) => {
+export const useCategories = (subdomain: any) => {
   const router = useRouter();
 
   const {
@@ -184,7 +184,7 @@ export const useCategories = (subdomain) => {
   };
 };
 
-export const useCategory = (categoryId) => {
+export const useCategory = (categoryId: any) => {
   const router = useRouter();
 
   const {
@@ -230,7 +230,7 @@ export const usePrompts = () => {
   };
 };
 
-export const usePrompt = (promptId) => {
+export const usePrompt = (promptId: any) => {
   const {
     data: prompt,
     error,

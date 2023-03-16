@@ -228,7 +228,7 @@ export async function updatePost(
   }
 
   try {
-    const data = {
+    const data: any = {
       title,
       content,
       categoryId,

@@ -3,11 +3,10 @@ import MarkdownIt from "markdown-it";
 
 import CategoryPosts from "./CategoryPosts";
 
-const CategoryLayout = ({ category, user }) => {
+const CategoryLayout = ({ category, user }: any) => {
   const md = new MarkdownIt({
     linkify: true,
     typographer: true,
-    highlight: true,
   })
     .use(require("markdown-it-emoji"))
     .use(require("markdown-it-sub"))

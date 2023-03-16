@@ -38,7 +38,7 @@ export async function generateStaticParams() {
   return paths;
 }
 
-const getData = async (site) => {
+const getData = async (site: any) => {
   let filter: {
     subdomain?: string;
     customDomain?: string;
@@ -114,7 +114,7 @@ const getData = async (site) => {
   };
 };
 
-export default async function Index({ params }) {
+export default async function Index({ params }: any) {
   const { latestPosts, data } = await getData(params.site);
   if (!data) return <Loader />;
 

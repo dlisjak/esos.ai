@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const CategoryBubble = ({ href, title }) => {
+const CategoryBubble = ({ href, title }: any) => {
   return (
     <Link
       href={href}

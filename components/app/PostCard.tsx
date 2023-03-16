@@ -5,7 +5,7 @@ export const StatusIndicator = ({
   published,
   right = false,
   className = "",
-}) => {
+}: any) => {
   return (
     <div
       className={`${className} absolute top-2 ${
@@ -21,7 +21,7 @@ const PostCard = ({
   postEditUrl,
   removePostClick,
   makeFeatured,
-}) => {
+}: any) => {
   if (!post || !postEditUrl) return <></>;
 
   const { id, image, title, slug, category, isFeatured, published } = post;

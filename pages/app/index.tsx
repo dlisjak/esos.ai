@@ -69,7 +69,7 @@ export default function AppIndex() {
     checkSubDomain();
   }, [debouncedSubdomain]);
 
-  const generateSlug = (e) => {
+  const generateSlug = (e: any) => {
     const title = e.target.value;
     const slug = getSlug(title);
 

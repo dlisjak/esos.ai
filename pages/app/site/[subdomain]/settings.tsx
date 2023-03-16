@@ -69,7 +69,7 @@ export default function SiteSettings() {
       });
   }, [site]);
 
-  async function saveSiteSettings(data) {
+  async function saveSiteSettings(data: any) {
     setSaving(true);
 
     let image;
@@ -183,7 +183,7 @@ export default function SiteSettings() {
     }
   }
 
-  const uploadImage = async (file, subdomain) => {
+  const uploadImage = async (file: any, subdomain: any) => {
     const path = `${sessionUser}/${subdomain}`;
 
     const { url } = await uploadToS3(file, {
@@ -199,7 +199,7 @@ export default function SiteSettings() {
     return { src: url, alt: subdomain };
   };
 
-  const handleImageSelect = async (file) => {
+  const handleImageSelect = async (file: any) => {
     const imagePreviewSrc = URL.createObjectURL(file);
 
     setImagePreview(imagePreviewSrc);
@@ -421,7 +421,7 @@ export default function SiteSettings() {
                         <option value="" disabled>
                           Select a Theme
                         </option>
-                        {themes?.map((theme) => (
+                        {themes?.map((theme: any) => (
                           <option value={theme.id} key={theme.id}>
                             {theme.name}
                           </option>

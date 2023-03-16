@@ -3,7 +3,7 @@ import Link from "next/link";
 import LoadingDots from "./loading-dots";
 import { StatusIndicator } from "./PostCard";
 
-const PromptCard = ({ prompt, testOnClick, testingPrompt }) => {
+const PromptCard = ({ prompt, testOnClick, testingPrompt }: any) => {
   if (!prompt) return <></>;
 
   const promptEditUrl = `/prompts/${prompt.id}`;

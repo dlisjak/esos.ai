@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { StatusIndicator } from "./PostCard";
 
-const SiteCard = ({ site }) => {
+const SiteCard = ({ site }: any) => {
   if (!site) return <></>;
 
   const siteOverviewUrl = `/site/${site.subdomain}`;

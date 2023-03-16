@@ -59,11 +59,11 @@ export async function createDomain(
     });
 
     if (fs.existsSync(path.join("public", "rewrites", "index.json"))) {
-      const rewrites = JSON.parse(
+      const rewrites: any = JSON.parse(
         fs.readFileSync(path.join("public", "rewrites", "index.json"), "utf-8")
       );
       const exists = rewrites.find(
-        (rewrite) => rewrite.subdomain === subdomain
+        (rewrite: any) => rewrite.subdomain === subdomain
       );
       if (exists) {
         exists.customDomain = domain;
@@ -130,7 +130,7 @@ export async function deleteDomain(
         fs.readFileSync(path.join("public", "rewrites", "index.json"), "utf-8")
       );
       const exists = rewrites.find(
-        (rewrite) => rewrite.subdomain === subdomain
+        (rewrite: any) => rewrite.subdomain === subdomain
       );
       if (exists) {
         exists.customDomain = null;

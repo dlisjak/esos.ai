@@ -16,21 +16,23 @@ export const config = {
   ],
 };
 
-const locales = ["en", "de", "nl"];
+// const locales = ["en", "de", "nl"];
 
-function getLocale(req: NextRequest) {
-  const language = new Negotiator(req).language(locales);
+// function getLocale(req: NextRequest) {
+//   const language = new Negotiator(req).language(locales);
 
-  const defaultLocale = "en";
+//   const defaultLocale = "en";
 
-  return language || defaultLocale;
-}
+//   return language || defaultLocale;
+// }
 
 export default async function middleware(req: NextRequest) {
   const url = req.nextUrl;
 
   // Get hostname of request (e.g. demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}, demo.localhost:3000)
   const hostname = req.headers.get("host") || `demo.esos-digital.vercel.app`;
+
+  console.log(hostname);
 
   // Get the pathname of the request (e.g. /, /about, /blog/first-post)
   const path = url.pathname;

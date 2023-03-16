@@ -9,7 +9,7 @@ import LoadingDots from "./app/loading-dots";
 import { useCredits, usePrompts } from "@/lib/queries";
 import { HttpMethod } from "@/types";
 
-const TitleEditor = ({ value, setValue, setSlug }) => {
+const TitleEditor = ({ value, setValue, setSlug }: any) => {
   const [selectedPrompt, setSelectedPrompt] = useState("");
   const [generateInput, setGenerateInput] = useState("");
   const [showGenerateModal, setShowGenerateModal] = useState(false);
@@ -51,14 +51,14 @@ const TitleEditor = ({ value, setValue, setSlug }) => {
     }
   };
 
-  const generateSlug = (e) => {
+  const generateSlug = (e: any) => {
     const title = value;
     const slug = getSlug(title);
 
     setSlug(slug);
   };
 
-  const setTitle = (e) => {
+  const setTitle = (e: any) => {
     const title = e.target.value;
 
     setValue(title);
@@ -87,7 +87,7 @@ const TitleEditor = ({ value, setValue, setSlug }) => {
               <option value="" disabled>
                 Select a Prompt
               </option>
-              {prompts?.map((prompt) => (
+              {prompts?.map((prompt: any) => (
                 <option key={prompt.id} value={prompt.id}>
                   {prompt.name}
                 </option>
@@ -123,7 +123,7 @@ const TitleEditor = ({ value, setValue, setSlug }) => {
                   name="name"
                   required
                   value={
-                    prompts?.find((prompt) => prompt.id === selectedPrompt)
+                    prompts?.find((prompt: any) => prompt.id === selectedPrompt)
                       ?.name || ""
                   }
                   readOnly
@@ -139,7 +139,7 @@ const TitleEditor = ({ value, setValue, setSlug }) => {
                   name="command"
                   required
                   value={
-                    prompts?.find((prompt) => prompt.id === selectedPrompt)
+                    prompts?.find((prompt: any) => prompt.id === selectedPrompt)
                       ?.command || ""
                   }
                   readOnly
@@ -155,7 +155,7 @@ const TitleEditor = ({ value, setValue, setSlug }) => {
                   name="hint"
                   required
                   placeholder={
-                    prompts?.find((prompt) => prompt.id === selectedPrompt)
+                    prompts?.find((prompt: any) => prompt.id === selectedPrompt)
                       ?.hint || ""
                   }
                   onChange={(e) => setPromptVariable(e.target.value)}

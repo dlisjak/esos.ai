@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-const TopNavLink = ({ children, href }) => {
+const TopNavLink = ({ children, href }: any) => {
   const router = useRouter();
 
   const isActive = router.asPath === href;

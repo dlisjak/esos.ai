@@ -1,8 +1,8 @@
 "server-only";
 
-const dictionaries = {
+const dictionaries: any = {
   en: () => import("../dictonaries/en.json").then((module) => module.default),
   de: () => import("../dictonaries/de.json").then((module) => module.default),
 };
 
-export const getDictionary = async (locale) => dictionaries[locale]();
+export const getDictionary = async (locale: any) => dictionaries[locale]();

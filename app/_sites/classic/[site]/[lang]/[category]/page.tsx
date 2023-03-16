@@ -57,7 +57,7 @@ export async function generateStaticParams() {
   return paths;
 }
 
-const getData = async (site, categorySlug) => {
+const getData = async (site: any, categorySlug: any) => {
   let filter: {
     subdomain?: string;
     customDomain?: string;
@@ -128,7 +128,7 @@ const getData = async (site, categorySlug) => {
   };
 };
 
-export default async function Category({ params }) {
+export default async function Category({ params }: any) {
   const { category, data } = await getData(params.site, params.category);
 
   if (!data || !category) return <Loader />;

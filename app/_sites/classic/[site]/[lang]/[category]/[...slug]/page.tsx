@@ -60,7 +60,7 @@ export async function generateStaticParams() {
   return paths;
 }
 
-const getData = async (site, slugObj) => {
+const getData = async (site: any, slugObj: any) => {
   let slug = slugObj[1];
   if (!slug) {
     slug = slugObj[0];
@@ -184,7 +184,7 @@ const getData = async (site, slugObj) => {
   };
 };
 
-export default async function Category({ params }) {
+export default async function Category({ params }: any) {
   const response = await getData(params.site, params.slug);
   const { data, post, category } = response;
 

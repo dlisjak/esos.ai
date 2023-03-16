@@ -1,4 +1,4 @@
-import { ChatGPTUnofficialProxyAPI } from 'chatgpt';
+import { ChatGPTUnofficialProxyAPI } from "chatgpt";
 
-export const chatgpt = (accessToken) =>
-	new ChatGPTUnofficialProxyAPI({ accessToken });
+export const chatgpt = (accessToken: any) =>
+  new ChatGPTUnofficialProxyAPI({ accessToken });

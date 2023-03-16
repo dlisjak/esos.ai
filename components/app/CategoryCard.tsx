@@ -11,7 +11,7 @@ const CategoryCard = ({
   removePostClick,
   isChild = false,
   isSubChild = false,
-}) => {
+}: any) => {
   if (!category) return <></>;
   const { id, title, slug, image, children, posts } = category;
 

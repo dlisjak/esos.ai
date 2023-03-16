@@ -57,7 +57,7 @@ export default function Drafts() {
     }
   }
 
-  async function deletePost(postId) {
+  async function deletePost(postId: any) {
     if (!postId) return;
     setDeletingPost(true);
 
@@ -78,7 +78,7 @@ export default function Drafts() {
     }
   }
 
-  const generateSlug = (e) => {
+  const generateSlug = (e: any) => {
     const title = e.target.value;
     const slug = getSlug(title);
 
@@ -86,13 +86,13 @@ export default function Drafts() {
     postSlugRef.current.value = slug;
   };
 
-  const handleRemovePostClick = (postId, postTitle) => {
+  const handleRemovePostClick = (postId: any, postTitle: any) => {
     setDeletingPostId(postId);
     setDeletingPostTitle(postTitle);
     setShowDeletePostModal(true);
   };
 
-  const makeFeatured = async (postId, isFeatured) => {
+  const makeFeatured = async (postId: any, isFeatured: any) => {
     if (!postId) return;
 
     try {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { StatusIndicator } from "./PostCard";
 
-const SlimCategory = ({ category, subdomain, isChild, isSubChild }) => {
+const SlimCategory = ({ category, subdomain, isChild, isSubChild }: any) => {
   if (!category) return <></>;
 
   const viewUrl = `/site/${subdomain}/categories/${category.id}/posts`;
@@ -65,12 +65,12 @@ const SlimCategoryList = ({
   subdomain,
   isChild = false,
   isSubChild = false,
-}) => {
+}: any) => {
   if (!categories) return <></>;
 
   return (
     <ul className="flex flex-col divide-y">
-      {categories.map((category) => {
+      {categories.map((category: any) => {
         if (category?.parent?.id && !isChild) return;
         if (category?.parent?.id && !isSubChild) return;
 

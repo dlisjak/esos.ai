@@ -75,7 +75,7 @@ export default function Post() {
     else setDisabled(true);
   }, [publishing, data]);
 
-  const uploadImage = async (file, alt) => {
+  const uploadImage = async (file: any, alt: any) => {
     const path = `${sessionUser}/${subdomain}`;
 
     const { url } = await uploadToS3(file, {
@@ -140,28 +140,28 @@ export default function Post() {
     }
   }
 
-  const handleImageSelect = async (file) => {
+  const handleImageSelect = async (file: any) => {
     const imagePreviewSrc = URL.createObjectURL(file);
 
     setImagePreview(imagePreviewSrc);
     return setImageData(file);
   };
 
-  const handleSetContent = (value) => {
+  const handleSetContent = (value: any) => {
     setData({
       ...data,
       content: value,
     });
   };
 
-  const handleSetTitle = (value) => {
+  const handleSetTitle = (value: any) => {
     setData({
       ...data,
       title: value,
     });
   };
 
-  const handleSetSlug = (value) => {
+  const handleSetSlug = (value: any) => {
     setData({
       ...data,
       slug: value,

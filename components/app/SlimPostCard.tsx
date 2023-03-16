@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { StatusIndicator } from "./PostCard";
 
-const SlimPostCard = ({ post, editUrl = "" }) => {
+const SlimPostCard = ({ post, editUrl = "" }: any) => {
   if (!post) return <></>;
 
   return (

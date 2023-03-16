@@ -99,7 +99,7 @@ export default function SiteCategories() {
     }
   }
 
-  async function deleteCategory(categoryId) {
+  async function deleteCategory(categoryId: any) {
     if (!categoryId) return;
     setDeletingCategory(true);
 
@@ -120,7 +120,7 @@ export default function SiteCategories() {
     }
   }
 
-  const generateSlug = (e) => {
+  const generateSlug = (e: any) => {
     const title = e.target.value;
     const slug = getSlug(title);
 
@@ -135,12 +135,12 @@ export default function SiteCategories() {
     }
   };
 
-  const handleAddPostClick = (categoryId) => {
+  const handleAddPostClick = (categoryId: any) => {
     setCreatingPostCategoryId(categoryId);
     setShowPostModal(true);
   };
 
-  const handleRemovePostClick = (categoryId, categoryTitle) => {
+  const handleRemovePostClick = (categoryId: any, categoryTitle: any) => {
     setDeletingPostCategoryId(categoryId);
     setDeletingPostCategoryTitle(categoryTitle);
     setShowDeleteModal(true);

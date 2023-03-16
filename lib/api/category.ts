@@ -258,7 +258,7 @@ export async function updateCategory(
   if (!site) return res.status(404).end("Site not found");
 
   try {
-    const data = {
+    const data: any = {
       title,
       description,
       slug,

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import CategoryBubble from "./CategoryBubble";
 
-const PostCard = ({ className = "", post, user, h3 = false }) => {
+const PostCard = ({ className = "", post, user, h3 = false }: any) => {
   return (
     <div className={className}>
       <Link
