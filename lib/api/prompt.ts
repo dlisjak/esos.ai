@@ -272,7 +272,7 @@ export async function generate(
     const command = prompt.command.replaceAll(regex, promptVariable);
 
     const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4-0314",
       messages: [{ role: "user", content: command }],
     });
 
@@ -347,7 +347,7 @@ export async function testPrompt(
     }
 
     const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4-0314",
       messages: [{ role: "user", content: command }],
     });
 

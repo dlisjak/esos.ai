@@ -19,6 +19,8 @@ const CategoryCard = ({
   const categoryEditUrl = `/site/${subdomain}/categories/${id}`;
   const canDelete = !children?.length;
 
+  console.log(image);
+
   return (
     <li className="flex flex-col space-y-2">
       <div
@@ -30,11 +32,11 @@ const CategoryCard = ({
           <div className="relative h-[120px]">
             <Link href={categoryPostsUrl}>
               <Image
-                alt={image?.alt ?? "Placeholder image"}
+                alt={image?.alt || "Placeholder image"}
                 width={240}
                 height={120}
                 className="h-full object-cover"
-                src={image?.src ?? "/placeholder.png"}
+                src={image?.src || "/placeholder.png"}
               />
             </Link>
           </div>

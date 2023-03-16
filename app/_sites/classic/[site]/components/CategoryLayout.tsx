@@ -1,9 +1,21 @@
 import Image from "next/image";
-import { MDXRemote } from "next-mdx-remote/rsc";
+import MarkdownIt from "markdown-it";
 
 import CategoryPosts from "./CategoryPosts";
 
 const CategoryLayout = ({ category, user }) => {
+  const md = new MarkdownIt({
+    linkify: true,
+    typographer: true,
+    highlight: true,
+  })
+    .use(require("markdown-it-emoji"))
+    .use(require("markdown-it-sub"))
+    .use(require("markdown-it-sup"))
+    .use(require("markdown-it-footnote"))
+    .use(require("markdown-it-deflist"))
+    .use(require("markdown-it-abbr"));
+
   return (
     <div className="mt-4 grid grid-flow-row grid-cols-1 gap-4 md:grid-cols-2 lg:mt-8 lg:grid-cols-3 xl:gap-8">
       <div className="relative col-span-1 aspect-square">
@@ -17,13 +29,10 @@ const CategoryLayout = ({ category, user }) => {
         />
       </div>
       <div className="col-span-1 mx-4 md:mx-0 lg:col-span-2">
-        <h1 className="mb-4 text-4xl font-bold md:text-5xl">
-          {category?.title}
-        </h1>
-        <div className="prose md:pr-4">
-          {/* @ts-expect-error Server Component */}
-          <MDXRemote source={category?.description} />
-        </div>
+        <div
+          className="prose md:pr-4"
+          dangerouslySetInnerHTML={{ __html: md.render(category.description) }}
+        />
       </div>
       <CategoryPosts posts={category?.posts} user={user} />
     </div>

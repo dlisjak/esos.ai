@@ -228,25 +228,30 @@ export async function updatePost(
   }
 
   try {
-    const imageResponse = await prisma.image.create({
-      data: {
-        src: image.src,
-        alt: image.alt,
-      },
-    });
+    const data = {
+      title,
+      content,
+      categoryId,
+      slug,
+      published,
+    };
+
+    if (image) {
+      const imageResponse = await prisma.image.create({
+        data: {
+          src: image.src,
+          alt: image.alt,
+        },
+      });
+
+      data["imageId"] = imageResponse.id;
+    }
 
     const post = await prisma.post.update({
       where: {
         id: id,
       },
-      data: {
-        title,
-        content,
-        categoryId,
-        slug,
-        imageId: imageResponse.id,
-        published,
-      },
+      data,
     });
     if (subdomain) {
       // revalidate for subdomain

@@ -2,9 +2,9 @@ import prisma from "@/lib/prisma";
 
 import Loader from "@/components/Loader";
 import Navigation from "@/components/Sites/Navbar";
-import PostBody from "app/_sites/classic/components/PostBody";
-import CategoryLayout from "app/_sites/classic/components/CategoryLayout";
-import Footer from "app/_sites/classic/components/Footer";
+import PostBody from "app/_sites/classic/[site]/components/PostBody";
+import CategoryLayout from "app/_sites/classic/[site]/components/CategoryLayout";
+import Footer from "app/_sites/classic/[site]/components/Footer";
 
 export const dynamicParams = true;
 

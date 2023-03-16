@@ -1,12 +1,22 @@
 import Image from "next/image";
-import { MDXRemote } from "next-mdx-remote/rsc";
+import MarkdownIt from "markdown-it";
 import { toDateString } from "@/lib/utils";
-import Link from "next/link";
-import PostCard from "./PostCard";
 import CategoryBubble from "./CategoryBubble";
 import RelatedPosts from "./RelatedPosts";
 
 const PostBody = ({ post, user }) => {
+  const md = new MarkdownIt({
+    linkify: true,
+    typographer: true,
+    highlight: true,
+  })
+    .use(require("markdown-it-emoji"))
+    .use(require("markdown-it-sub"))
+    .use(require("markdown-it-sup"))
+    .use(require("markdown-it-footnote"))
+    .use(require("markdown-it-deflist"))
+    .use(require("markdown-it-abbr"));
+
   return (
     <div className="flex flex-col">
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
@@ -52,13 +62,10 @@ const PostBody = ({ post, user }) => {
             </div>
           </div>
           <div className="col-span-1 px-4 lg:col-span-2 lg:px-0">
-            <div className="prose mx-auto lg:mx-0">
-              <h1 className="mb-4 text-4xl font-bold md:text-5xl">
-                {post?.title}
-              </h1>
-              {/* @ts-expect-error Server Component */}
-              <MDXRemote source={post?.content} />
-            </div>
+            <div
+              className="prose mx-auto lg:mx-0"
+              dangerouslySetInnerHTML={{ __html: md.render(post.content) }}
+            />
           </div>
         </div>
       </div>

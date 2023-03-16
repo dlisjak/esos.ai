@@ -5,6 +5,7 @@ import Loader from "@/components/app/Loader";
 import Navigation from "@/components/Sites/Navbar";
 import FeaturedPosts from "../components/FeaturedPosts";
 import LatestPosts from "../components/LatestPosts";
+import { getDictionary } from "app/dictionaries";
 
 export const dynamicParams = true;
 
@@ -153,9 +154,12 @@ const getData = async (site) => {
   };
 };
 
-export default async function Index({ params }) {
-  const { featuredPosts, latestPosts, data } = await getData(params.site);
+export default async function Index({ params: { lang, site } }) {
+  const dict = await getDictionary(lang);
+  const { featuredPosts, latestPosts, data } = await getData(site);
   if (!data) return <Loader />;
+
+  console.log(lang);
 
   return (
     <>

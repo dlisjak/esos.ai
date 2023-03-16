@@ -82,9 +82,11 @@ export async function getCategory(
         children: {
           include: {
             posts: true,
+            image: true,
             children: {
               include: {
                 posts: true,
+                image: true,
               },
             },
           },
@@ -256,24 +258,29 @@ export async function updateCategory(
   if (!site) return res.status(404).end("Site not found");
 
   try {
-    const imageResponse = await prisma.image.create({
-      data: {
-        src: image.src,
-        alt: image.alt,
-      },
-    });
+    const data = {
+      title,
+      description,
+      slug,
+      parentId: parent,
+    };
+
+    if (image) {
+      const imageResponse = await prisma.image.create({
+        data: {
+          src: image.src,
+          alt: image.alt,
+        },
+      });
+
+      data["imageId"] = imageResponse.id;
+    }
 
     const category = await prisma.category.update({
       where: {
         id: id,
       },
-      data: {
-        title,
-        description,
-        slug,
-        parentId: parent,
-        imageId: imageResponse.id,
-      },
+      data,
     });
 
     return res.status(200).json(category);

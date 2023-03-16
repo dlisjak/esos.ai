@@ -93,8 +93,17 @@ export default function CategoryPage() {
     setPublishing(true);
     let image;
 
+    const body = {
+      id: categoryId,
+      title: data.title,
+      description: data.description,
+      slug: data.slug,
+      parentId: data.parentId,
+    };
+
     if (imageData) {
       image = await uploadImage(imageData, data.title);
+      body["image"] = image;
     }
 
     try {
@@ -103,14 +112,7 @@ export default function CategoryPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          id: categoryId,
-          title: data.title,
-          description: data.description,
-          slug: data.slug,
-          parentId: data.parentId,
-          image,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (response.ok) {

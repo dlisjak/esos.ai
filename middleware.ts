@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { match } from "@formatjs/intl-localematcher";
+import Negotiator from "negotiator";
+
 import rewrites from "./public/rewrites/index.json";
 
 export const config = {
@@ -13,6 +16,16 @@ export const config = {
     "/((?!api/|_next/|_static/|examples/|[\\w-]+\\.\\w+).*)",
   ],
 };
+
+const locales = ["en", "de", "nl"];
+
+function getLocale(req: NextRequest) {
+  const language = new Negotiator(req).language(locales);
+
+  const defaultLocale = "en";
+
+  return language || defaultLocale;
+}
 
 export default async function middleware(req: NextRequest) {
   const url = req.nextUrl;
@@ -63,6 +76,19 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
 
+  const locale = getLocale(req);
+  const pathname = req.nextUrl.pathname;
+  const pathnameIsMissingLocale = locales.every(
+    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
+  );
+
+  // Redirect if there is no locale
+  if (pathnameIsMissingLocale) {
+    // e.g. incoming request is /products
+    // The new URL is now /en-US/products
+    return NextResponse.redirect(new URL(`/${locale}${path}`, req.url));
+  }
+
   if (rewrites.length) {
     const siteObject = rewrites.find(
       (rewrite: {
@@ -76,6 +102,7 @@ export default async function middleware(req: NextRequest) {
 
     if (siteObject) {
       const theme = siteObject?.theme || "classic";
+
       return NextResponse.rewrite(
         new URL(`/_sites/${theme}/${currentHost}${path}`, req.url)
       );
@@ -84,6 +111,6 @@ export default async function middleware(req: NextRequest) {
 
   // rewrite everything else to `/_sites/[site] dynamic route
   return NextResponse.rewrite(
-    new URL(`/_sites/${currentHost}${path}`, req.url)
+    new URL(`/_sites/classic/${currentHost}${path}`, req.url)
   );
 }
