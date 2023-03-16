@@ -31,7 +31,7 @@ export default async function middleware(req: NextRequest) {
 
   // Get hostname of request (e.g. demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}, demo.localhost:3000)
   const hostname =
-    req.headers.get("host") || `${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
+    req.headers.get("host") || `demo.${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
 
   // Get the pathname of the request (e.g. /, /about, /blog/first-post)
   const path = url.pathname;
@@ -41,13 +41,10 @@ export default async function middleware(req: NextRequest) {
   const currentHost =
     process.env.NODE_ENV === "production" && process.env.VERCEL === "1"
       ? hostname
-          .replace(`.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, "")
+          .replace(".founder.si", "")
           .replace(".esos-digital.vercel.app", "")
-          .replace(".founder.si", "")
-      : hostname
-          .replace(`.localhost:3000`, "")
-          .replace(".founder.si", "")
-          .replace(".esos-digital.vercel.app", "");
+          .replace(`.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, "")
+      : hostname.replace(`.localhost:3000`, "");
 
   console.log("currentHost", currentHost);
 
@@ -78,12 +75,7 @@ export default async function middleware(req: NextRequest) {
   }
 
   // rewrite root application to `/home` folder
-  if (
-    hostname == "localhost:3000" ||
-    hostname == `${process.env.NEXT_PUBLIC_DOMAIN_URL}` ||
-    hostname == "founder.si" ||
-    hostname == "esos.digital.vercel.app"
-  ) {
+  if (hostname == "localhost:3000" || hostname == "esos-digital.vercel.app") {
     console.log("home", path);
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
