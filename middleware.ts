@@ -1,5 +1,5 @@
+import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
-import rewrites from "./public/rewrites/index.json";
 
 export const config = {
   matcher: [
@@ -28,6 +28,10 @@ export default async function middleware(req: NextRequest) {
     process.env.NODE_ENV === "production" && process.env.VERCEL === "1"
       ? hostname.replace(`.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, "")
       : hostname.replace(`.localhost:3000`, "");
+
+  console.log("currentHost", currentHost);
+  console.log("NEXT_PUBLIC_DOMAIN_URL", process.env.NEXT_PUBLIC_DOMAIN_URL);
+  console.log("hostname", hostname);
 
   // rewrites for app pages
   if (currentHost == "app") {
@@ -61,25 +65,6 @@ export default async function middleware(req: NextRequest) {
     hostname === `${process.env.NEXT_PUBLIC_DOMAIN_URL}`
   ) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
-  }
-
-  if (rewrites.length) {
-    const siteObject = rewrites.find(
-      (rewrite: {
-        customDomain: string | null;
-        subdomain: string;
-        theme: string;
-      }) =>
-        rewrite?.customDomain === currentHost ||
-        rewrite?.subdomain === currentHost
-    ) || { customDomain: null, theme: "classic" };
-
-    if (siteObject) {
-      const theme = siteObject?.theme || "classic";
-      return NextResponse.rewrite(
-        new URL(`/_sites/${theme}/${currentHost}${path}`, req.url)
-      );
-    }
   }
 
   // rewrite everything else to `/_sites/[site] dynamic route
