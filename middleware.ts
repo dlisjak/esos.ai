@@ -41,7 +41,7 @@ export default async function middleware(req: NextRequest) {
   console.log("path", path);
 
   const currentHost =
-    process.env.NODE_ENV === "production" && process.env.VERCEL === "1"
+    process.env.NODE_ENV === "production"
       ? hostname
           .replace(`.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, "")
           .replace("esos-digital.vercel.app", "")
