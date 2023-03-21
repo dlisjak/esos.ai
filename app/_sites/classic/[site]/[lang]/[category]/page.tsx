@@ -104,7 +104,7 @@ const getData = async (site: any, categorySlug: any) => {
           title: true,
           slug: true,
           image: true,
-          description: true,
+          content: true,
           posts: {
             select: {
               title: true,

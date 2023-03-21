@@ -92,22 +92,32 @@ model Post {
 }
 
 model Category {
-  id          String     @id @default(cuid())
-  title       String?    @db.Text
-  description String?    @db.Text
-  slug        String     @default(cuid())
-  image       Image?     @relation(fields: [imageId], references: [id])
-  site        Site?      @relation(fields: [siteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  siteId      String?
-  posts       Post[]
-  parent      Category?  @relation(name: "categories", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  parentId    String?
-  children    Category[] @relation(name: "categories")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  imageId     String?
+  id           String                @id @default(cuid())
+  title        String
+  slug         String                @default(cuid())
+  content      String?  @db.Text
+  image        Image?                @relation(fields: [imageId], references: [id])
+  site         Site?                 @relation(fields: [siteId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  siteId       String?
+  posts        Post[]
+  parent       Category?             @relation(name: "categories", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parentId     String?
+  children     Category[]            @relation(name: "categories")
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  imageId      String?
+  translations CategoryTranslation[]
 
   @@unique([id, siteId], name: "category_site_constraint")
+}
+
+model CategoryTranslation {
+  id         String   @id @default(cuid())
+  title      String?
+  content    String?  @db.Text
+  lang       String
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
 }
 
 model Site {

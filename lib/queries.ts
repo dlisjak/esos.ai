@@ -1,9 +1,10 @@
 import { WithImageSite } from "@/types";
 import { WithAllCategory, WithImageCategory } from "@/types/category";
 import { FeaturedPost, WithSitePost } from "@/types/post";
-import { Post } from "@prisma/client";
+import { CategoryTranslation, Post } from "@prisma/client";
 import { useRouter } from "next/router";
 import useSWR from "swr";
+import { Language } from "./api/translate";
 
 import fetcher from "./fetcher";
 
@@ -115,8 +116,6 @@ export const usePosts = (subdomain: any, published: any) => {
 };
 
 export const useFeaturedPosts = (subdomain: any) => {
-  const router = useRouter();
-
   const {
     data: posts,
     error,
@@ -125,7 +124,6 @@ export const useFeaturedPosts = (subdomain: any) => {
     `/api/post/feature?subdomain=${subdomain}`,
     fetcher,
     {
-      onError: () => router.push("/"),
       revalidateOnFocus: false,
     }
   );
@@ -171,7 +169,6 @@ export const useCategories = (subdomain: any) => {
     fetcher,
     {
       dedupingInterval: 1000,
-      onError: () => router.push("/"),
       revalidateOnFocus: false,
     }
   );
@@ -206,6 +203,28 @@ export const useCategory = (categoryId: any) => {
     isLoading: !error && !category,
     isError: error,
     mutateCategory: mutate,
+  };
+};
+
+export const useCategoryTranslations = (categoryId: any) => {
+  const {
+    data: translations,
+    error,
+    mutate,
+  } = useSWR<CategoryTranslation[]>(
+    `/api/category/translate?categoryId=${categoryId}`,
+    fetcher,
+    {
+      dedupingInterval: 1000,
+      revalidateOnFocus: false,
+    }
+  );
+
+  return {
+    translations,
+    isLoading: !error && !translations,
+    isError: error,
+    mutateTranslations: mutate,
   };
 };
 
@@ -295,5 +314,21 @@ export const useThemes = () => {
     isLoading: !error && !themes,
     isError: error,
     mutateCredits: mutate,
+  };
+};
+
+export const useSupportedLanguages = () => {
+  const { data: languages, error } = useSWR<Language[]>(
+    `/api/translate/languages`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+    }
+  );
+
+  return {
+    languages,
+    isLoading: !error && !languages,
+    isError: error,
   };
 };

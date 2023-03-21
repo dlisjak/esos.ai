@@ -14,7 +14,18 @@ const PostBody = ({ post, user }: any) => {
     .use(require("markdown-it-sup"))
     .use(require("markdown-it-footnote"))
     .use(require("markdown-it-deflist"))
-    .use(require("markdown-it-abbr"));
+    .use(require("markdown-it-abbr"))
+    .use(require("markdown-it-anchor"))
+    .use(require("markdown-it-table-of-contents"), {
+      slugify: true,
+      containerClass:
+        "inline-flex flex-col pr-4 w-auto bg-gray-100 border text-base",
+      containerHeaderHtml: `<div class="pl-4 pt-8 text-xl font-bold">Table of contents:</div>`,
+    });
+
+  const firstHeadline = post.content.indexOf("##");
+  const mdExcerpt = post.content.substring(0, firstHeadline);
+  const mdElse = post.content.substring(firstHeadline - 2);
 
   return (
     <div className="flex flex-col">
@@ -23,7 +34,15 @@ const PostBody = ({ post, user }: any) => {
           <div className="order-2 col-span-1 px-4 lg:order-1 lg:col-span-2 xl:px-0">
             <div
               className="prose mx-auto lg:prose-xl lg:mx-0"
-              dangerouslySetInnerHTML={{ __html: md.render(post.content) }}
+              dangerouslySetInnerHTML={{ __html: md.render(mdExcerpt) }}
+            />
+            <div
+              className="prose mx-auto lg:prose-xl lg:mx-0"
+              dangerouslySetInnerHTML={{
+                __html: md.render(
+                  firstHeadline > 0 ? "[[toc]]" + mdElse : "" + mdElse
+                ),
+              }}
             />
           </div>
 

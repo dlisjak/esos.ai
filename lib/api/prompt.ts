@@ -210,10 +210,17 @@ export async function deletePrompt(
   }
 }
 
+const extractBrokenPart = (url: string) => {
+  const remove404Regex = /(?<=\/\/[^\/]+\/)(.*)/;
+
+  const match = url.match(remove404Regex);
+  return match && match[1];
+};
+
 /**
  * Use Prompt
  *
- * Generates response frmo ChatGPT using a selected prompt.
+ * Generates response from ChatGPT using a selected prompt.
  *
  * Once generated, the `response` will be returned.
  *
@@ -295,11 +302,58 @@ export async function generate(
       },
     });
 
-    return res.status(201).json(message);
+    const brokenLinks = await extractBrokenLinks(message);
+    const newMessage = removeBrokenLinks(message, brokenLinks);
+
+    return res.status(201).json(newMessage);
   } catch (error) {
     return res.status(500).end(error);
   }
 }
+
+function removeBrokenLinks(message: string, brokenLink: string[]) {
+  return brokenLink.reduce(
+    (acc, link) => acc.replace(new RegExp(link, "g"), ""),
+    message
+  );
+}
+
+const extractBrokenLinks = async (message: string) => {
+  const markdownRegex =
+    /\[.*?\]\((https?:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z0-9]{2,6}(?:\/[^/\s\)]*)*)\)/g;
+  const plainRegex = /https?:\/\/[\w\-+_.!#~\/\[\]]+/gi;
+  const markdownLinks = [...message.matchAll(markdownRegex)].map(
+    (match) => match[1]
+  );
+  const plainLinks = message.match(plainRegex) || [];
+
+  const links = [...markdownLinks, ...plainLinks];
+
+  const promises: any = [];
+
+  links.forEach((link: string) => {
+    promises.push(
+      fetch(link)
+        .then((res) => {
+          if (res.status === 404) {
+            const brokenLink = extractBrokenPart(link);
+            if (brokenLink) {
+              return brokenLink;
+            }
+          }
+        })
+        .catch((err) => {
+          return link;
+        })
+    );
+  });
+
+  const brokenLinks = await Promise.all(promises).then((result) => {
+    return result;
+  });
+
+  return brokenLinks;
+};
 
 /**
  * Test Prompt

@@ -82,7 +82,7 @@ const getData = async (site: any, slugObj: any) => {
   const data = await prisma.site.findUnique({
     where: filter,
     select: {
-      description: true,
+      content: true,
       user: true,
       name: true,
       categories: {
@@ -154,7 +154,7 @@ const getData = async (site: any, slugObj: any) => {
       title: true,
       slug: true,
       image: true,
-      description: true,
+      content: true,
       posts: {
         select: {
           title: true,

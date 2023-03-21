@@ -2,7 +2,7 @@ import type { Session } from "next-auth";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import prisma from "@/lib/prisma";
-import type { Category } from ".prisma/client";
+import type { Category, CategoryTranslation } from ".prisma/client";
 import { revalidate } from "@/lib/revalidate";
 import { WithAllCategory } from "@/types/category";
 
@@ -74,7 +74,7 @@ export async function getCategory(
         },
       },
       orderBy: {
-        title: "asc",
+        createdAt: "asc",
       },
       include: {
         parent: true,
@@ -146,6 +146,13 @@ export async function createCategory(
             id: site.id,
           },
         },
+      },
+    });
+
+    await prisma.categoryTranslation.create({
+      data: {
+        lang: "default",
+        categoryId: response.id,
       },
     });
 
@@ -222,7 +229,7 @@ export async function deleteCategory(
  * query parameters. These include the following:
  *  - id
  *  - title
- *  - description
+ *  - content
  *  - slug
  *
  * @param req - Next.js API Request
@@ -233,7 +240,7 @@ export async function updateCategory(
   res: NextApiResponse,
   session: Session
 ): Promise<void | NextApiResponse<Category>> {
-  const { id, title, description, parentId, slug, image } = req.body;
+  const { id, title, content, parentId, slug, image } = req.body;
 
   const parent = parentId || null;
 
@@ -260,10 +267,13 @@ export async function updateCategory(
   try {
     const data: any = {
       title,
-      description,
+      content,
       slug,
-      parentId: parent,
     };
+
+    if (parent) {
+      data["parentId"] = parent;
+    }
 
     if (image) {
       const imageResponse = await prisma.image.create({
@@ -275,6 +285,144 @@ export async function updateCategory(
 
       data["imageId"] = imageResponse.id;
     }
+
+    const category = await prisma.category.update({
+      where: {
+        id: id,
+      },
+      data,
+    });
+
+    return res.status(200).json(category);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
+}
+
+/**
+ * Create Translation
+ *
+ * Create a translation
+ * query parameters. These include the following:
+ *  - id
+ *  - title
+ *  - content
+ *  - slug
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+export async function getCategoryTranslations(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+): Promise<void | NextApiResponse<CategoryTranslation[]>> {
+  const { categoryId } = req.query;
+
+  if (!categoryId || typeof categoryId !== "string" || !session?.user?.id) {
+    return res
+      .status(400)
+      .json({ error: "Missing or misconfigured categoryId or session ID" });
+  }
+
+  try {
+    const translations = await prisma.categoryTranslation.findMany({
+      where: {
+        categoryId,
+      },
+    });
+
+    return res.status(200).json(translations);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
+}
+
+/**
+ * Create Translation
+ *
+ * Create a translation
+ * query parameters. These include the following:
+ *  - id
+ *  - title
+ *  - content
+ *  - slug
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+export async function createTranslation(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+): Promise<void | NextApiResponse<CategoryTranslation>> {
+  const { subdomain } = req.query;
+  const { lang, categoryId } = req.body;
+
+  if (!subdomain || typeof subdomain !== "string" || !session?.user?.id) {
+    return res
+      .status(400)
+      .json({ error: "Missing or misconfigured subdomain or session ID" });
+  }
+
+  try {
+    const exists = await prisma.categoryTranslation.findFirst({
+      where: {
+        lang,
+        categoryId,
+      },
+    });
+
+    if (exists) return res.status(200).json(exists);
+
+    const translation = await prisma.categoryTranslation.create({
+      data: {
+        lang,
+        categoryId,
+      },
+    });
+
+    return res.status(200).json(translation);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
+}
+
+/**
+ * Translate Category
+ *
+ * Translates a category & all of its data using a collection of provided
+ * query parameters. These include the following:
+ *  - id
+ *  - title
+ *  - content
+ *  - slug
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+export async function translateCategory(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+): Promise<void | NextApiResponse<Category>> {
+  const { id, title, content, slug } = req.body;
+
+  if (!id || typeof id !== "string" || !session?.user?.id) {
+    return res
+      .status(400)
+      .json({ error: "Missing or misconfigured site ID or session ID" });
+  }
+
+  try {
+    const data: any = {
+      title,
+      content,
+      slug,
+    };
 
     const category = await prisma.category.update({
       where: {

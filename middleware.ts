@@ -84,12 +84,10 @@ export default async function middleware(req: NextRequest) {
   // Redirect if there is no locale
   if (pathnameIsMissingLocale) {
     const locale = getLocale(req);
-    console.log(`/${locale}${path}`);
 
     return NextResponse.redirect(new URL(`/${locale}${path}`, req.url));
   }
 
-  console.log(`/_sites/classic/${currentHost}${path}`);
   // rewrite everything else to `/_sites/[site] dynamic route
   return NextResponse.rewrite(
     new URL(`/_sites/classic/${currentHost}${path}`, req.url)

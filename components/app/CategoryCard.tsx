@@ -19,8 +19,6 @@ const CategoryCard = ({
   const categoryEditUrl = `/site/${subdomain}/categories/${id}`;
   const canDelete = !children?.length;
 
-  console.log(image);
-
   return (
     <li className="flex flex-col space-y-2">
       <div

@@ -13,16 +13,21 @@ import { HttpMethod } from "@/types";
 import Container from "@/components/Layout/Container";
 import Header from "@/components/Layout/Header";
 import { useSession } from "next-auth/react";
-import { useCategories, useCategory } from "@/lib/queries";
+import {
+  useCategories,
+  useCategory,
+  useCategoryTranslations,
+  useSupportedLanguages,
+} from "@/lib/queries";
 import Image from "next/image";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import TitleEditor from "@/components/TitleEditor";
-import { Image as ImageType } from "@prisma/client";
+import { CategoryTranslation, Image as ImageType } from "@prisma/client";
 
 interface CategoryData {
   id: string;
   title: string;
-  description: string;
+  content: string;
   slug: string;
   parentId: string;
   image: ImageType | null;
@@ -32,16 +37,27 @@ export default function CategoryPage() {
   const categorySlugRef = useRef<HTMLInputElement | null>(null);
   const [deletingCategory, setDeletingCategory] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [translatingCategory, setTranslatingCategory] = useState(false);
   const [imagePreview, setImagePreview] = useState<any>();
   const [imageData, setImageData] = useState<any>();
   const { FileInput, uploadToS3 } = useS3Upload();
   const [publishing, setPublishing] = useState(false);
   const [disabled, setDisabled] = useState(true);
+  const [showTranslateModal, setShowTranslateModal] = useState(false);
+  const [selectedTranslation, setSelectedTranslation] =
+    useState<CategoryTranslation | null>(null);
+  const [selectedTranslationLang, setSelectedTranslationLang] = useState<
+    string | null
+  >(null);
   const router = useRouter();
 
   const { subdomain, categoryId } = router.query;
   const { category, isLoading, mutateCategory } = useCategory(categoryId);
+  const { translations, mutateTranslations } =
+    useCategoryTranslations(categoryId);
   const { categories } = useCategories(subdomain);
+  const { languages } = useSupportedLanguages();
+
   const { data: session } = useSession();
 
   const sessionUser = session?.user?.name;
@@ -49,7 +65,7 @@ export default function CategoryPage() {
   const [data, setData] = useState<CategoryData>({
     id: "",
     title: "",
-    description: "",
+    content: "",
     slug: "",
     parentId: "",
     image: null,
@@ -60,7 +76,7 @@ export default function CategoryPage() {
       setData({
         id: category.id ?? "",
         title: category.title ?? "",
-        description: category.description ?? "",
+        content: category.content ?? "",
         parentId: category.parentId ?? "",
         slug: category.slug ?? "",
         image: category.image ?? null,
@@ -68,10 +84,25 @@ export default function CategoryPage() {
   }, [category]);
 
   useEffect(() => {
-    if (data.title && data.slug && data.description && !publishing)
+    if (data.title && data.slug && data.content && !publishing)
       setDisabled(false);
     else setDisabled(true);
   }, [publishing, data]);
+
+  useEffect(() => {
+    if (!selectedTranslation) {
+      return setData({
+        ...data,
+        title: category?.title || "",
+        content: category?.content || "",
+      });
+    }
+    setData({
+      ...data,
+      title: selectedTranslation?.title || "",
+      content: selectedTranslation?.content || "",
+    });
+  }, [selectedTranslation]);
 
   const uploadImage = async (file: any, title: any) => {
     const path = `${sessionUser}/${subdomain}`;
@@ -89,14 +120,48 @@ export default function CategoryPage() {
     return { src: url, alt: title };
   };
 
+  async function publishTranslation() {
+    if (!selectedTranslation) {
+      return setPublishing(false);
+    }
+
+    const body: any = {
+      translationId: selectedTranslation.id,
+      title: data.title,
+      content: data.content,
+    };
+
+    try {
+      const response = await fetch(`/api/category/translate`, {
+        method: HttpMethod.PUT,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (response.ok) {
+        toast.success("Successfuly Published Translation!");
+        mutateTranslations();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPublishing(false);
+    }
+  }
+
   async function publish() {
     setPublishing(true);
+    if (selectedTranslation) {
+      return publishTranslation();
+    }
     let image;
 
     const body: any = {
       id: categoryId,
       title: data.title,
-      description: data.description,
+      content: data.content,
       slug: data.slug,
       parentId: data.parentId,
     };
@@ -155,10 +220,10 @@ export default function CategoryPage() {
     return setImageData(file);
   };
 
-  const handleSetDescription = (value: any) => {
+  const handleSetContent = (value: any) => {
     setData({
       ...data,
-      description: value,
+      content: value,
     });
   };
 
@@ -176,9 +241,60 @@ export default function CategoryPage() {
     });
   };
 
+  async function translateCategory() {
+    setTranslatingCategory(true);
+
+    try {
+      const createTranslationResponse = await fetch(
+        `/api/category/translate?subdomain=${subdomain}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: HttpMethod.POST,
+          body: JSON.stringify({
+            lang: selectedTranslationLang,
+            categoryId,
+          }),
+        }
+      );
+
+      const translation = await createTranslationResponse.json();
+
+      const res = await fetch(
+        `/api/category/translate?categoryId=${categoryId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: HttpMethod.PUT,
+          body: JSON.stringify({
+            translationId: translation.id,
+            lang: translation.lang,
+            title: category?.title || data?.title,
+            content: category?.content || data?.title,
+          }),
+        }
+      );
+
+      if (res.ok) {
+        toast.success(`Translation Created`);
+        const body = await res.json();
+        setSelectedTranslation(body);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Creating Translation failed. Check if translation exists");
+    } finally {
+      setShowTranslateModal(false);
+      setTranslatingCategory(false);
+      mutateTranslations();
+    }
+  }
+
   return (
     <Layout>
-      <Header className="">
+      <Header>
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Edit Category</h1>
           <button
@@ -187,7 +303,7 @@ export default function CategoryPage() {
             }}
             title={
               disabled
-                ? "Category must have a title, description, and a slug to be published."
+                ? "Category must have a title, content, and a slug to be published."
                 : "Publish"
             }
             disabled={disabled}
@@ -205,7 +321,38 @@ export default function CategoryPage() {
         <ContainerLoader />
       ) : (
         <>
-          <Container className="pb-24">
+          <Container className="pb-24" innerContainerClassNames="pt-0">
+            <div className="flex w-full rounded border-x border-b">
+              <ul className="flex divide-x">
+                <button
+                  className="px-4"
+                  onClick={() => setShowTranslateModal(true)}
+                >
+                  +
+                </button>
+                <button
+                  className={`px-4 py-2 duration-200 hover:bg-gray-200 ${
+                    !selectedTranslation ? "bg-gray-200" : ""
+                  }`}
+                  onClick={(e) => setSelectedTranslation(null)}
+                >
+                  Default
+                </button>
+                {translations?.map((translation) => (
+                  <button
+                    className={`px-4 py-2 duration-200 hover:bg-gray-200 ${
+                      selectedTranslation?.lang === translation.lang
+                        ? "bg-gray-200"
+                        : ""
+                    }`}
+                    onClick={(e) => setSelectedTranslation(translation)}
+                    key={translation.lang}
+                  >
+                    {translation.lang}
+                  </button>
+                ))}
+              </ul>
+            </div>
             <TitleEditor
               value={data.title}
               setValue={handleSetTitle}
@@ -261,11 +408,11 @@ export default function CategoryPage() {
             </div>
             <div className="mt-8 flex flex-col items-end">
               <h2 className="mr-auto text-xl">
-                Description<span className="text-red-600">*</span>
+                Content<span className="text-red-600">*</span>
               </h2>
               <TextEditor
-                value={data.description}
-                setValue={handleSetDescription}
+                value={data.content}
+                setValue={handleSetContent}
                 dataId={categoryId}
               />
             </div>
@@ -316,7 +463,7 @@ export default function CategoryPage() {
               <p>
                 {disabled &&
                   !publishing &&
-                  "Category must have a title, description, and a slug to be published."}
+                  "Category must have a title, content, and a slug to be published."}
               </p>
               <button
                 onClick={async () => {
@@ -324,7 +471,7 @@ export default function CategoryPage() {
                 }}
                 title={
                   disabled
-                    ? "Category must have a title, description, and a slug to be published."
+                    ? "Category must have a title, content, and a slug to be published."
                     : "Publish"
                 }
                 disabled={disabled}
@@ -382,6 +529,64 @@ export default function CategoryPage() {
                   } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-0`}
                 >
                   {deletingCategory ? <LoadingDots /> : "DELETE CATEGORY"}
+                </button>
+              </div>
+            </form>
+          </Modal>
+          <Modal
+            showModal={showTranslateModal}
+            setShowModal={setShowTranslateModal}
+          >
+            <form
+              onSubmit={async (event) => {
+                event.preventDefault();
+                await translateCategory();
+              }}
+              className="inline-block w-full max-w-md overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+            >
+              <h2 className=" mb-6 text-2xl">Translate Category</h2>
+              <div className="mx-auto grid w-5/6 gap-y-4">
+                <p className="text-gray-left mb-3 text-start">
+                  Choose which languages you want to add:
+                </p>
+                <div className="flex-start flex items-center overflow-hidden rounded border">
+                  <select
+                    className="w-full"
+                    value={selectedTranslationLang || ""}
+                    onChange={(e) => {
+                      setSelectedTranslationLang(e.target.value);
+                    }}
+                  >
+                    <option value="" disabled>
+                      Select a Language
+                    </option>
+                    {languages?.map(({ name, language }) => (
+                      <option value={language} key={language}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="mt-10 flex w-full items-center justify-between">
+                <button
+                  type="button"
+                  className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-400 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  CANCEL
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={translatingCategory}
+                  className={`${
+                    translatingCategory
+                      ? "cursor-not-allowed bg-gray-50 text-gray-400"
+                      : "bg-white text-gray-600 hover:text-black"
+                  } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-0`}
+                >
+                  {translatingCategory ? <LoadingDots /> : "TRANSLATE CATEGORY"}
                 </button>
               </div>
             </form>

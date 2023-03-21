@@ -13,6 +13,7 @@ import Container from "@/components/Layout/Container";
 import { useSites } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import getSlug from "speakingurl";
+import { useRouter } from "next/router";
 
 export default function AppIndex() {
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -20,6 +21,7 @@ export default function AppIndex() {
   const [subdomain, setSubdomain] = useState<string>("");
   const [debouncedSubdomain] = useDebounce(subdomain, 1500);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const siteNameRef = useRef<HTMLInputElement | null>(null);
   const siteSubdomainRef = useRef<HTMLInputElement | null>(null);
@@ -43,7 +45,9 @@ export default function AppIndex() {
       }),
     });
 
-    if (!res.ok) {
+    if (res.ok) {
+      router.push("/");
+    } else {
       alert("Failed to create site");
     }
 
