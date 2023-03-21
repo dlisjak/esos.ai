@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import type { Category, CategoryTranslation } from ".prisma/client";
 import { WithAllCategory } from "@/types/category";
 import translate from "deepl";
+import { revalidate } from "../revalidate";
 
 /**
  * Get Category
@@ -285,6 +286,8 @@ export async function updateCategory(
       },
       data,
     });
+
+    await revalidate(site, category);
 
     return res.status(200).json(category);
   } catch (error) {
