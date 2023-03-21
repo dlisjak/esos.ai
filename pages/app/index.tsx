@@ -54,7 +54,6 @@ export default function AppIndex() {
         router.push(`/site/${body.subdomain}`);
       }
     } catch (err) {
-      console.log("catch");
       toast.error("Could not create a new site!");
       console.error(err);
     } finally {

@@ -167,6 +167,8 @@ export default function Post() {
       return toast.error("Make sure the post has required data");
 
     setPublishing(true);
+    await publishTranslation();
+
     let image;
 
     if (imageData) {
@@ -183,9 +185,7 @@ export default function Post() {
         },
         body: JSON.stringify({
           id: postId,
-          title: data.title,
           slug: data.slug,
-          content: data.content,
           categoryId: data.categoryId,
           published,
           image,

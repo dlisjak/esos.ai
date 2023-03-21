@@ -156,6 +156,7 @@ export default function CategoryPage() {
 
   async function publish(redirect = false) {
     setPublishing(true);
+    await publishTranslation();
     let image;
 
     const body: any = {
@@ -324,7 +325,7 @@ export default function CategoryPage() {
       ) : (
         <>
           <Container className="pb-24" innerContainerClassNames="pt-0">
-            <div className="flex w-full rounded border-x border-b">
+            <div className="mb-8 flex w-full rounded border-x border-b">
               <ul className="flex divide-x">
                 <button
                   className="px-4"

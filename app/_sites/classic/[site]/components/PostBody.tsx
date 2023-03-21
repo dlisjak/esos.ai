@@ -4,7 +4,7 @@ import { toDateString } from "@/lib/utils";
 import CategoryBubble from "./CategoryBubble";
 import RelatedPosts from "./RelatedPosts";
 
-const PostBody = ({ post, user }: any) => {
+const PostBody = ({ post, translation, user }: any) => {
   const md = new MarkdownIt({
     linkify: true,
     typographer: true,
@@ -23,9 +23,9 @@ const PostBody = ({ post, user }: any) => {
       containerHeaderHtml: `<div class="pl-4 pt-8 text-xl font-bold">Table of contents:</div>`,
     });
 
-  const firstHeadline = post.content.indexOf("##");
-  const mdExcerpt = post.content.substring(0, firstHeadline);
-  const mdElse = post.content.substring(firstHeadline - 2);
+  const firstHeadline = translation.indexOf("##");
+  const mdExcerpt = translation.substring(0, firstHeadline);
+  const mdElse = translation.substring(firstHeadline - 2);
 
   return (
     <div className="flex flex-col">

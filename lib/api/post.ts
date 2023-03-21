@@ -273,7 +273,7 @@ export async function updatePost(
     if (subdomain) {
       // revalidate for subdomain
       await revalidate(
-        `https://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
+        `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
         subdomain, // siteId
         slug // slugname for the post
       );
@@ -281,7 +281,7 @@ export async function updatePost(
     if (customDomain)
       // revalidate for custom domain
       await revalidate(
-        `https://${customDomain}`, // hostname to be revalidated
+        `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${customDomain}`, // hostname to be revalidated
         customDomain, // siteId
         slug // slugname for the post
       );

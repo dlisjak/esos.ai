@@ -113,6 +113,11 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       content: true,
       image: true,
       createdAt: true,
+      translations: {
+        where: {
+          lang,
+        },
+      },
       category: {
         select: {
           title: true,
@@ -194,12 +199,15 @@ export default async function Category({ params }: any) {
 
   if (!data) return <Loader />;
 
-  const translation = category?.translations[0]?.content || "";
+  const translation =
+    category?.translations[0]?.content || post?.translations[0]?.content || "";
 
   return (
     <>
       <Navigation categories={data.categories} title={data.name} />
-      {post && <PostBody post={post} user={data.user} />}
+      {post && (
+        <PostBody post={post} translation={translation} user={data.user} />
+      )}
       {category && (
         <div className="container mx-auto mb-20 w-full max-w-screen-xl">
           <CategoryLayout
