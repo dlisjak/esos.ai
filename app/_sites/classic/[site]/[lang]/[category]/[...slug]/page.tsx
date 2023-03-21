@@ -60,7 +60,7 @@ export async function generateStaticParams() {
   return paths;
 }
 
-const getData = async (site: any, slugObj: any) => {
+const getData = async (site: string, slugObj: string, lang: string) => {
   let slug = slugObj[1];
   if (!slug) {
     slug = slugObj[0];
@@ -154,7 +154,11 @@ const getData = async (site: any, slugObj: any) => {
       title: true,
       slug: true,
       image: true,
-      content: true,
+      translations: {
+        where: {
+          lang,
+        },
+      },
       posts: {
         select: {
           title: true,
@@ -185,17 +189,24 @@ const getData = async (site: any, slugObj: any) => {
 };
 
 export default async function Category({ params }: any) {
-  const response = await getData(params.site, params.slug);
+  const response = await getData(params.site, params.slug, params.lang);
   const { data, post, category } = response;
 
   if (!data) return <Loader />;
+
+  const translation = category?.translations[0]?.content || "";
+
   return (
     <>
       <Navigation categories={data.categories} title={data.name} />
       {post && <PostBody post={post} user={data.user} />}
       {category && (
         <div className="container mx-auto mb-20 w-full max-w-screen-xl">
-          <CategoryLayout category={category} user={data.user} />
+          <CategoryLayout
+            category={category}
+            translation={translation}
+            user={data.user}
+          />
         </div>
       )}
       <Footer site={data} />

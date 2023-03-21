@@ -57,7 +57,7 @@ export async function generateStaticParams() {
   return paths;
 }
 
-const getData = async (site: any, categorySlug: any) => {
+const getData = async (site: string, categorySlug: string, lang: string) => {
   let filter: {
     subdomain?: string;
     customDomain?: string;
@@ -104,7 +104,11 @@ const getData = async (site: any, categorySlug: any) => {
           title: true,
           slug: true,
           image: true,
-          content: true,
+          translations: {
+            where: {
+              lang,
+            },
+          },
           posts: {
             select: {
               title: true,
@@ -129,15 +133,25 @@ const getData = async (site: any, categorySlug: any) => {
 };
 
 export default async function Category({ params }: any) {
-  const { category, data } = await getData(params.site, params.category);
+  const { category, data } = await getData(
+    params.site,
+    params.category,
+    params.lang
+  );
 
   if (!data || !category) return <Loader />;
+
+  const translation = category.translations[0]?.content || "";
 
   return (
     <>
       <Navigation categories={data.categories} title={data.name} />
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
-        <CategoryLayout category={category} user={data.user} />
+        <CategoryLayout
+          category={category}
+          translation={translation}
+          user={data.user}
+        />
       </div>
     </>
   );

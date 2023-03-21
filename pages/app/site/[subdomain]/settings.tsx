@@ -14,7 +14,7 @@ import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
 
 import { HttpMethod } from "@/types";
-import { useSite, useThemes } from "@/lib/queries";
+import { useSite, useSupportedLanguages, useThemes } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import { Image as ImageType } from "@prisma/client";
 
@@ -26,6 +26,7 @@ interface SiteData {
   customDomain: string;
   image: ImageType | null;
   themeId: string;
+  lang: string;
 }
 
 export default function SiteSettings() {
@@ -45,6 +46,7 @@ export default function SiteSettings() {
 
   const { site, isLoading, mutateSite } = useSite(subdomain);
   const { themes } = useThemes();
+  const { languages } = useSupportedLanguages();
 
   const [data, setData] = useState<SiteData>({
     id: "",
@@ -54,6 +56,7 @@ export default function SiteSettings() {
     customDomain: "",
     image: null,
     themeId: "",
+    lang: "",
   });
 
   useEffect(() => {
@@ -66,6 +69,7 @@ export default function SiteSettings() {
         customDomain: site.customDomain ?? "",
         image: site.image,
         themeId: site.themeId ?? "",
+        lang: site.lang ?? "",
       });
   }, [site]);
 
@@ -405,7 +409,7 @@ export default function SiteSettings() {
                   </div>
                 </div>
                 <div className="flex w-full flex-col justify-between">
-                  <div className="mb-auto flex w-full flex-col">
+                  <div className="mb-4 flex w-full flex-col">
                     <h2 className="text-xl">Theme</h2>
                     <div className="flex w-full max-w-lg items-center overflow-hidden rounded border border-gray-700">
                       <select
@@ -424,6 +428,33 @@ export default function SiteSettings() {
                         {themes?.map((theme: any) => (
                           <option value={theme.id} key={theme.id}>
                             {theme.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="mb-auto flex w-full flex-col">
+                    <h2 className="text-xl">Default Language</h2>
+                    <div className="flex w-full max-w-lg items-center overflow-hidden rounded border border-gray-700">
+                      <select
+                        onChange={(e) =>
+                          setData((data) => ({
+                            ...data,
+                            lang: (e.target as HTMLSelectElement).value,
+                          }))
+                        }
+                        value={data?.lang || ""}
+                        className="w-full rounded-none border-none  bg-white px-5 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
+                      >
+                        <option value="" disabled>
+                          Select a Language
+                        </option>
+                        {languages?.map((language) => (
+                          <option
+                            value={language.language}
+                            key={language.language}
+                          >
+                            {language.name} ({language.language})
                           </option>
                         ))}
                       </select>

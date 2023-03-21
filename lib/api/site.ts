@@ -56,6 +56,7 @@ export async function getSite(
           userId: true,
           themeId: true,
           image: true,
+          lang: true,
         },
       });
 

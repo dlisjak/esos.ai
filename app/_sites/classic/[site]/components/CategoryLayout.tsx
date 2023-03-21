@@ -3,7 +3,7 @@ import MarkdownIt from "markdown-it";
 
 import CategoryPosts from "./CategoryPosts";
 
-const CategoryLayout = ({ category, user }: any) => {
+const CategoryLayout = ({ category, translation, user }: any) => {
   const md = new MarkdownIt({
     linkify: true,
     typographer: true,
@@ -20,7 +20,7 @@ const CategoryLayout = ({ category, user }: any) => {
       <div className="col-span-1 mx-4 lg:col-span-2 xl:mx-0">
         <div
           className="prose lg:prose-xl md:pr-4"
-          dangerouslySetInnerHTML={{ __html: md.render("") }}
+          dangerouslySetInnerHTML={{ __html: md.render(translation) }}
         />
       </div>
       <div className="relative col-span-1 aspect-square">
