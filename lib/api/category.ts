@@ -287,7 +287,7 @@ export async function updateCategory(
       data,
     });
 
-    await revalidate(site, category);
+    await revalidate(site, "en", category);
 
     return res.status(200).json(category);
   } catch (error) {
