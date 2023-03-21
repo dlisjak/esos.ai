@@ -3,7 +3,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import prisma from "@/lib/prisma";
 import type { Category, CategoryTranslation } from ".prisma/client";
-import { revalidate } from "@/lib/revalidate";
 import { WithAllCategory } from "@/types/category";
 import translate from "deepl";
 

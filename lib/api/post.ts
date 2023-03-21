@@ -3,7 +3,6 @@ import prisma from "@/lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import type { Post, PostTranslation } from "@prisma/client";
 import type { Session } from "next-auth";
-import { revalidate } from "@/lib/revalidate";
 import { WithSitePost } from "@/types/post";
 import translate from "deepl";
 
@@ -182,21 +181,6 @@ export async function deletePost(
         },
       },
     });
-    if (response?.site?.subdomain) {
-      // revalidate for subdomain
-      await revalidate(
-        `https://${response.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
-        response.site.subdomain, // siteId
-        response.slug // slugname for the post
-      );
-    }
-    if (response?.site?.customDomain)
-      // revalidate for custom domain
-      await revalidate(
-        `https://${response.site.customDomain}`, // hostname to be revalidated
-        response.site.customDomain, // siteId
-        response.slug // slugname for the post
-      );
 
     return res.status(200).end();
   } catch (error) {
@@ -277,34 +261,6 @@ export async function updatePost(
         },
       },
     });
-
-    if (subdomain && post && post.category) {
-      // revalidate for subdomain
-      await revalidate(
-        `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
-        subdomain, // subdomain
-        "en",
-        `${
-          post.category.parent
-            ? post.category.parent.slug + "/" + post.category.slug
-            : post.category.slug
-        }`,
-        slug // slugname for the post
-      );
-    }
-    if (customDomain && post && post.category)
-      // revalidate for custom domain
-      await revalidate(
-        `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${customDomain}`, // hostname to be revalidated
-        customDomain, // subdomain
-        "en",
-        `${
-          post.category.parent
-            ? post.category.parent.slug + "/" + post.category.slug
-            : post.category.slug
-        }`,
-        slug // slugname for the post
-      );
 
     return res.status(200).json(post);
   } catch (error) {

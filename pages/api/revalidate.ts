@@ -5,7 +5,6 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const { urlPath } = req.body;
-  console.log(urlPath);
 
   res.setHeader(
     "Access-Control-Allow-Origin",
