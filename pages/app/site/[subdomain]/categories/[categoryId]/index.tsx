@@ -44,8 +44,7 @@ export default function CategoryPage() {
   const [publishing, setPublishing] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [showTranslateModal, setShowTranslateModal] = useState(false);
-  const [selectedTranslation, setSelectedTranslation] =
-    useState<CategoryTranslation | null>(null);
+
   const [selectedTranslationLang, setSelectedTranslationLang] = useState<
     string | null
   >(null);
@@ -55,6 +54,8 @@ export default function CategoryPage() {
   const { category, isLoading, mutateCategory } = useCategory(categoryId);
   const { translations, mutateTranslations } =
     useCategoryTranslations(categoryId);
+  const [selectedTranslation, setSelectedTranslation] =
+    useState<CategoryTranslation | null>(null);
   const { categories } = useCategories(subdomain);
   const { languages } = useSupportedLanguages();
 
@@ -72,7 +73,7 @@ export default function CategoryPage() {
   });
 
   useEffect(() => {
-    if (category)
+    if (category) {
       setData({
         id: category.id ?? "",
         title: category.title ?? "",
@@ -81,6 +82,8 @@ export default function CategoryPage() {
         slug: category.slug ?? "",
         image: category.image ?? null,
       });
+      setSelectedTranslation(category?.translations[0] ?? null);
+    }
   }, [category]);
 
   useEffect(() => {
@@ -97,6 +100,7 @@ export default function CategoryPage() {
         content: category?.content || "",
       });
     }
+
     setData({
       ...data,
       title: selectedTranslation?.title || "",
@@ -151,17 +155,12 @@ export default function CategoryPage() {
     }
   }
 
-  async function publish() {
+  async function publish(redirect = false) {
     setPublishing(true);
-    if (selectedTranslation) {
-      return publishTranslation();
-    }
     let image;
 
     const body: any = {
       id: categoryId,
-      title: data.title,
-      content: data.content,
       slug: data.slug,
       parentId: data.parentId,
     };
@@ -183,7 +182,10 @@ export default function CategoryPage() {
       if (response.ok) {
         toast.success("Successfuly Published Category!");
         mutateCategory();
-        router.push(`/site/${subdomain}/categories`);
+
+        if (redirect) {
+          router.push(`/site/${subdomain}/categories`);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -243,6 +245,7 @@ export default function CategoryPage() {
 
   async function translateCategory() {
     setTranslatingCategory(true);
+    await publishTranslation();
 
     try {
       const createTranslationResponse = await fetch(
@@ -271,8 +274,8 @@ export default function CategoryPage() {
           body: JSON.stringify({
             translationId: translation.id,
             lang: translation.lang,
-            title: category?.title || data?.title,
-            content: category?.content || data?.title,
+            title: data?.title,
+            content: data?.content,
           }),
         }
       );
@@ -299,7 +302,7 @@ export default function CategoryPage() {
           <h1 className="text-4xl">Edit Category</h1>
           <button
             onClick={async () => {
-              await publish();
+              await publish(true);
             }}
             title={
               disabled
@@ -313,7 +316,7 @@ export default function CategoryPage() {
                 : "border-black bg-black hover:bg-white hover:text-black"
             } mx-2 h-12 w-32 border-2 text-lg text-white transition-all duration-150 ease-in-out focus:outline-none`}
           >
-            {publishing ? <LoadingDots /> : "Publish  →"}
+            {publishing ? <LoadingDots /> : "Save & Exit →"}
           </button>
         </div>
       </Header>
@@ -330,14 +333,6 @@ export default function CategoryPage() {
                 >
                   +
                 </button>
-                <button
-                  className={`px-4 py-2 duration-200 hover:bg-gray-200 ${
-                    !selectedTranslation ? "bg-gray-200" : ""
-                  }`}
-                  onClick={(e) => setSelectedTranslation(null)}
-                >
-                  Default
-                </button>
                 {translations?.map((translation) => (
                   <button
                     className={`px-4 py-2 duration-200 hover:bg-gray-200 ${
@@ -345,7 +340,7 @@ export default function CategoryPage() {
                         ? "bg-gray-200"
                         : ""
                     }`}
-                    onClick={(e) => setSelectedTranslation(translation)}
+                    onClick={() => setSelectedTranslation(translation)}
                     key={translation.lang}
                   >
                     {translation.lang}
@@ -481,7 +476,25 @@ export default function CategoryPage() {
                     : "border-black bg-black hover:bg-white hover:text-black"
                 } mx-2 h-12 w-32 border-2 text-lg text-white transition-all duration-150 ease-in-out focus:outline-none`}
               >
-                {publishing ? <LoadingDots /> : "Publish  →"}
+                {publishing ? <LoadingDots /> : "Save"}
+              </button>
+              <button
+                onClick={async () => {
+                  await publish(true);
+                }}
+                title={
+                  disabled
+                    ? "Category must have a title, content, and a slug to be published."
+                    : "Publish"
+                }
+                disabled={disabled}
+                className={`${
+                  disabled
+                    ? "cursor-not-allowed border-gray-300 bg-gray-300"
+                    : "border-black bg-black hover:bg-white hover:text-black"
+                } mx-2 h-12 w-32 border-2 text-lg text-white transition-all duration-150 ease-in-out focus:outline-none`}
+              >
+                {publishing ? <LoadingDots /> : "Save & Exit  →"}
               </button>
             </div>
           </footer>
@@ -562,7 +575,7 @@ export default function CategoryPage() {
                     </option>
                     {languages?.map(({ name, language }) => (
                       <option value={language} key={language}>
-                        {name}
+                        {name} ({language})
                       </option>
                     ))}
                   </select>

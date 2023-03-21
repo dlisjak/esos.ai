@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import type { Category, CategoryTranslation } from ".prisma/client";
 import { revalidate } from "@/lib/revalidate";
 import { WithAllCategory } from "@/types/category";
+import translate from "deepl";
 
 /**
  * Get Category
@@ -48,6 +49,7 @@ export async function getCategory(
         include: {
           parent: true,
           image: true,
+          translations: true,
           posts: {
             include: {
               category: true,
@@ -151,8 +153,9 @@ export async function createCategory(
 
     await prisma.categoryTranslation.create({
       data: {
-        lang: "default",
+        lang: "EN",
         categoryId: response.id,
+        title,
       },
     });
 
@@ -188,6 +191,12 @@ export async function deleteCategory(
   }
 
   try {
+    await prisma.categoryTranslation.deleteMany({
+      where: {
+        categoryId,
+      },
+    });
+
     const response = await prisma.category.delete({
       where: {
         id: categoryId,
@@ -390,48 +399,70 @@ export async function createTranslation(
     return res.status(500).end(error);
   }
 }
-
 /**
  * Translate Category
  *
- * Translates a category & all of its data using a collection of provided
- * query parameters. These include the following:
- *  - id
- *  - title
- *  - content
- *  - slug
+ * Fetches & returns either a single or all languages available depending on
+ * DeepL integration
  *
  * @param req - Next.js API Request
  * @param res - Next.js API Response
  */
+
 export async function translateCategory(
   req: NextApiRequest,
   res: NextApiResponse,
   session: Session
-): Promise<void | NextApiResponse<Category>> {
-  const { id, title, content, slug } = req.body;
+): Promise<void | NextApiResponse<CategoryTranslation | null>> {
+  const { categoryId } = req.query;
+  const { translationId, lang, title = "", content = "" } = req.body;
 
-  if (!id || typeof id !== "string" || !session?.user?.id) {
-    return res
-      .status(400)
-      .json({ error: "Missing or misconfigured site ID or session ID" });
-  }
+  if (!session.user.id || !translationId)
+    return res.status(400).end("Bad request. User not validated.");
 
   try {
-    const data: any = {
-      title,
-      content,
-      slug,
-    };
+    if (!categoryId) {
+      const translation = await prisma.categoryTranslation.update({
+        where: {
+          id: translationId,
+        },
+        data: {
+          title,
+          content,
+        },
+      });
 
-    const category = await prisma.category.update({
-      where: {
-        id: id,
-      },
-      data,
-    });
+      return res.status(200).json(translation);
+    } else {
+      const titleRes = await translate({
+        text: title,
+        target_lang: lang,
+        auth_key: process.env.DEEPL_AUTH_KEY || "",
+        free_api: false,
+      });
 
-    return res.status(200).json(category);
+      const contentRes = await translate({
+        text: content,
+        target_lang: lang,
+        auth_key: process.env.DEEPL_AUTH_KEY || "",
+        free_api: false,
+      });
+
+      const translatedTitle = titleRes.data.translations[0].text;
+      const translatedContent = contentRes.data.translations[0].text;
+
+      const translation = await prisma.categoryTranslation.update({
+        where: {
+          id: translationId,
+        },
+        data: {
+          title: translatedTitle,
+          content: translatedContent,
+        },
+      });
+
+      return res.status(200).json(translation);
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).end(error);

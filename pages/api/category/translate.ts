@@ -1,5 +1,8 @@
-import { createTranslation, getCategoryTranslations } from "@/lib/api/category";
-import { translateCategory } from "@/lib/api/translate";
+import {
+  createTranslation,
+  getCategoryTranslations,
+  translateCategory,
+} from "@/lib/api/category";
 import { getServerSession } from "next-auth/next";
 
 import { authOptions } from "../auth/[...nextauth]";

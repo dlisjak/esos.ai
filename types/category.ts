@@ -1,4 +1,4 @@
-import { Category, Image } from "@prisma/client";
+import { Category, CategoryTranslation, Image } from "@prisma/client";
 import { WithImagePost } from "./post";
 
 export interface WithImageCategory extends Category {
@@ -9,4 +9,5 @@ export interface WithAllCategory extends WithImageCategory {
   parent: Category[];
   children: Category[];
   posts: WithImagePost[];
+  translations: CategoryTranslation[];
 }
