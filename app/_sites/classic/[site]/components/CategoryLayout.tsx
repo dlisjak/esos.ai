@@ -20,7 +20,7 @@ const CategoryLayout = ({ category, user }: any) => {
       <div className="col-span-1 mx-4 lg:col-span-2 xl:mx-0">
         <div
           className="prose lg:prose-xl md:pr-4"
-          dangerouslySetInnerHTML={{ __html: md.render(category.content) }}
+          dangerouslySetInnerHTML={{ __html: md.render("") }}
         />
       </div>
       <div className="relative col-span-1 aspect-square">
