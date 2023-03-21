@@ -14,6 +14,7 @@ import { useSites } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import getSlug from "speakingurl";
 import { useRouter } from "next/router";
+import { toast } from "react-hot-toast";
 
 export default function AppIndex() {
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -29,29 +30,37 @@ export default function AppIndex() {
   const { data: session } = useSession();
   const sessionId = session?.user?.id;
 
-  const { sites, isLoading } = useSites();
+  const { sites, isLoading, mutateSites } = useSites();
 
   async function createSite() {
     setCreatingSite(true);
-    const res = await fetch("/api/site", {
-      method: HttpMethod.POST,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: sessionId,
-        name: siteNameRef.current?.value,
-        subdomain: siteSubdomainRef.current?.value,
-      }),
-    });
 
-    if (res.ok) {
-      router.push("/");
-    } else {
-      alert("Failed to create site");
+    try {
+      const res = await fetch("/api/site", {
+        method: HttpMethod.POST,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: sessionId,
+          name: siteNameRef.current?.value,
+          subdomain: siteSubdomainRef.current?.value,
+        }),
+      });
+
+      if (res.ok) {
+        const body = await res.json();
+        toast.success("Successfully created a new site!");
+        router.push(`/site/${body.subdomain}`);
+      }
+    } catch (err) {
+      console.log("catch");
+      toast.error("Could not create a new site!");
+      console.error(err);
+    } finally {
+      mutateSites();
+      setCreatingSite(false);
     }
-
-    setCreatingSite(false);
   }
 
   useEffect(() => {
