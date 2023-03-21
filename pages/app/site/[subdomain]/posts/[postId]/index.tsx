@@ -189,6 +189,7 @@ export default function Post() {
           categoryId: data.categoryId,
           published,
           image,
+          subdomain,
         }),
       });
 

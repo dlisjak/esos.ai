@@ -269,20 +269,40 @@ export async function updatePost(
         id: id,
       },
       data,
+      include: {
+        category: {
+          include: {
+            parent: true,
+          },
+        },
+      },
     });
-    if (subdomain) {
+
+    if (subdomain && post && post.category) {
       // revalidate for subdomain
       await revalidate(
         `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
-        subdomain, // siteId
+        subdomain, // subdomain
+        "en",
+        `${
+          post.category.parent
+            ? post.category.parent.slug + "/" + post.category.slug
+            : post.category.slug
+        }`,
         slug // slugname for the post
       );
     }
-    if (customDomain)
+    if (customDomain && post && post.category)
       // revalidate for custom domain
       await revalidate(
         `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${customDomain}`, // hostname to be revalidated
-        customDomain, // siteId
+        customDomain, // subdomain
+        "en",
+        `${
+          post.category.parent
+            ? post.category.parent.slug + "/" + post.category.slug
+            : post.category.slug
+        }`,
         slug // slugname for the post
       );
 

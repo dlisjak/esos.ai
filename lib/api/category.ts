@@ -209,22 +209,6 @@ export async function deleteCategory(
       },
     });
 
-    if (response?.site?.subdomain) {
-      // revalidate for subdomain
-      await revalidate(
-        `https://${response.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
-        response.site.subdomain, // siteId
-        response.slug // slugname for the post
-      );
-    }
-    if (response?.site?.customDomain)
-      // revalidate for custom domain
-      await revalidate(
-        `https://${response.site.customDomain}`, // hostname to be revalidated
-        response.site.customDomain, // siteId
-        response.slug // slugname for the post
-      );
-
     return res.status(200).end();
   } catch (error) {
     console.error(error);
@@ -464,27 +448,12 @@ export async function translateCategory(
         include: {
           category: {
             include: {
+              parent: true,
               site: true,
             },
           },
         },
       });
-
-      if (translation?.category?.site?.subdomain) {
-        // revalidate for subdomain
-        await revalidate(
-          `${process.env.NEXT_PUBLIC_DOMAIN_URL}://${translation?.category?.site?.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`, // hostname to be revalidated
-          translation?.category?.site?.subdomain, // siteId
-          translation.category.slug // slugname for the post
-        );
-      }
-      if (translation?.category?.site?.customDomain)
-        // revalidate for custom domain
-        await revalidate(
-          `${process.env.NEXT_PUBLIC_DOMAIN_URL}://${translation?.category?.site?.customDomain}`, // hostname to be revalidated
-          translation?.category?.site?.customDomain, // siteId
-          translation?.category?.slug // slugname for the post
-        );
 
       return res.status(200).json(translation);
     }
