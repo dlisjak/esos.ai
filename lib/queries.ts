@@ -1,7 +1,7 @@
 import { WithImageSite } from "@/types";
 import { WithAllCategory, WithImageCategory } from "@/types/category";
 import { FeaturedPost, WithSitePost } from "@/types/post";
-import { CategoryTranslation, Post } from "@prisma/client";
+import { CategoryTranslation, Post, PostTranslation } from "@prisma/client";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 import { Language } from "./api/translate";
@@ -91,6 +91,28 @@ export const usePost = (postId: any) => {
   };
 };
 
+export const usePostTranslations = (postId: any) => {
+  const {
+    data: translations,
+    error,
+    mutate,
+  } = useSWR<PostTranslation[]>(
+    `/api/post/translate?postId=${postId}`,
+    fetcher,
+    {
+      dedupingInterval: 1000,
+      revalidateOnFocus: false,
+    }
+  );
+
+  return {
+    translations,
+    isLoading: !error && !translations,
+    isError: error,
+    mutateTranslations: mutate,
+  };
+};
+
 export const usePosts = (subdomain: any, published: any) => {
   const router = useRouter();
 
@@ -158,8 +180,6 @@ export const useLatestPosts = (subdomain: any, limit: any) => {
 };
 
 export const useCategories = (subdomain: any) => {
-  const router = useRouter();
-
   const {
     data: categories,
     error,

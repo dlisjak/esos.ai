@@ -1,22 +1,28 @@
-import { useState, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 import { useRouter } from "next/router";
+import { useState, useEffect, useRef } from "react";
+import { useS3Upload } from "next-s3-upload";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import toast from "react-hot-toast";
-import { useS3Upload } from "next-s3-upload";
 
 import Layout from "@/components/app/Layout";
 import LoadingDots from "@/components/app/loading-dots";
 import { StatusIndicator } from "@/components/app/PostCard";
-import Header from "@/components/Layout/Header";
-import ContainerLoader from "@/components/app/ContainerLoader";
 import Container from "@/components/Layout/Container";
+import Header from "@/components/Layout/Header";
 
-import { useCategories, usePost } from "@/lib/queries";
 import { HttpMethod } from "@/types";
+import {
+  useCategories,
+  usePost,
+  usePostTranslations,
+  useSupportedLanguages,
+} from "@/lib/queries";
+import ContainerLoader from "@/components/app/ContainerLoader";
 import TextEditor from "@/components/TextEditor";
 import TitleEditor from "@/components/TitleEditor";
-import { Image as ImageType } from "@prisma/client";
+import { Image as ImageType, PostTranslation } from "@prisma/client";
+import Modal from "@/components/Modal";
 
 interface PostData {
   title: string;
@@ -27,16 +33,27 @@ interface PostData {
 }
 
 export default function Post() {
-  const { data: session } = useSession();
-  const router = useRouter();
   const postSlugRef = useRef<HTMLInputElement | null>(null);
   const [imagePreview, setImagePreview] = useState<any>();
   const [imageData, setImageData] = useState<any>();
   const { FileInput, uploadToS3 } = useS3Upload();
   const [publishing, setPublishing] = useState(false);
   const [disabled, setDisabled] = useState(true);
+  const [translatingPost, setTranslatingPost] = useState(false);
 
-  const { subdomain, categoryId, postId } = router.query;
+  const router = useRouter();
+  const { subdomain, postId } = router.query;
+
+  const [showTranslateModal, setShowTranslateModal] = useState(false);
+  const { translations, mutateTranslations } = usePostTranslations(postId);
+  const [selectedTranslation, setSelectedTranslation] =
+    useState<PostTranslation | null>(null);
+  const [selectedTranslationLang, setSelectedTranslationLang] = useState<
+    string | null
+  >(null);
+
+  const { languages } = useSupportedLanguages();
+  const { data: session } = useSession();
   const sessionUser = session?.user?.name;
 
   const { post, isLoading, mutatePost } = usePost(postId);
@@ -52,7 +69,7 @@ export default function Post() {
   });
 
   useEffect(() => {
-    if (post)
+    if (post) {
       setData({
         title: post.title ?? "",
         slug: post.slug ?? "",
@@ -60,13 +77,37 @@ export default function Post() {
         categoryId: post.categoryId ?? "",
         image: post.image ?? { id: "", src: "", alt: "" },
       });
-  }, [post, categoryId]);
+      setSelectedTranslation(post?.translations[0] ?? null);
+    }
+  }, [post]);
 
   useEffect(() => {
-    if (data.title && data.slug && data.content && !publishing)
+    if (
+      data.title &&
+      data.slug &&
+      data.content &&
+      data.categoryId &&
+      !publishing
+    )
       setDisabled(false);
     else setDisabled(true);
   }, [publishing, data]);
+
+  useEffect(() => {
+    if (!selectedTranslation) {
+      return setData({
+        ...data,
+        title: post?.title || "",
+        content: post?.content || "",
+      });
+    }
+
+    setData({
+      ...data,
+      title: selectedTranslation?.title || "",
+      content: selectedTranslation?.content || "",
+    });
+  }, [selectedTranslation]);
 
   const uploadImage = async (file: any, alt: any) => {
     const path = `${sessionUser}/${subdomain}`;
@@ -84,8 +125,45 @@ export default function Post() {
     return { src: url, alt };
   };
 
-  async function publish(published = true) {
-    if (!postId || !data.title || !data.slug || !data.content || !categoryId)
+  async function publishTranslation() {
+    if (!selectedTranslation) {
+      return setPublishing(false);
+    }
+
+    const body: any = {
+      translationId: selectedTranslation.id,
+      title: data.title,
+      content: data.content,
+    };
+
+    try {
+      const response = await fetch(`/api/post/translate`, {
+        method: HttpMethod.PUT,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (response.ok) {
+        toast.success("Successfuly Published Translation!");
+        mutateTranslations();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  async function publish(published = true, redirect = false) {
+    if (
+      !postId ||
+      !data.title ||
+      !data.slug ||
+      !data.content ||
+      !data.categoryId
+    )
       return toast.error("Make sure the post has required data");
 
     setPublishing(true);
@@ -108,15 +186,21 @@ export default function Post() {
           title: data.title,
           slug: data.slug,
           content: data.content,
-          categoryId,
+          categoryId: data.categoryId,
           published,
           image,
         }),
       });
 
       if (response.ok) {
+        toast.success("Successfuly Published Post!");
         mutatePost();
-        router.push(`/site/${subdomain}/categories/${categoryId}/posts`);
+
+        if (redirect) {
+          router.push(
+            `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}/site/${subdomain}/posts`
+          );
+        }
       }
     } catch (error) {
       console.error(error);
@@ -153,168 +237,296 @@ export default function Post() {
     });
   };
 
+  async function translatePost() {
+    setTranslatingPost(true);
+    await publishTranslation();
+
+    try {
+      const createTranslationResponse = await fetch(
+        `/api/post/translate?subdomain=${subdomain}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: HttpMethod.POST,
+          body: JSON.stringify({
+            lang: selectedTranslationLang,
+            postId,
+          }),
+        }
+      );
+
+      const translation = await createTranslationResponse.json();
+
+      const res = await fetch(`/api/post/translate?postId=${postId}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: HttpMethod.PUT,
+        body: JSON.stringify({
+          translationId: translation.id,
+          lang: translation.lang,
+          title: data?.title,
+          content: data?.content,
+        }),
+      });
+
+      if (res.ok) {
+        toast.success(`Translation Created`);
+        const body = await res.json();
+        setSelectedTranslation(body);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Creating Translation failed. Check if translation exists");
+    } finally {
+      setShowTranslateModal(false);
+      setTranslatingPost(false);
+      mutateTranslations();
+    }
+  }
+
   return (
-    <>
-      <Layout>
-        <Header>
-          <div className="flex items-center justify-between">
-            <h1 className="text-4xl">Edit Post</h1>
-            <button
-              onClick={async () => {
-                await publish();
-              }}
-              title={
-                disabled
-                  ? "Post must have a title, description, category and a slug to be published."
-                  : "Publish"
-              }
-              disabled={disabled}
-              className={`ml-4 ${
-                disabled
-                  ? "cursor-not-allowed border-gray-300 bg-gray-300"
-                  : "border-black bg-black hover:bg-white hover:text-black"
-              } mx-2 h-12 w-32 border-2 text-lg text-white transition-all duration-150 ease-in-out focus:outline-none`}
-            >
-              {publishing ? <LoadingDots /> : "Publish  →"}
-            </button>
-          </div>
-        </Header>
-        {isLoading ? (
-          <ContainerLoader />
-        ) : (
-          <>
-            <Container className="pb-24">
-              <TitleEditor
-                value={data.title}
-                setValue={handleSetTitle}
-                setSlug={handleSetSlug}
-              />
-              <div className="flex w-full space-x-4">
-                <div className="flex w-full flex-col">
-                  <p>Slug</p>
-                  <input
-                    className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
-                    name="slug"
-                    required
-                    placeholder="Post Slug"
-                    ref={postSlugRef}
-                    type="text"
-                    value={data.slug}
+    <Layout>
+      <Header>
+        <h1 className="text-4xl">Edit Post</h1>
+      </Header>
+      {isLoading ? (
+        <ContainerLoader />
+      ) : (
+        <>
+          <Container className="pb-24" innerContainerClassNames="pt-0">
+            <div className="mb-8 flex w-full rounded border-x border-b">
+              <ul className="flex divide-x">
+                <button
+                  className="px-4"
+                  onClick={() => setShowTranslateModal(true)}
+                >
+                  +
+                </button>
+                {translations?.map((translation) => (
+                  <button
+                    className={`px-4 py-2 duration-200 hover:bg-gray-200 ${
+                      selectedTranslation?.lang === translation.lang
+                        ? "bg-gray-200"
+                        : ""
+                    }`}
+                    onClick={() => setSelectedTranslation(translation)}
+                    key={translation.lang}
+                  >
+                    {translation.lang}
+                  </button>
+                ))}
+              </ul>
+            </div>
+            <TitleEditor
+              value={data.title}
+              setValue={handleSetTitle}
+              setSlug={handleSetSlug}
+            />
+            <div className="flex w-full space-x-4">
+              <div className="flex w-full flex-col">
+                <h2 className="mr-auto text-xl">
+                  Slug<span className="text-red-600">*</span>
+                </h2>
+                <input
+                  className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
+                  name="slug"
+                  required
+                  placeholder="Post Slug"
+                  ref={postSlugRef}
+                  type="text"
+                  value={data.slug}
+                  onChange={(e) =>
+                    setData({
+                      ...data,
+                      slug: (e.target as HTMLInputElement).value,
+                    })
+                  }
+                />
+              </div>
+              <div className="flex w-full flex-col">
+                <h2 className="mr-auto text-xl">
+                  Category<span className="text-red-600">*</span>
+                </h2>
+                <div className="flex w-full max-w-lg items-center overflow-hidden rounded border border-gray-700">
+                  <select
                     onChange={(e) =>
-                      setData({
+                      setData((data) => ({
                         ...data,
-                        slug: (e.target as HTMLInputElement).value,
-                      })
+                        categoryId: (e.target as HTMLSelectElement).value,
+                      }))
                     }
+                    value={data.categoryId || post?.categoryId || ""}
+                    className="w-full rounded-none border-none  bg-white px-5 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
+                  >
+                    <option value="" disabled>
+                      Select a Category
+                    </option>
+                    {categories &&
+                      categories?.map((category) => (
+                        <option value={category.id} key={category.id}>
+                          {category.title}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-col items-end">
+              <h2 className="mr-auto text-xl">
+                Content<span className="text-red-600">*</span>
+              </h2>
+              <TextEditor
+                value={data.content}
+                setValue={handleSetContent}
+                dataId={postId}
+              />
+            </div>
+            <div className="flex items-end space-x-6">
+              <div className="w-full max-w-lg">
+                <h2 className="mr-auto text-xl">Image</h2>
+                <div
+                  className={`relative relative h-[480px] w-[480px] w-full overflow-hidden rounded border-2 border-dashed border-gray-800`}
+                >
+                  <FileInput
+                    className="fileUpload absolute left-0 top-0 bottom-0 right-0 z-50 cursor-pointer opacity-0"
+                    onChange={handleImageSelect}
+                  />
+                  <Image
+                    src={imagePreview || data.image?.src || "/placeholder.png"}
+                    alt={data.image?.alt ?? ""}
+                    width={480}
+                    height={480}
+                    className="h-full w-full cursor-pointer rounded object-contain"
                   />
                 </div>
-                <div className="flex w-full flex-col">
-                  <p>Category</p>
-                  <div className="flex w-full max-w-lg items-center overflow-hidden rounded border border-gray-700">
-                    <select
-                      onChange={(e) =>
-                        setData((data) => ({
-                          ...data,
-                          categoryId: (e.target as HTMLSelectElement).value,
-                        }))
-                      }
-                      value={data.categoryId || categoryId || ""}
-                      className="w-full rounded-none border-none  bg-white px-5 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
-                    >
-                      <option value="" disabled>
-                        Select a Category
-                      </option>
-                      {categories &&
-                        categories?.map((category) => (
-                          <option value={category.id} key={category.id}>
-                            {category.title}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                </div>
               </div>
-              <div className="mt-8 flex flex-col items-end">
-                <h2 className="mr-auto text-xl">
-                  Content<span className="text-red-600">*</span>
-                </h2>
-                <TextEditor
-                  value={data.content}
-                  setValue={handleSetContent}
-                  dataId={postId}
-                />
+            </div>
+          </Container>
+          <footer className="z-5 fixed inset-x-0 bottom-0 h-20 border-t border-solid border-gray-500 bg-white">
+            <div className="mx-auto flex h-full max-w-screen-xl items-center justify-between">
+              <div className="text-sm">
+                <strong>
+                  <p>{post?.published ? "Published" : "Draft"}</p>
+                </strong>
               </div>
-              <div className="flex items-end space-x-6">
-                <div className="w-full max-w-lg">
-                  <p>Post Image</p>
-                  <div
-                    className={`relative relative h-[480px] w-[480px] w-full overflow-hidden rounded border-2 border-dashed border-gray-800`}
+              <button
+                onClick={async () => {
+                  await publish(false);
+                }}
+                title="Draft"
+                disabled={publishing}
+                className={`ml-auto ${
+                  publishing
+                    ? "cursor-not-allowed border-gray-300 bg-gray-300"
+                    : "border-black bg-black hover:bg-white hover:text-black"
+                } mx-2 h-12 w-32 border-2 text-lg text-white transition-all duration-150 ease-in-out focus:outline-none`}
+              >
+                {publishing ? <LoadingDots /> : "Draft"}
+              </button>
+              <button
+                onClick={async () => {
+                  await publish(true, false);
+                }}
+                title={
+                  disabled
+                    ? "Post must have a title, description, and content to be published."
+                    : "Publish"
+                }
+                disabled={disabled}
+                className={`${
+                  disabled
+                    ? "cursor-not-allowed border-gray-300 bg-gray-300"
+                    : "border-black bg-black hover:bg-white hover:text-black"
+                } mx-2 h-12 w-32 border-2 text-lg text-white transition-all duration-150 ease-in-out focus:outline-none`}
+              >
+                {publishing ? <LoadingDots /> : "Save"}
+              </button>
+              <button
+                onClick={async () => {
+                  await publish(true, true);
+                }}
+                title={
+                  disabled
+                    ? "Post must have a title, description, and content to be published."
+                    : "Publish"
+                }
+                disabled={disabled}
+                className={`${
+                  disabled
+                    ? "cursor-not-allowed border-gray-300 bg-gray-300"
+                    : "border-black bg-black hover:bg-white hover:text-black"
+                } mx-2 h-12 w-32 border-2 text-lg text-white transition-all duration-150 ease-in-out focus:outline-none`}
+              >
+                {publishing ? <LoadingDots /> : "Save & Exit →"}
+              </button>
+              <StatusIndicator
+                className="relative right-0"
+                published={post?.published}
+              />{" "}
+            </div>
+          </footer>
+          <Modal
+            showModal={showTranslateModal}
+            setShowModal={setShowTranslateModal}
+          >
+            <form
+              onSubmit={async (event) => {
+                event.preventDefault();
+                await translatePost();
+              }}
+              className="inline-block w-full max-w-md overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+            >
+              <h2 className=" mb-6 text-2xl">Translate Post</h2>
+              <div className="mx-auto grid w-5/6 gap-y-4">
+                <p className="text-gray-left mb-3 text-start">
+                  Choose which languages you want to add:
+                </p>
+                <div className="flex-start flex items-center overflow-hidden rounded border">
+                  <select
+                    className="w-full"
+                    value={selectedTranslationLang || ""}
+                    onChange={(e) => {
+                      setSelectedTranslationLang(e.target.value);
+                    }}
                   >
-                    <FileInput
-                      className="fileUpload absolute left-0 top-0 bottom-0 right-0 z-50 cursor-pointer opacity-0"
-                      onChange={handleImageSelect}
-                    />
-                    <Image
-                      src={
-                        imagePreview || data.image?.src || "/placeholder.png"
-                      }
-                      alt={data.image?.alt ?? "Alt text"}
-                      width={480}
-                      height={480}
-                      className="h-full w-full cursor-pointer rounded object-contain"
-                    />
-                  </div>
+                    <option value="" disabled>
+                      Select a Language
+                    </option>
+                    {languages?.map(({ name, language }) => (
+                      <option value={language} key={language}>
+                        {name} ({language})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
-            </Container>
-            <footer className="z-5 fixed inset-x-0 bottom-0 h-20 border-t border-solid border-gray-500 bg-white">
-              <div className="mx-auto flex h-full max-w-screen-xl items-center justify-between">
-                <div className="text-sm">
-                  <strong>
-                    <p>{post?.published ? "Published" : "Draft"}</p>
-                  </strong>
-                </div>
+              <div className="mt-10 flex w-full items-center justify-between">
                 <button
-                  onClick={async () => {
-                    await publish(false);
-                  }}
-                  title="Draft"
-                  disabled={publishing}
-                  className={`ml-auto ${
-                    publishing
-                      ? "cursor-not-allowed border-gray-300 bg-gray-300"
-                      : "border-black bg-black hover:bg-white hover:text-black"
-                  } mx-2 h-12 w-32 border-2 text-lg text-white transition-all duration-150 ease-in-out focus:outline-none`}
+                  type="button"
+                  className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-400 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
+                  onClick={() => setShowTranslateModal(false)}
                 >
-                  {publishing ? <LoadingDots /> : "Draft"}
+                  CANCEL
                 </button>
+
                 <button
-                  onClick={async () => {
-                    await publish();
-                  }}
-                  title={
-                    disabled
-                      ? "Post must have a title, description, and content to be published."
-                      : "Publish"
-                  }
-                  disabled={disabled}
+                  type="submit"
+                  disabled={translatingPost}
                   className={`${
-                    disabled
-                      ? "cursor-not-allowed border-gray-300 bg-gray-300"
-                      : "border-black bg-black hover:bg-white hover:text-black"
-                  } mx-2 h-12 w-32 border-2 text-lg text-white transition-all duration-150 ease-in-out focus:outline-none`}
+                    translatingPost
+                      ? "cursor-not-allowed bg-gray-50 text-gray-400"
+                      : "bg-white text-gray-600 hover:text-black"
+                  } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-0`}
                 >
-                  {publishing ? <LoadingDots /> : "Publish  →"}
+                  {translatingPost ? <LoadingDots /> : "TRANSLATE POST"}
                 </button>
-                <StatusIndicator
-                  className="relative right-0"
-                  published={post?.published}
-                />
               </div>
-            </footer>
-          </>
-        )}
-      </Layout>
-    </>
+            </form>
+          </Modal>
+        </>
+      )}
+    </Layout>
   );
 }

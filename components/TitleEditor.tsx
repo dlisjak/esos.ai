@@ -67,6 +67,9 @@ const TitleEditor = ({ value, setValue, setSlug }: any) => {
   return (
     <>
       <div className="w-full">
+        <h2 className="mr-auto text-xl">
+          Title<span className="text-red-600">*</span>
+        </h2>
         <ReactTextareaAutosize
           name="title"
           onInput={setTitle}

@@ -1,8 +1,8 @@
 import {
-  createCategoryTranslation,
-  getCategoryTranslations,
-  translateCategory,
-} from "@/lib/api/category";
+  createPostTranslation,
+  getPostTranslations,
+  translatePost,
+} from "@/lib/api/post";
 import { getServerSession } from "next-auth/next";
 
 import { authOptions } from "../auth/[...nextauth]";
@@ -10,7 +10,7 @@ import { HttpMethod } from "@/types";
 
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function categoryTranslate(
+export default async function postTranslate(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
@@ -19,13 +19,13 @@ export default async function categoryTranslate(
 
   switch (req.method) {
     case HttpMethod.GET:
-      return getCategoryTranslations(req, res, session);
+      return getPostTranslations(req, res, session);
     case HttpMethod.POST:
-      return createCategoryTranslation(req, res, session);
+      return createPostTranslation(req, res, session);
     // case HttpMethod.DELETE:
-    // 	return deleteCategory(req, res, session);
+    // 	return deletePost(req, res, session);
     case HttpMethod.PUT:
-      return translateCategory(req, res, session);
+      return translatePost(req, res, session);
     default:
       res.setHeader("Allow", [
         HttpMethod.GET,

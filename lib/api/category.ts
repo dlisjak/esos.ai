@@ -52,6 +52,7 @@ export async function getCategory(
           translations: true,
           posts: {
             include: {
+              image: true,
               category: true,
             },
             orderBy: [
@@ -310,9 +311,9 @@ export async function updateCategory(
 }
 
 /**
- * Create Translation
+ * Get Category Translation
  *
- * Create a translation
+ * Get a category translation
  * query parameters. These include the following:
  *  - id
  *  - title
@@ -350,9 +351,9 @@ export async function getCategoryTranslations(
 }
 
 /**
- * Create Translation
+ * Create Category Translation
  *
- * Create a translation
+ * Create category a translation
  * query parameters. These include the following:
  *  - id
  *  - title
@@ -362,7 +363,7 @@ export async function getCategoryTranslations(
  * @param req - Next.js API Request
  * @param res - Next.js API Response
  */
-export async function createTranslation(
+export async function createCategoryTranslation(
   req: NextApiRequest,
   res: NextApiResponse,
   session: Session
@@ -399,6 +400,7 @@ export async function createTranslation(
     return res.status(500).end(error);
   }
 }
+
 /**
  * Translate Category
  *

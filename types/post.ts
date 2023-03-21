@@ -1,4 +1,4 @@
-import { Category, Image, Post, Site } from "@prisma/client";
+import { Category, Image, Post, PostTranslation, Site } from "@prisma/client";
 
 export interface WithImagePost extends Post {
   image: Image | null;
@@ -6,13 +6,14 @@ export interface WithImagePost extends Post {
 
 export interface FeaturedPost extends Post {
   image: Image | null;
-  categgory: Category;
+  category: Category;
 }
 
 export interface WithSitePost extends Post {
   site: Site;
   category: Category;
   image: Image | null;
+  translations: PostTranslation[];
 }
 
 export interface GetAllPosts {

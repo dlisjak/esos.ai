@@ -45,23 +45,22 @@ export default function CategoryPage() {
   const [disabled, setDisabled] = useState(true);
   const [showTranslateModal, setShowTranslateModal] = useState(false);
 
-  const [selectedTranslationLang, setSelectedTranslationLang] = useState<
-    string | null
-  >(null);
-  const router = useRouter();
+  const { data: session } = useSession();
+  const sessionUser = session?.user?.name;
 
+  const router = useRouter();
   const { subdomain, categoryId } = router.query;
+  const { categories } = useCategories(subdomain);
   const { category, isLoading, mutateCategory } = useCategory(categoryId);
+
+  const { languages } = useSupportedLanguages();
   const { translations, mutateTranslations } =
     useCategoryTranslations(categoryId);
   const [selectedTranslation, setSelectedTranslation] =
     useState<CategoryTranslation | null>(null);
-  const { categories } = useCategories(subdomain);
-  const { languages } = useSupportedLanguages();
-
-  const { data: session } = useSession();
-
-  const sessionUser = session?.user?.name;
+  const [selectedTranslationLang, setSelectedTranslationLang] = useState<
+    string | null
+  >(null);
 
   const [data, setData] = useState<CategoryData>({
     id: "",
@@ -585,7 +584,7 @@ export default function CategoryPage() {
                 <button
                   type="button"
                   className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-400 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
-                  onClick={() => setShowDeleteModal(false)}
+                  onClick={() => setShowTranslateModal(false)}
                 >
                   CANCEL
                 </button>

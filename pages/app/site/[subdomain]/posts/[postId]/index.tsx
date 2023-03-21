@@ -12,11 +12,17 @@ import Container from "@/components/Layout/Container";
 import Header from "@/components/Layout/Header";
 
 import { HttpMethod } from "@/types";
-import { useCategories, usePost } from "@/lib/queries";
+import {
+  useCategories,
+  usePost,
+  usePostTranslations,
+  useSupportedLanguages,
+} from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import TextEditor from "@/components/TextEditor";
 import TitleEditor from "@/components/TitleEditor";
-import { Image as ImageType } from "@prisma/client";
+import { Image as ImageType, PostTranslation } from "@prisma/client";
+import Modal from "@/components/Modal";
 
 interface PostData {
   title: string;
@@ -33,10 +39,20 @@ export default function Post() {
   const { FileInput, uploadToS3 } = useS3Upload();
   const [publishing, setPublishing] = useState(false);
   const [disabled, setDisabled] = useState(true);
-  const router = useRouter();
+  const [translatingPost, setTranslatingPost] = useState(false);
 
+  const router = useRouter();
   const { subdomain, postId } = router.query;
 
+  const [showTranslateModal, setShowTranslateModal] = useState(false);
+  const { translations, mutateTranslations } = usePostTranslations(postId);
+  const [selectedTranslation, setSelectedTranslation] =
+    useState<PostTranslation | null>(null);
+  const [selectedTranslationLang, setSelectedTranslationLang] = useState<
+    string | null
+  >(null);
+
+  const { languages } = useSupportedLanguages();
   const { data: session } = useSession();
   const sessionUser = session?.user?.name;
 
@@ -53,7 +69,7 @@ export default function Post() {
   });
 
   useEffect(() => {
-    if (post)
+    if (post) {
       setData({
         title: post.title ?? "",
         slug: post.slug ?? "",
@@ -61,6 +77,8 @@ export default function Post() {
         categoryId: post.categoryId ?? "",
         image: post.image ?? { id: "", src: "", alt: "" },
       });
+      setSelectedTranslation(post?.translations[0] ?? null);
+    }
   }, [post]);
 
   useEffect(() => {
@@ -74,6 +92,22 @@ export default function Post() {
       setDisabled(false);
     else setDisabled(true);
   }, [publishing, data]);
+
+  useEffect(() => {
+    if (!selectedTranslation) {
+      return setData({
+        ...data,
+        title: post?.title || "",
+        content: post?.content || "",
+      });
+    }
+
+    setData({
+      ...data,
+      title: selectedTranslation?.title || "",
+      content: selectedTranslation?.content || "",
+    });
+  }, [selectedTranslation]);
 
   const uploadImage = async (file: any, alt: any) => {
     const path = `${sessionUser}/${subdomain}`;
@@ -91,7 +125,38 @@ export default function Post() {
     return { src: url, alt };
   };
 
-  async function publish(published = true) {
+  async function publishTranslation() {
+    if (!selectedTranslation) {
+      return setPublishing(false);
+    }
+
+    const body: any = {
+      translationId: selectedTranslation.id,
+      title: data.title,
+      content: data.content,
+    };
+
+    try {
+      const response = await fetch(`/api/post/translate`, {
+        method: HttpMethod.PUT,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (response.ok) {
+        toast.success("Successfuly Published Translation!");
+        mutateTranslations();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  async function publish(published = true, redirect = false) {
     if (
       !postId ||
       !data.title ||
@@ -128,10 +193,14 @@ export default function Post() {
       });
 
       if (response.ok) {
+        toast.success("Successfuly Published Post!");
         mutatePost();
-        router.push(
-          `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}/site/${subdomain}/posts`
-        );
+
+        if (redirect) {
+          router.push(
+            `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}/site/${subdomain}/posts`
+          );
+        }
       }
     } catch (error) {
       console.error(error);
@@ -168,6 +237,55 @@ export default function Post() {
     });
   };
 
+  async function translatePost() {
+    setTranslatingPost(true);
+    await publishTranslation();
+
+    try {
+      const createTranslationResponse = await fetch(
+        `/api/post/translate?subdomain=${subdomain}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: HttpMethod.POST,
+          body: JSON.stringify({
+            lang: selectedTranslationLang,
+            postId,
+          }),
+        }
+      );
+
+      const translation = await createTranslationResponse.json();
+
+      const res = await fetch(`/api/post/translate?postId=${postId}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: HttpMethod.PUT,
+        body: JSON.stringify({
+          translationId: translation.id,
+          lang: translation.lang,
+          title: data?.title,
+          content: data?.content,
+        }),
+      });
+
+      if (res.ok) {
+        toast.success(`Translation Created`);
+        const body = await res.json();
+        setSelectedTranslation(body);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Creating Translation failed. Check if translation exists");
+    } finally {
+      setShowTranslateModal(false);
+      setTranslatingPost(false);
+      mutateTranslations();
+    }
+  }
+
   return (
     <Layout>
       <Header>
@@ -177,7 +295,30 @@ export default function Post() {
         <ContainerLoader />
       ) : (
         <>
-          <Container className="pb-24">
+          <Container className="pb-24" innerContainerClassNames="pt-0">
+            <div className="mb-8 flex w-full rounded border-x border-b">
+              <ul className="flex divide-x">
+                <button
+                  className="px-4"
+                  onClick={() => setShowTranslateModal(true)}
+                >
+                  +
+                </button>
+                {translations?.map((translation) => (
+                  <button
+                    className={`px-4 py-2 duration-200 hover:bg-gray-200 ${
+                      selectedTranslation?.lang === translation.lang
+                        ? "bg-gray-200"
+                        : ""
+                    }`}
+                    onClick={() => setSelectedTranslation(translation)}
+                    key={translation.lang}
+                  >
+                    {translation.lang}
+                  </button>
+                ))}
+              </ul>
+            </div>
             <TitleEditor
               value={data.title}
               setValue={handleSetTitle}
@@ -286,7 +427,7 @@ export default function Post() {
               </button>
               <button
                 onClick={async () => {
-                  await publish();
+                  await publish(true, false);
                 }}
                 title={
                   disabled
@@ -300,7 +441,25 @@ export default function Post() {
                     : "border-black bg-black hover:bg-white hover:text-black"
                 } mx-2 h-12 w-32 border-2 text-lg text-white transition-all duration-150 ease-in-out focus:outline-none`}
               >
-                {publishing ? <LoadingDots /> : "Publish  →"}
+                {publishing ? <LoadingDots /> : "Save"}
+              </button>
+              <button
+                onClick={async () => {
+                  await publish(true, true);
+                }}
+                title={
+                  disabled
+                    ? "Post must have a title, description, and content to be published."
+                    : "Publish"
+                }
+                disabled={disabled}
+                className={`${
+                  disabled
+                    ? "cursor-not-allowed border-gray-300 bg-gray-300"
+                    : "border-black bg-black hover:bg-white hover:text-black"
+                } mx-2 h-12 w-32 border-2 text-lg text-white transition-all duration-150 ease-in-out focus:outline-none`}
+              >
+                {publishing ? <LoadingDots /> : "Save & Exit →"}
               </button>
               <StatusIndicator
                 className="relative right-0"
@@ -308,6 +467,64 @@ export default function Post() {
               />{" "}
             </div>
           </footer>
+          <Modal
+            showModal={showTranslateModal}
+            setShowModal={setShowTranslateModal}
+          >
+            <form
+              onSubmit={async (event) => {
+                event.preventDefault();
+                await translatePost();
+              }}
+              className="inline-block w-full max-w-md overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+            >
+              <h2 className=" mb-6 text-2xl">Translate Post</h2>
+              <div className="mx-auto grid w-5/6 gap-y-4">
+                <p className="text-gray-left mb-3 text-start">
+                  Choose which languages you want to add:
+                </p>
+                <div className="flex-start flex items-center overflow-hidden rounded border">
+                  <select
+                    className="w-full"
+                    value={selectedTranslationLang || ""}
+                    onChange={(e) => {
+                      setSelectedTranslationLang(e.target.value);
+                    }}
+                  >
+                    <option value="" disabled>
+                      Select a Language
+                    </option>
+                    {languages?.map(({ name, language }) => (
+                      <option value={language} key={language}>
+                        {name} ({language})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="mt-10 flex w-full items-center justify-between">
+                <button
+                  type="button"
+                  className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-400 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
+                  onClick={() => setShowTranslateModal(false)}
+                >
+                  CANCEL
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={translatingPost}
+                  className={`${
+                    translatingPost
+                      ? "cursor-not-allowed bg-gray-50 text-gray-400"
+                      : "bg-white text-gray-600 hover:text-black"
+                  } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-0`}
+                >
+                  {translatingPost ? <LoadingDots /> : "TRANSLATE POST"}
+                </button>
+              </div>
+            </form>
+          </Modal>
         </>
       )}
     </Layout>

@@ -1,10 +1,11 @@
 import prisma from "@/lib/prisma";
 
 import { NextApiRequest, NextApiResponse } from "next";
-import type { Post } from "@prisma/client";
+import type { Post, PostTranslation } from "@prisma/client";
 import type { Session } from "next-auth";
 import { revalidate } from "@/lib/revalidate";
 import { WithSitePost } from "@/types/post";
+import translate from "deepl";
 
 /**
  * Get Post
@@ -47,6 +48,7 @@ export async function getPost(
           site: true,
           category: true,
           image: true,
+          translations: true,
         },
       });
 
@@ -73,6 +75,7 @@ export async function getPost(
         site: true,
         category: true,
         image: true,
+        translations: true,
       },
     });
 
@@ -123,6 +126,14 @@ export async function createPost(
       },
     });
 
+    await prisma.postTranslation.create({
+      data: {
+        lang: "EN",
+        postId: response.id,
+        title,
+      },
+    });
+
     return res.status(201).json({
       postId: response.id,
     });
@@ -155,6 +166,12 @@ export async function deletePost(
   }
 
   try {
+    await prisma.postTranslation.deleteMany({
+      where: {
+        postId,
+      },
+    });
+
     const response = await prisma.post.delete({
       where: {
         id: postId,
@@ -311,6 +328,167 @@ export async function featurePost(
     });
 
     return res.status(200).json(post);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
+}
+
+/**
+ * Get Post Translation
+ *
+ * Gets a post translation
+ * query parameters. These include the following:
+ *  - id
+ *  - title
+ *  - content
+ *  - slug
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+export async function getPostTranslations(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+): Promise<void | NextApiResponse<PostTranslation[]>> {
+  const { postId } = req.query;
+
+  if (!postId || typeof postId !== "string" || !session?.user?.id) {
+    return res
+      .status(400)
+      .json({ error: "Missing or misconfigured postId or session ID" });
+  }
+
+  try {
+    const translations = await prisma.postTranslation.findMany({
+      where: {
+        postId,
+      },
+    });
+
+    return res.status(200).json(translations);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
+}
+
+/**
+ * Create Post Translation
+ *
+ * Create a post translation
+ * query parameters. These include the following:
+ *  - id
+ *  - title
+ *  - content
+ *  - slug
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+export async function createPostTranslation(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+): Promise<void | NextApiResponse<PostTranslation>> {
+  const { subdomain } = req.query;
+  const { lang, postId } = req.body;
+
+  if (!subdomain || typeof subdomain !== "string" || !session?.user?.id) {
+    return res
+      .status(400)
+      .json({ error: "Missing or misconfigured subdomain or session ID" });
+  }
+
+  try {
+    const exists = await prisma.postTranslation.findFirst({
+      where: {
+        lang,
+        postId,
+      },
+    });
+
+    if (exists) return res.status(200).json(exists);
+
+    const translation = await prisma.postTranslation.create({
+      data: {
+        lang,
+        postId,
+      },
+    });
+
+    return res.status(200).json(translation);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
+}
+
+/**
+ * Translate Post
+ *
+ * Fetches & returns either a single or all languages available depending on
+ * DeepL integration
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+
+export async function translatePost(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+): Promise<void | NextApiResponse<PostTranslation | null>> {
+  const { postId } = req.query;
+  const { translationId, lang, title = "", content = "" } = req.body;
+
+  if (!session.user.id || !translationId)
+    return res.status(400).end("Bad request. User not validated.");
+
+  try {
+    if (!postId) {
+      const translation = await prisma.postTranslation.update({
+        where: {
+          id: translationId,
+        },
+        data: {
+          title,
+          content,
+        },
+      });
+
+      return res.status(200).json(translation);
+    } else {
+      const titleRes = await translate({
+        text: title,
+        target_lang: lang,
+        auth_key: process.env.DEEPL_AUTH_KEY || "",
+        free_api: false,
+      });
+
+      const contentRes = await translate({
+        text: content,
+        target_lang: lang,
+        auth_key: process.env.DEEPL_AUTH_KEY || "",
+        free_api: false,
+      });
+
+      const translatedTitle = titleRes.data.translations[0].text;
+      const translatedContent = contentRes.data.translations[0].text;
+
+      const translation = await prisma.postTranslation.update({
+        where: {
+          id: translationId,
+        },
+        data: {
+          title: translatedTitle,
+          content: translatedContent,
+        },
+      });
+
+      return res.status(200).json(translation);
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).end(error);
