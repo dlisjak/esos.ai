@@ -2,14 +2,19 @@ import { HttpMethod } from "@/types";
 import { Site } from "@prisma/client";
 
 export async function revalidate(site: Site, lang: string, category: any) {
-  const urlPaths = [
-    `/_sites/classic/${site.subdomain}/${lang}/${
-      category.parent
-        ? category.parent.slug + "/" + category.slug
-        : category.slug
-    }`,
-    `/_sites/${site.subdomain}`,
-  ];
+  const urlPaths = [`/_sites/${site.subdomain}`];
+
+  if (category) {
+    urlPaths.push(`/_sites/classic/${site.subdomain}/${lang}/${category.slug}`);
+
+    if (category.parent) {
+      urlPaths.push(
+        `/_sites/classic/${site.subdomain}/${lang}/${
+          category.parent.slug + "/" + category.slug
+        }`
+      );
+    }
+  }
 
   const hostname = site.customDomain
     ? `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site.customDomain}`
