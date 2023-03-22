@@ -5,6 +5,7 @@ import type { Post, PostTranslation } from "@prisma/client";
 import type { Session } from "next-auth";
 import { WithSitePost } from "@/types/post";
 import translate from "deepl";
+import { revalidate } from "../revalidate";
 
 /**
  * Get Post
@@ -210,23 +211,27 @@ export async function updatePost(
   res: NextApiResponse,
   session: Session
 ): Promise<void | NextApiResponse<Post>> {
-  const {
-    id,
-    title,
-    content,
-    categoryId,
-    slug,
-    image,
-    published,
-    subdomain,
-    customDomain,
-  } = req.body;
+  const { id, title, content, categoryId, slug, image, published } = req.body;
 
   if (!id || typeof id !== "string" || !categoryId || !session?.user?.id) {
     return res.status(400).json({
       error: "Missing or misconfigured post ID, CategoryId or session ID",
     });
   }
+
+  const site = await prisma.site.findFirst({
+    where: {
+      posts: {
+        some: {
+          id: id,
+        },
+      },
+      user: {
+        id: session.user.id,
+      },
+    },
+  });
+  if (!site) return res.status(404).end("Site not found");
 
   try {
     const data: any = {
@@ -261,6 +266,10 @@ export async function updatePost(
         },
       },
     });
+
+    if (post) {
+      await revalidate(site, "en", post.category, post);
+    }
 
     return res.status(200).json(post);
   } catch (error) {
