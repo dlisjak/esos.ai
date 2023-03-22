@@ -40,9 +40,6 @@ export async function revalidate(
     ? `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site.customDomain}`
     : `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
 
-  console.log({ hostname });
-  console.log({ urlPaths });
-
   // refer to https://solutions-on-demand-isr.vercel.app/ for more info on bulk/batch revalidate
   try {
     await Promise.all(
