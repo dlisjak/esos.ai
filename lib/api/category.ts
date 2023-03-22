@@ -286,12 +286,17 @@ export async function updateCategory(
       },
       data,
       include: {
+        translations: true,
         parent: true,
       },
     });
 
     if (category) {
-      await revalidate(site, "en", category);
+      await Promise.all(
+        category.translations.map((translation) =>
+          revalidate(site, translation.lang, category)
+        )
+      );
     }
 
     return res.status(200).json(category);
