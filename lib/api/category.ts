@@ -285,9 +285,14 @@ export async function updateCategory(
         id: id,
       },
       data,
+      include: {
+        parent: true,
+      },
     });
 
-    await revalidate(site, "en", category);
+    if (category) {
+      await revalidate(site, "en", category);
+    }
 
     return res.status(200).json(category);
   } catch (error) {

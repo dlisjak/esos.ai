@@ -1,18 +1,19 @@
 import { HttpMethod } from "@/types";
-import { Category, Site } from "@prisma/client";
+import { Site } from "@prisma/client";
 
-export async function revalidate(site: Site, lang: string, category: Category) {
+export async function revalidate(site: Site, lang: string, category: any) {
   const urlPaths = [
-    `/_sites/classic/${site.subdomain}/${lang}/${category.slug}`,
+    `/_sites/classic/${site.subdomain}/${lang}/${
+      category.parent
+        ? category.parent.slug + "/" + category.slug
+        : category.slug
+    }`,
     `/_sites/${site.subdomain}`,
   ];
 
   const hostname = site.customDomain
     ? `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site.customDomain}`
     : `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site.subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
-
-  console.log({ urlPaths });
-  console.log({ hostname });
 
   // refer to https://solutions-on-demand-isr.vercel.app/ for more info on bulk/batch revalidate
   try {
