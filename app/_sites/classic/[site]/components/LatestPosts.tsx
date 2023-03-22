@@ -1,7 +1,9 @@
-import { toDateString } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+
 import CategoryBubble from "./CategoryBubble";
+
+import { toDateString } from "@/lib/utils";
 
 const LatestPosts = ({ posts, user, dict }: any) => {
   return (
@@ -13,12 +15,12 @@ const LatestPosts = ({ posts, user, dict }: any) => {
         {posts.map((post: any) => (
           <div className="col-span-1" key={post.slug}>
             <Link
+              className="relative flex aspect-square"
               href={`${
                 post.category?.parent?.slug
                   ? "/" + post.category?.parent?.slug
                   : ""
               }/${post.category?.slug}/${post.slug}`}
-              className="relative flex aspect-square"
             >
               <Image
                 alt={post.image?.alt ?? ""}

@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import Loader from "@/components/Loader";
 import Navigation from "@/components/Sites/Navbar";
 import CategoryLayout from "../../components/CategoryLayout";
+import Footer from "../../components/Footer";
 
 export const dynamicParams = true;
 
@@ -153,6 +154,7 @@ export default async function Category({ params }: any) {
           user={data.user}
         />
       </div>
+      <Footer site={data} />
     </>
   );
 }
