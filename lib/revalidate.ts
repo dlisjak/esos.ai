@@ -7,7 +7,10 @@ export async function revalidate(
   category: any,
   post: any = null
 ) {
-  const urlPaths = [`/_sites/${site.subdomain}/${lang}`];
+  const urlPaths = [
+    `/_sites/classic/${site.subdomain}/${lang}`,
+    `/_sites/classic/${site.subdomain}`,
+  ];
 
   if (post) {
     if (category) {
@@ -35,8 +38,6 @@ export async function revalidate(
       );
     }
   }
-
-  console.log({ urlPaths });
 
   const hostname = site.customDomain
     ? `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${site.customDomain}`
