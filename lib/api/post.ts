@@ -259,6 +259,7 @@ export async function updatePost(
       },
       data,
       include: {
+        translations: true,
         category: {
           include: {
             parent: true,
@@ -268,7 +269,16 @@ export async function updatePost(
     });
 
     if (post) {
-      await revalidate(site, "en", post.category, post);
+      await Promise.all(
+        post.translations.map((translation) =>
+          revalidate(
+            site,
+            translation.lang.toLocaleLowerCase(),
+            post.category,
+            post
+          )
+        )
+      );
     }
 
     return res.status(200).json(post);
