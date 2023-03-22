@@ -7,7 +7,7 @@ export async function revalidate(
   category: any,
   post: any = null
 ) {
-  const urlPaths = [`/_sites/${site.subdomain}`];
+  const urlPaths = [`/_sites/${site.subdomain}/${lang}`];
 
   if (post) {
     if (category) {

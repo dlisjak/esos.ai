@@ -292,7 +292,6 @@ export async function updateCategory(
     });
 
     if (category) {
-      console.log({ category });
       await Promise.all(
         category.translations.map((translation) =>
           revalidate(site, translation.lang.toLocaleLowerCase(), category)
