@@ -17,7 +17,7 @@ export async function revalidate(
       if (category.parent) {
         urlPaths.push(
           `/_sites/classic/${site.subdomain}/${lang}/${
-            category.parent.slug + "/" + category.slug + post.slug
+            category.parent.slug + "/" + category.slug + "/" + post.slug
           }`
         );
       }
