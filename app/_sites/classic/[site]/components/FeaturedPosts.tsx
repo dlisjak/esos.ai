@@ -1,6 +1,12 @@
 import PostCard from "./PostCard";
 
-const FeaturedPosts = ({ featuredPosts, dict }: any) => {
+interface FeaturedPostsProps {
+  featuredPosts: any;
+  dict: any;
+  lang: string;
+}
+
+const FeaturedPosts = ({ featuredPosts, dict, lang }: FeaturedPostsProps) => {
   return (
     <div className="flex w-full flex-col">
       <h2 className="mx-2 my-4 text-3xl font-bold hover:underline md:text-4xl xl:mx-0">
@@ -15,6 +21,7 @@ const FeaturedPosts = ({ featuredPosts, dict }: any) => {
                 : "col-span-1 lg:col-span-2 lg:row-span-3"
             }`}
             post={post}
+            lang={lang}
             key={post.slug}
           />
         ))}
