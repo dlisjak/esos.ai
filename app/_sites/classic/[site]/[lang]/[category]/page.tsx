@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma";
 
 import Loader from "@/components/Loader";
 import CategoryLayout from "../../components/CategoryLayout";
-import Footer from "../../components/Footer";
 import { notFound } from "next/navigation";
 
 export const dynamicParams = true;

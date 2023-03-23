@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma";
 
 import type { _SiteData } from "@/types";
-import Loader from "@/components/app/Loader";
 import FeaturedPosts from "../components/FeaturedPosts";
 import LatestPosts from "../components/LatestPosts";
 import { getDictionary } from "app/dictionaries";
