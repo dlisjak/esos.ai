@@ -10,7 +10,11 @@ interface LinkProps {
 }
 
 const Link = ({ className = "", href, children }: LinkProps) => {
-  const lang = usePathname()?.substring(0, 3);
+  let lang = "en";
+
+  if (typeof window !== "undefined") {
+    lang = document?.querySelector("html")?.lang || "en";
+  }
 
   return (
     <NextLink href={`${lang}${href}`} className={className}>
