@@ -38,22 +38,24 @@ const Navigation = ({ categories, site, lang }: NavigationProps) => {
                 >
                   <span>{title}</span>
                 </Link>
-                <ul className="series-dropdown solid absolute top-8 divide-y border bg-white">
-                  {children?.map((child: any) => (
-                    <li
-                      className={`mx-2 border-b lg:border-0`}
-                      key={child.slug}
-                    >
-                      <Link
-                        lang={lang}
-                        href={`/${slug}/${child.slug}`}
-                        className="flex justify-start rounded p-2 hover:underline"
+                {children && (
+                  <ul className="series-dropdown solid absolute top-8 divide-y border bg-white">
+                    {children?.map((child: any) => (
+                      <li
+                        className={`mx-2 border-b lg:border-0`}
+                        key={child.slug}
                       >
-                        {child.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                        <Link
+                          lang={lang}
+                          href={`/${slug}/${child.slug}`}
+                          className="flex justify-start rounded p-2 hover:underline"
+                        >
+                          {child.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
         </ul>
