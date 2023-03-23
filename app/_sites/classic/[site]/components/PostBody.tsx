@@ -4,7 +4,14 @@ import CategoryBubble from "./CategoryBubble";
 import RelatedPosts from "./RelatedPosts";
 import { md } from "@/lib/md";
 
-const PostBody = ({ post, translation, user }: any) => {
+interface PostBodyProps {
+  post: any;
+  translations: any;
+  user?: any;
+  lang: string;
+}
+
+const PostBody = ({ post, translation, user, lang }: any) => {
   const firstHeadline = translation.indexOf("##");
   const mdExcerpt = translation.substring(0, firstHeadline);
   const mdElse = translation.substring(firstHeadline - 2);
@@ -44,6 +51,7 @@ const PostBody = ({ post, translation, user }: any) => {
                     ? "/" + post.category?.parent?.slug
                     : ""
                 }/${post.category?.slug}`}
+                lang={lang}
                 title={post.category.title}
               />
               <div className="flex items-center justify-start space-x-2 xl:space-x-4">
