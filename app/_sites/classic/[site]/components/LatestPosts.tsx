@@ -1,11 +1,11 @@
 import Image from "next/image";
-import Link from "next/link";
 
 import CategoryBubble from "./CategoryBubble";
 
 import { toDateString } from "@/lib/utils";
+import Link from "./Link";
 
-const LatestPosts = ({ posts, user, dict }: any) => {
+const LatestPosts = ({ posts, user, dict, lang }: any) => {
   return (
     <div className="flex w-full flex-col">
       <h2 className="mx-2 my-4 text-3xl font-bold hover:underline md:text-4xl xl:mx-0">

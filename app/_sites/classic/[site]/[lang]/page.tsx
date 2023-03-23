@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 
 import type { _SiteData } from "@/types";
 import Loader from "@/components/app/Loader";
-import Navigation from "@/components/Sites/Navbar";
+import Navigation from "../components/Navbar";
 import FeaturedPosts from "../components/FeaturedPosts";
 import LatestPosts from "../components/LatestPosts";
 import { getDictionary } from "app/dictionaries";
@@ -156,21 +156,20 @@ const getData = async (site: any) => {
 };
 
 export default async function Index({ params: { lang, site } }: any) {
-  const dict = await getDictionary(lang);
   const { featuredPosts, latestPosts, data } = await getData(site);
+  const dict = getDictionary(lang);
 
-  if (!data) return <Loader />;
+  if (!data || !data.categories) return <Loader />;
 
   return (
     <>
-      <Navigation categories={data.categories} title={data.name} />
+      <Navigation
+        categories={data.categories}
+        title={data.name || "Category"}
+      />
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
         {featuredPosts && featuredPosts.length > 0 && (
-          <FeaturedPosts
-            featuredPosts={featuredPosts}
-            user={data.user}
-            dict={dict}
-          />
+          <FeaturedPosts featuredPosts={featuredPosts} user={data.user} />
         )}
         {latestPosts && latestPosts.length > 0 && (
           <LatestPosts posts={latestPosts} user={data.user} dict={dict} />

@@ -1,13 +1,13 @@
 import { toDateString } from "@/lib/utils";
 import Image from "next/image";
-import Link from "next/link";
 import CategoryBubble from "./CategoryBubble";
+import Link from "./Link";
 
 const PostCard = ({ className = "", post, user, h3 = false }: any) => {
   return (
     <div className={className}>
       <Link
-        href={`${
+        href={`/${
           post.category?.parent?.slug ? "/" + post.category?.parent?.slug : ""
         }/${post.category?.slug}/${post.slug}`}
       >

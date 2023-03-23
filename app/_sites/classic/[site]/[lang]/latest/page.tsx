@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 
 import type { _SiteData } from "@/types";
 import Loader from "@/components/app/Loader";
-import Navigation from "@/components/Sites/Navbar";
+import Navigation from "../../components/Navbar";
 import LatestPosts from "../../components/LatestPosts";
 import { getDictionary } from "app/dictionaries";
 
@@ -122,7 +122,7 @@ export default async function Index({ params: { lang, site } }: any) {
 
   return (
     <>
-      <Navigation categories={data.categories} title={data.name} />
+      <Navigation categories={data.categories} title={data.name || "Latest"} />
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
         {latestPosts && (
           <LatestPosts posts={latestPosts} user={data.user} dict={dict} />

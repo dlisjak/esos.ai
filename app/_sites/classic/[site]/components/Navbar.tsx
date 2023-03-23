@@ -1,9 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import Link from "./Link";
 
-const Navigation = ({ categories, title }: any) => {
+interface NavbarProps {
+  categories?: any;
+  title: string;
+}
+
+const Navigation = ({ categories, title }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (

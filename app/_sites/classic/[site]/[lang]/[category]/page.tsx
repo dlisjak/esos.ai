@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 
 import Loader from "@/components/Loader";
-import Navigation from "@/components/Sites/Navbar";
+import Navigation from "../../components/Navbar";
 import CategoryLayout from "../../components/CategoryLayout";
 import Footer from "../../components/Footer";
 
@@ -118,7 +118,11 @@ const getData = async (site: string, categorySlug: string, lang: string) => {
               content: true,
               createdAt: true,
               category: {
-                select: { slug: true, title: true },
+                select: {
+                  slug: true,
+                  title: true,
+                  translations: { where: { lang } },
+                },
               },
             },
           },
@@ -129,27 +133,25 @@ const getData = async (site: string, categorySlug: string, lang: string) => {
 
   return {
     data,
-    category: category?.categories[0],
+    categoryData: category?.categories[0],
   };
 };
 
-export default async function Category({ params }: any) {
-  const { category, data } = await getData(
-    params.site,
-    params.category,
-    params.lang
-  );
+export default async function Category({
+  params: { site, category, lang },
+}: any) {
+  const { categoryData, data } = await getData(site, category, lang);
 
-  if (!data || !category) return <Loader />;
+  if (!data || !categoryData) return <Loader />;
 
-  const translation = category.translations[0]?.content || "";
+  const translation = categoryData?.translations[0]?.content || "";
 
   return (
     <>
-      <Navigation categories={data.categories} title={data.name} />
+      <Navigation categories={data.categories} title={data.name || ""} />
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
         <CategoryLayout
-          category={category}
+          category={categoryData}
           translation={translation}
           user={data.user}
         />

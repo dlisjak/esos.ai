@@ -1,10 +1,10 @@
 import prisma from "@/lib/prisma";
 
 import Loader from "@/components/Loader";
-import Navigation from "@/components/Sites/Navbar";
-import PostBody from "app/_sites/classic/[site]/components/PostBody";
-import CategoryLayout from "app/_sites/classic/[site]/components/CategoryLayout";
-import Footer from "app/_sites/classic/[site]/components/Footer";
+import Navigation from "../../../components/Navbar";
+import PostBody from "../../../components/PostBody";
+import CategoryLayout from "../../../components/CategoryLayout";
+import Footer from "../../../components/Footer";
 
 export const dynamicParams = true;
 
@@ -193,8 +193,8 @@ const getData = async (site: string, slugObj: string, lang: string) => {
   };
 };
 
-export default async function Category({ params }: any) {
-  const response = await getData(params.site, params.slug, params.lang);
+export default async function Category({ params: { site, slug, lang } }: any) {
+  const response = await getData(site, slug, lang);
   const { data, post, category } = response;
 
   if (!data) return <Loader />;
@@ -204,7 +204,7 @@ export default async function Category({ params }: any) {
 
   return (
     <>
-      <Navigation categories={data.categories} title={data.name} />
+      <Navigation categories={data.categories} title={data.name || ""} />
       {post && (
         <PostBody post={post} translation={translation} user={data.user} />
       )}

@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "./Link";
 
-const Categories = ({ category, posts }: any) => {
+const Categories = ({ category, posts, lang }: any) => {
   return (
     <div className="my-8 flex w-full flex-col">
       <h2 className="my-2 text-3xl font-bold hover:underline md:text-4xl">

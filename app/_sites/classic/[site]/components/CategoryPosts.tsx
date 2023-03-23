@@ -1,9 +1,9 @@
 import { toDateString } from "@/lib/utils";
 import Image from "next/image";
-import Link from "next/link";
 import CategoryBubble from "./CategoryBubble";
+import Link from "./Link";
 
-const CategoryPosts = ({ posts, user }: any) => {
+const CategoryPosts = ({ posts, user, lang }: any) => {
   return posts.map((post: any) => (
     <div className="col-span-1" key={post.slug}>
       <Link

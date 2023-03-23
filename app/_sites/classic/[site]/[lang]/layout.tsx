@@ -10,13 +10,13 @@ export async function generateStaticParams() {
 
 export default function RootLayout({
   children,
-  params,
+  params: { lang },
 }: {
   children: React.ReactNode;
   params: LangObject;
 }) {
   return (
-    <html lang={params.lang}>
+    <html lang={lang}>
       <body>{children}</body>
     </html>
   );

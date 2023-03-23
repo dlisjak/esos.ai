@@ -4,7 +4,7 @@ import { toDateString } from "@/lib/utils";
 import CategoryBubble from "./CategoryBubble";
 import RelatedPosts from "./RelatedPosts";
 
-const PostBody = ({ post, translation, user }: any) => {
+const PostBody = ({ post, translation, user, lang }: any) => {
   const md = new MarkdownIt({
     linkify: true,
     typographer: true,
