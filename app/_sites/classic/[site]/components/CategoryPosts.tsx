@@ -3,7 +3,13 @@ import Image from "next/image";
 import CategoryBubble from "./CategoryBubble";
 import Link from "./Link";
 
-const CategoryPosts = ({ posts, user, lang }: any) => {
+interface CategoryPostsProps {
+  posts: any;
+  user?: any;
+  lang: string;
+}
+
+const CategoryPosts = ({ posts, user, lang }: CategoryPostsProps) => {
   return posts.map((post: any) => (
     <div className="col-span-1" key={post.slug}>
       <Link

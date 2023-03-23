@@ -3,7 +3,19 @@ import MarkdownIt from "markdown-it";
 
 import CategoryPosts from "./CategoryPosts";
 
-const CategoryLayout = ({ category, translation, user }: any) => {
+interface CategoryLayoutProps {
+  category: any;
+  translation: any;
+  user?: any;
+  lang: string;
+}
+
+const CategoryLayout = ({
+  category,
+  translation,
+  user,
+  lang,
+}: CategoryLayoutProps) => {
   const md = new MarkdownIt({
     linkify: true,
     typographer: true,
@@ -33,7 +45,7 @@ const CategoryLayout = ({ category, translation, user }: any) => {
           priority
         />
       </div>
-      <CategoryPosts posts={category?.posts} user={user} />
+      <CategoryPosts posts={category?.posts} user={user} lang={lang} />
     </div>
   );
 };

@@ -206,13 +206,19 @@ export default async function Category({ params: { site, slug, lang } }: any) {
   return (
     <>
       {post && (
-        <PostBody post={post} translation={translation} user={data.user} />
+        <PostBody
+          post={post}
+          translation={translation}
+          user={data.user}
+          lang={lang}
+        />
       )}
       {category && (
         <div className="container mx-auto mb-20 w-full max-w-screen-xl">
           <CategoryLayout
             category={category}
             translation={translation}
+            lang={lang}
             user={data.user}
           />
         </div>
