@@ -1,6 +1,12 @@
 import PostCard from "./PostCard";
 
-const RelatedPosts = ({ post, user }: any) => {
+interface RelatedPostsProps {
+  post: any;
+  user?: any;
+  lang: string;
+}
+
+const RelatedPosts = ({ post, user, lang }: RelatedPostsProps) => {
   return (
     <div className="mt-8 bg-gray-100 py-8">
       <div className="container mx-auto mb-4 w-full max-w-screen-xl">
@@ -9,7 +15,7 @@ const RelatedPosts = ({ post, user }: any) => {
         </h2>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {post.category.posts.map((post: any) => (
-            <PostCard post={post} user={user} h3 key={post.slug} />
+            <PostCard post={post} user={user} lang={lang} h3 key={post.slug} />
           ))}
         </div>
       </div>

@@ -6,12 +6,12 @@ import { md } from "@/lib/md";
 
 interface PostBodyProps {
   post: any;
-  translations: any;
+  translation: any;
   user?: any;
   lang: string;
 }
 
-const PostBody = ({ post, translation, user, lang }: any) => {
+const PostBody = ({ post, translation, user, lang }: PostBodyProps) => {
   const firstHeadline = translation.indexOf("##");
   const mdExcerpt = translation.substring(0, firstHeadline);
   const mdElse = translation.substring(firstHeadline - 2);
@@ -79,7 +79,7 @@ const PostBody = ({ post, translation, user, lang }: any) => {
         </div>
       </div>
       {post.category.posts.length > 0 && (
-        <RelatedPosts post={post} user={user} />
+        <RelatedPosts post={post} user={user} lang={lang} />
       )}
     </div>
   );
