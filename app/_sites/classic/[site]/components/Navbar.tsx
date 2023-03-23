@@ -38,7 +38,7 @@ const Navigation = ({ categories, site, lang }: NavigationProps) => {
                 >
                   <span>{title}</span>
                 </Link>
-                {children && (
+                {children && children.length > 0 && (
                   <ul className="series-dropdown solid absolute top-8 divide-y border bg-white">
                     {children?.map((child: any) => (
                       <li

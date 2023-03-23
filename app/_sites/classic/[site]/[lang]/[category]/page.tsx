@@ -1,6 +1,5 @@
 import prisma from "@/lib/prisma";
 
-import Loader from "@/components/Loader";
 import CategoryLayout from "../../components/CategoryLayout";
 import { notFound } from "next/navigation";
 
@@ -20,56 +19,48 @@ const getData = async (site: string, categorySlug: string, lang: string) => {
     };
   }
 
-  const data = await prisma.site.findUnique({
-    where: filter,
-    include: {
-      user: true,
-      categories: {
-        select: {
-          title: true,
-          slug: true,
-          children: {
-            select: {
-              title: true,
-              slug: true,
-            },
-          },
-        },
-        where: {
-          parentId: null,
+  const category = await prisma.category.findFirst({
+    where: {
+      site: filter,
+      slug: categorySlug,
+      translations: {
+        some: {
+          lang,
         },
       },
     },
-  });
-
-  const category = await prisma.site.findUnique({
-    where: filter,
-    include: {
-      categories: {
+    select: {
+      title: true,
+      content: true,
+      slug: true,
+      image: true,
+      translations: {
         where: {
-          slug: categorySlug,
+          lang,
         },
+        select: {
+          title: true,
+          content: true,
+        },
+      },
+      posts: {
         select: {
           title: true,
           slug: true,
           image: true,
+          content: true,
           translations: {
-            where: {
-              lang,
-            },
+            where: { lang },
           },
-          posts: {
+          createdAt: true,
+          category: {
             select: {
-              title: true,
               slug: true,
-              image: true,
-              content: true,
-              createdAt: true,
-              category: {
+              title: true,
+              translations: { where: { lang } },
+              parent: {
                 select: {
                   slug: true,
-                  title: true,
-                  translations: { where: { lang } },
                 },
               },
             },
@@ -79,32 +70,34 @@ const getData = async (site: string, categorySlug: string, lang: string) => {
     },
   });
 
+  const categoryData = {
+    ...category,
+    title: category?.translations[0].title || category?.title,
+    content: category?.translations[0].content || category?.content,
+    posts: category?.posts.map((post) => ({
+      ...post,
+      title: post.translations[0].title || post.title,
+      content: post.translations[0].content || post.content,
+    })),
+  };
+
   return {
-    data,
-    categoryData: category?.categories[0],
+    categoryData,
   };
 };
 
 export default async function Category({
   params: { site, category, lang },
 }: any) {
-  const { categoryData, data } = await getData(site, category, lang);
+  const { categoryData } = await getData(site, category, lang);
 
-  if (!data) return <Loader />;
-
-  if (!categoryData) return notFound();
-
-  const translation = categoryData?.translations[0]?.content || "";
+  if (!categoryData || !categoryData.title || !categoryData.content)
+    return notFound();
 
   return (
     <>
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
-        <CategoryLayout
-          category={categoryData}
-          translation={translation}
-          lang={lang}
-          user={data.user}
-        />
+        <CategoryLayout category={categoryData} lang={lang} />
       </div>
     </>
   );

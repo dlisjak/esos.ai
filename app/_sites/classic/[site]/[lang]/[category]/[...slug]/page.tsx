@@ -1,63 +1,10 @@
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
-import Loader from "@/components/Loader";
 import PostBody from "../../../components/PostBody";
 import CategoryLayout from "../../../components/CategoryLayout";
 
 export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  const posts = await prisma.post.findMany({
-    where: {
-      published: true,
-    },
-    select: {
-      title: true,
-      slug: true,
-      image: true,
-      category: {
-        select: {
-          title: true,
-          slug: true,
-          parent: {
-            select: {
-              title: true,
-              slug: true,
-            },
-          },
-        },
-      },
-      site: {
-        select: {
-          subdomain: true,
-          customDomain: true,
-        },
-      },
-    },
-  });
-
-  const paths = posts.flatMap((post) => {
-    if (post.site === null || post.site.subdomain === null || !post.category)
-      return {};
-
-    if (post.site.customDomain) {
-      return {
-        site: post.site.customDomain,
-        category: post.category.parent?.slug || post.category.slug,
-        slug: [post.category.slug, post.slug],
-      };
-    } else {
-      return {
-        site: post.site.subdomain,
-        category: post.category.parent?.slug || post.category.slug,
-        slug: [post.category.slug, post.slug],
-      };
-    }
-  });
-
-  return paths;
-}
 
 const getData = async (site: string, slugObj: string, lang: string) => {
   let slug = slugObj[1];
@@ -78,33 +25,15 @@ const getData = async (site: string, slugObj: string, lang: string) => {
     };
   }
 
-  const data = await prisma.site.findUnique({
-    where: filter,
-    select: {
-      description: true,
-      user: true,
-      name: true,
-      categories: {
-        select: {
-          title: true,
-          slug: true,
-          children: {
-            select: {
-              title: true,
-              slug: true,
-            },
-          },
-        },
-        where: {
-          parentId: null,
-        },
-      },
-    },
-  });
-
   const post = await prisma.post.findFirst({
     where: {
-      slug: slug,
+      slug,
+      site: filter,
+      translations: {
+        some: {
+          lang,
+        },
+      },
     },
     select: {
       title: true,
@@ -121,6 +50,9 @@ const getData = async (site: string, slugObj: string, lang: string) => {
         select: {
           title: true,
           slug: true,
+          parent: {
+            select: { title: true, slug: true },
+          },
           posts: {
             where: {
               slug: {
@@ -141,26 +73,41 @@ const getData = async (site: string, slugObj: string, lang: string) => {
     },
   });
 
+  const postData = {
+    ...post,
+    title: post?.translations[0].title || post?.title,
+    content: post?.translations[0].content || post?.content,
+  };
+
   if (post) {
     return {
-      data,
-      post: {
-        ...post,
-      },
+      post: postData,
+      category: null,
     };
   }
 
   const category = await prisma.category.findFirst({
     where: {
-      slug: slug,
+      slug,
+      site: filter,
+      translations: {
+        some: {
+          lang,
+        },
+      },
     },
     select: {
       title: true,
+      content: true,
       slug: true,
       image: true,
       translations: {
         where: {
           lang,
+        },
+        select: {
+          title: true,
+          content: true,
         },
       },
       posts: {
@@ -168,12 +115,16 @@ const getData = async (site: string, slugObj: string, lang: string) => {
           title: true,
           slug: true,
           image: true,
-          createdAt: true,
           content: true,
+          translations: {
+            where: { lang },
+          },
+          createdAt: true,
           category: {
             select: {
-              title: true,
               slug: true,
+              title: true,
+              translations: { where: { lang } },
               parent: {
                 select: {
                   slug: true,
@@ -186,41 +137,35 @@ const getData = async (site: string, slugObj: string, lang: string) => {
     },
   });
 
+  const categoryData = {
+    ...category,
+    title: category?.translations[0].title || category?.title,
+    content: category?.translations[0].content || category?.content,
+    posts: category?.posts.map((post) => ({
+      ...post,
+      title: post.translations[0].title || post.title,
+      content: post.translations[0].content || post.content,
+    })),
+  };
+
   return {
-    data,
-    category,
+    post: null,
+    category: categoryData,
   };
 };
 
-export default async function Category({ params: { site, slug, lang } }: any) {
+export default async function Page({ params: { site, slug, lang } }: any) {
   const response = await getData(site, slug, lang);
-  const { data, post, category } = response;
-
-  if (!data) return <Loader />;
+  const { post, category } = response;
 
   if (!post && !category) return notFound();
 
-  const translation =
-    category?.translations[0]?.content || post?.translations[0]?.content || "";
-
   return (
     <>
-      {post && (
-        <PostBody
-          post={post}
-          translation={translation}
-          user={data.user}
-          lang={lang}
-        />
-      )}
+      {post && <PostBody post={post} lang={lang} />}
       {category && (
         <div className="container mx-auto mb-20 w-full max-w-screen-xl">
-          <CategoryLayout
-            category={category}
-            translation={translation}
-            lang={lang}
-            user={data.user}
-          />
+          <CategoryLayout category={category} lang={lang} />
         </div>
       )}
     </>

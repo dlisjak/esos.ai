@@ -6,15 +6,14 @@ import { md } from "@/lib/md";
 
 interface PostBodyProps {
   post: any;
-  translation: any;
   user?: any;
   lang: string;
 }
 
-const PostBody = ({ post, translation, user, lang }: PostBodyProps) => {
-  const firstHeadline = translation.indexOf("##");
-  const mdExcerpt = translation.substring(0, firstHeadline);
-  const mdElse = translation.substring(firstHeadline - 2);
+const PostBody = ({ post, user, lang }: PostBodyProps) => {
+  const firstHeadline = post.content.indexOf("##");
+  const mdExcerpt = post.content.substring(0, firstHeadline);
+  const mdElse = post.content.substring(firstHeadline - 2);
 
   return (
     <div className="flex flex-col">
