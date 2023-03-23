@@ -3,19 +3,22 @@
 import { useState } from "react";
 import Link from "./Link";
 
-interface NavbarProps {
-  categories?: any;
-  title: string;
+interface NavigationProps {
+  categories: any;
+  site: any;
+  lang: string;
 }
 
-const Navigation = ({ categories, title }: NavbarProps) => {
+const Navigation = ({ categories, site, lang }: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="navigation sticky top-0 left-0 right-0 z-50 bg-white p-4 drop-shadow">
       <div className="container-2xl container mx-auto flex items-center justify-between">
         <div className="mr-auto text-2xl">
-          <Link href="/">{title}</Link>
+          <Link href="/" lang={lang}>
+            {site}
+          </Link>
         </div>
         <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden">
           Menu
@@ -29,18 +32,20 @@ const Navigation = ({ categories, title }: NavbarProps) => {
             categories?.map(({ title, slug, children }: any) => (
               <li className="dropdown relative mx-2 sm:mx-4" key={slug}>
                 <Link
+                  lang={lang}
                   href={`/${slug}`}
                   className="flex justify-center rounded p-2 hover:underline"
                 >
                   <span>{title}</span>
                 </Link>
                 <ul className="series-dropdown solid absolute top-8 divide-y border bg-white">
-                  {children.map((child: any) => (
+                  {children?.map((child: any) => (
                     <li
                       className={`mx-2 border-b lg:border-0`}
                       key={child.slug}
                     >
                       <Link
+                        lang={lang}
                         href={`/${slug}/${child.slug}`}
                         className="flex justify-start rounded p-2 hover:underline"
                       >

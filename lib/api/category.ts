@@ -5,7 +5,6 @@ import prisma from "@/lib/prisma";
 import type { Category, CategoryTranslation } from ".prisma/client";
 import { WithAllCategory } from "@/types/category";
 import translate from "deepl";
-import { revalidate } from "../revalidate";
 
 /**
  * Get Category
@@ -219,14 +218,6 @@ export async function deleteCategory(
       },
     });
 
-    if (category) {
-      await Promise.all(
-        category.translations.map((translation) =>
-          revalidate(site, translation.lang.toLocaleLowerCase(), category)
-        )
-      );
-    }
-
     return res.status(200).end();
   } catch (error) {
     console.error(error);
@@ -308,14 +299,6 @@ export async function updateCategory(
         parent: true,
       },
     });
-
-    if (category) {
-      await Promise.all(
-        category.translations.map((translation) =>
-          revalidate(site, translation.lang.toLocaleLowerCase(), category)
-        )
-      );
-    }
 
     return res.status(200).json(category);
   } catch (error) {

@@ -10,6 +10,7 @@ const CategoryPosts = ({ posts, user, lang }: any) => {
         href={`${
           post.category?.parent?.slug ? "/" + post.category?.parent?.slug : ""
         }/${post.category?.slug}/${post.slug}`}
+        lang={lang}
         className="relative flex aspect-square"
       >
         <Image
@@ -28,6 +29,7 @@ const CategoryPosts = ({ posts, user, lang }: any) => {
                 ? "/" + post.category?.parent?.slug
                 : ""
             }/${post.category?.slug}`}
+            lang={lang}
             title={post.category.title}
           />
           <div className="flex w-full items-center justify-start space-x-2 xl:space-x-4">
@@ -55,6 +57,7 @@ const CategoryPosts = ({ posts, user, lang }: any) => {
           href={`${
             post.category?.parent?.slug ? "/" + post.category?.parent?.slug : ""
           }/${post.category?.slug}/${post.slug}`}
+          lang={lang}
         >
           <h3 className="my-2 text-2xl font-bold hover:underline md:text-3xl">
             {post.title}

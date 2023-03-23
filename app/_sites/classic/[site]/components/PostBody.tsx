@@ -1,28 +1,10 @@
 import Image from "next/image";
-import MarkdownIt from "markdown-it";
 import { toDateString } from "@/lib/utils";
 import CategoryBubble from "./CategoryBubble";
 import RelatedPosts from "./RelatedPosts";
+import { md } from "@/lib/md";
 
-const PostBody = ({ post, translation, user, lang }: any) => {
-  const md = new MarkdownIt({
-    linkify: true,
-    typographer: true,
-  })
-    .use(require("markdown-it-emoji"))
-    .use(require("markdown-it-sub"))
-    .use(require("markdown-it-sup"))
-    .use(require("markdown-it-footnote"))
-    .use(require("markdown-it-deflist"))
-    .use(require("markdown-it-abbr"))
-    .use(require("markdown-it-anchor"))
-    .use(require("markdown-it-table-of-contents"), {
-      slugify: true,
-      containerClass:
-        "inline-flex flex-col pr-4 w-auto bg-gray-100 border text-base",
-      containerHeaderHtml: `<div class="pl-4 pt-8 text-xl font-bold">Table of contents:</div>`,
-    });
-
+const PostBody = ({ post, translation, user }: any) => {
   const firstHeadline = translation.indexOf("##");
   const mdExcerpt = translation.substring(0, firstHeadline);
   const mdElse = translation.substring(firstHeadline - 2);

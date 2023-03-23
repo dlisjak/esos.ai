@@ -4,9 +4,9 @@ const Footer = ({ site }: any) => {
       <div className="mx-auto grid max-w-screen-xl grid-cols-4 gap-8">
         <div>
           <h3 className="mb-4 text-xl font-semibold md:text-2xl">
-            {site.name}
+            {site?.name}
           </h3>
-          <p>{site.description}</p>
+          <p>{site?.description}</p>
         </div>
         <div>
           <h3 className="mb-4 text-xl font-semibold md:text-2xl">Categories</h3>

@@ -2,12 +2,28 @@ import { toDateString } from "@/lib/utils";
 import Image from "next/image";
 import CategoryBubble from "./CategoryBubble";
 import Link from "./Link";
+// import { md } from "@/lib/md";
 
-const PostCard = ({ className = "", post, user, h3 = false }: any) => {
+interface PostCardProps {
+  className?: string;
+  post: any;
+  user?: any;
+  h3?: boolean;
+  lang: string;
+}
+
+const PostCard = ({
+  className = "",
+  post,
+  user,
+  lang,
+  h3 = false,
+}: PostCardProps) => {
   return (
     <div className={className}>
       <Link
-        href={`/${
+        lang={lang}
+        href={`${
           post.category?.parent?.slug ? "/" + post.category?.parent?.slug : ""
         }/${post.category?.slug}/${post.slug}`}
       >
@@ -29,6 +45,7 @@ const PostCard = ({ className = "", post, user, h3 = false }: any) => {
                 ? "/" + post.category?.parent?.slug
                 : ""
             }/${post.category?.slug}`}
+            lang={lang}
             title={post.category.title}
           />
           <div className="flex w-full items-center justify-start space-x-2 xl:space-x-4">
@@ -53,6 +70,7 @@ const PostCard = ({ className = "", post, user, h3 = false }: any) => {
           </div>
         </div>
         <Link
+          lang={lang}
           href={`${
             post.category?.parent?.slug ? "/" + post.category?.parent?.slug : ""
           }/${post.category?.slug}/${post.slug}`}

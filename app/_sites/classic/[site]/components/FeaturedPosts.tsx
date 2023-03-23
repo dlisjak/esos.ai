@@ -1,6 +1,6 @@
 import PostCard from "./PostCard";
 
-const FeaturedPosts = ({ featuredPosts, user, dict }: any) => {
+const FeaturedPosts = ({ featuredPosts, dict }: any) => {
   return (
     <div className="flex w-full flex-col">
       <h2 className="mx-2 my-4 text-3xl font-bold hover:underline md:text-4xl xl:mx-0">
@@ -15,7 +15,6 @@ const FeaturedPosts = ({ featuredPosts, user, dict }: any) => {
                 : "col-span-1 lg:col-span-2 lg:row-span-3"
             }`}
             post={post}
-            user={user}
             key={post.slug}
           />
         ))}

@@ -122,7 +122,6 @@ export default async function Index({ params: { lang, site } }: any) {
 
   return (
     <>
-      <Navigation categories={data.categories} title={data.name || "Latest"} />
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
         {latestPosts && (
           <LatestPosts posts={latestPosts} user={data.user} dict={dict} />

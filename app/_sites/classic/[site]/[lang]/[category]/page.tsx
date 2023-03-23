@@ -1,62 +1,11 @@
 import prisma from "@/lib/prisma";
 
 import Loader from "@/components/Loader";
-import Navigation from "../../components/Navbar";
 import CategoryLayout from "../../components/CategoryLayout";
 import Footer from "../../components/Footer";
+import { notFound } from "next/navigation";
 
 export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  const categories = await prisma.category.findMany({
-    where: {
-      parent: {
-        is: null,
-      },
-    },
-    select: {
-      title: true,
-      slug: true,
-      image: true,
-      posts: {
-        select: {
-          title: true,
-          slug: true,
-          category: {
-            select: {
-              title: true,
-              slug: true,
-            },
-          },
-        },
-      },
-      site: {
-        select: {
-          subdomain: true,
-          customDomain: true,
-        },
-      },
-    },
-  });
-
-  const paths = categories.flatMap((category) => {
-    if (category.site === null || category.site.subdomain === null) return {};
-
-    if (category.site.customDomain) {
-      return {
-        site: category.site.customDomain,
-        category: category.slug,
-      };
-    } else {
-      return {
-        site: category.site.subdomain,
-        category: category.slug,
-      };
-    }
-  });
-
-  return paths;
-}
 
 const getData = async (site: string, categorySlug: string, lang: string) => {
   let filter: {
@@ -142,13 +91,14 @@ export default async function Category({
 }: any) {
   const { categoryData, data } = await getData(site, category, lang);
 
-  if (!data || !categoryData) return <Loader />;
+  if (!data) return <Loader />;
+
+  if (!categoryData) return notFound();
 
   const translation = categoryData?.translations[0]?.content || "";
 
   return (
     <>
-      <Navigation categories={data.categories} title={data.name || ""} />
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
         <CategoryLayout
           category={categoryData}
@@ -156,7 +106,6 @@ export default async function Category({
           user={data.user}
         />
       </div>
-      <Footer site={data} />
     </>
   );
 }

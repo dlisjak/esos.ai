@@ -5,16 +5,26 @@ import CategoryBubble from "./CategoryBubble";
 import { toDateString } from "@/lib/utils";
 import Link from "./Link";
 
-const LatestPosts = ({ posts, user, dict, lang }: any) => {
+interface LatestPostsProps {
+  posts: any;
+  user?: any;
+  lang: string;
+  dict: any;
+}
+
+const LatestPosts = ({ posts, user, lang, dict }: LatestPostsProps) => {
   return (
     <div className="flex w-full flex-col">
       <h2 className="mx-2 my-4 text-3xl font-bold hover:underline md:text-4xl xl:mx-0">
-        <Link href="/latest">{dict.latestPosts}</Link>
+        <Link lang={lang} href="/latest">
+          {dict.latestPosts}
+        </Link>
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:gap-8">
         {posts.map((post: any) => (
           <div className="col-span-1" key={post.slug}>
             <Link
+              lang={lang}
               className="relative flex aspect-square"
               href={`${
                 post.category?.parent?.slug
@@ -38,6 +48,7 @@ const LatestPosts = ({ posts, user, dict, lang }: any) => {
                       ? "/" + post.category?.parent?.slug
                       : ""
                   }/${post.category?.slug}`}
+                  lang={lang}
                   title={post.category?.title}
                 />
                 <div className="flex w-full items-center justify-start space-x-2 xl:space-x-4">
@@ -62,6 +73,7 @@ const LatestPosts = ({ posts, user, dict, lang }: any) => {
                 </div>
               </div>
               <Link
+                lang={lang}
                 href={`${
                   post.category?.parent?.slug
                     ? "/" + post.category?.parent?.slug

@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { notFound } from "next/navigation";
 
 import Loader from "@/components/Loader";
 import Navigation from "../../../components/Navbar";
@@ -199,12 +200,13 @@ export default async function Category({ params: { site, slug, lang } }: any) {
 
   if (!data) return <Loader />;
 
+  if (!post && !category) return notFound();
+
   const translation =
     category?.translations[0]?.content || post?.translations[0]?.content || "";
 
   return (
     <>
-      <Navigation categories={data.categories} title={data.name || ""} />
       {post && (
         <PostBody post={post} translation={translation} user={data.user} />
       )}
@@ -217,7 +219,6 @@ export default async function Category({ params: { site, slug, lang } }: any) {
           />
         </div>
       )}
-      <Footer site={data} />
     </>
   );
 }

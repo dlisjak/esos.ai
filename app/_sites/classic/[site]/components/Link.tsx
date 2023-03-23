@@ -1,21 +1,16 @@
 "use client";
 
 import NextLink from "next/link";
-import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 interface LinkProps {
   className?: string;
   href: string;
+  lang: string;
   children: any;
 }
 
-const Link = ({ className = "", href, children }: LinkProps) => {
-  let lang = "en";
-
-  if (typeof window !== "undefined") {
-    lang = document?.querySelector("html")?.lang || "en";
-  }
-
+const Link = ({ className = "", href, lang, children }: LinkProps) => {
   return (
     <NextLink href={`${lang}${href}`} className={className}>
       {children}
