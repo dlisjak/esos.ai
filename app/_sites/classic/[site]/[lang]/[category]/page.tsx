@@ -102,6 +102,7 @@ export default async function Category({
         <CategoryLayout
           category={categoryData}
           translation={translation}
+          lang={lang}
           user={data.user}
         />
       </div>
