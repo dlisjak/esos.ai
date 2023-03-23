@@ -169,7 +169,11 @@ export default async function Index({ params: { lang, site } }: any) {
       />
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
         {featuredPosts && featuredPosts.length > 0 && (
-          <FeaturedPosts featuredPosts={featuredPosts} user={data.user} />
+          <FeaturedPosts
+            featuredPosts={featuredPosts}
+            user={data.user}
+            dict={dict}
+          />
         )}
         {latestPosts && latestPosts.length > 0 && (
           <LatestPosts posts={latestPosts} user={data.user} dict={dict} />

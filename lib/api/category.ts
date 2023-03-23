@@ -191,6 +191,18 @@ export async function deleteCategory(
       .json({ error: "Missing or misconfigured site ID or session ID" });
   }
 
+  const site = await prisma.site.findFirst({
+    where: {
+      categories: {
+        some: {
+          id: categoryId,
+        },
+      },
+    },
+  });
+
+  if (!site) return res.status(400).json({ error: "Cannot find site" });
+
   try {
     await prisma.categoryTranslation.deleteMany({
       where: {
@@ -198,16 +210,22 @@ export async function deleteCategory(
       },
     });
 
-    const response = await prisma.category.delete({
+    const category = await prisma.category.delete({
       where: {
         id: categoryId,
       },
       include: {
-        site: {
-          select: { subdomain: true, customDomain: true },
-        },
+        translations: true,
       },
     });
+
+    if (category) {
+      await Promise.all(
+        category.translations.map((translation) =>
+          revalidate(site, translation.lang.toLocaleLowerCase(), category)
+        )
+      );
+    }
 
     return res.status(200).end();
   } catch (error) {
