@@ -5,8 +5,6 @@ import FeaturedPosts from "../components/FeaturedPosts";
 import LatestPosts from "../components/LatestPosts";
 import { getDictionary } from "app/dictionaries";
 
-export const dynamicParams = true;
-
 const getData = async (site: string, lang: string) => {
   let filter: {
     subdomain?: string;

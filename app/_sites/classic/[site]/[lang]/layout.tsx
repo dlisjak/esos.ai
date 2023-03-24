@@ -10,9 +10,39 @@ import "../../../../../styles/sites.css";
 import { locales } from "../../../../dictionaries";
 
 export async function generateStaticParams() {
-  const sites = await prisma.site.findMany({});
+  const [subdomains, customDomains] = await Promise.all([
+    prisma.site.findMany({
+      select: {
+        subdomain: true,
+      },
+    }),
+    prisma.site.findMany({
+      where: {
+        NOT: {
+          customDomain: null,
+        },
+      },
+      select: {
+        customDomain: true,
+      },
+    }),
+  ]);
 
-  return locales;
+  const allPaths = [
+    ...subdomains.map(({ subdomain }) => subdomain),
+    ...customDomains.map(({ customDomain }) => customDomain),
+  ].filter((path) => path) as Array<string>;
+
+  const paths = allPaths
+    .map((path) => {
+      return locales.map((locale) => ({
+        site: path,
+        lang: locale.lang,
+      }));
+    })
+    .flat();
+
+  return paths;
 }
 
 const getData = async (site: string, lang: string) => {
@@ -71,7 +101,7 @@ export default async function RootLayout({
 }: any) {
   const { data, categories } = await getData(site, lang);
 
-  if (!data) return notFound();
+  if (!data || !categories.length) return notFound();
 
   return (
     <html lang={lang}>

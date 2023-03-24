@@ -103,7 +103,7 @@ const TextEditor = ({ value, setValue, dataId }) => {
         <p className="py-1 text-xs italic">Images can be added to content by dragging and dropping</p>
         <GrammarlyEditorPlugin clientId="client_BFSnu3qQymueAZTtFf7Sni">
           <MDEditor
-            height={480}
+            height={640}
             value={value || ""}
             onChange={setValue}
             textareaProps={{
