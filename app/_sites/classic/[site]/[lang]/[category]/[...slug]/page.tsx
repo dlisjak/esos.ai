@@ -134,6 +134,11 @@ const getData = async (site: string, slugObj: string, lang: string) => {
               slug: {
                 not: slug,
               },
+              translations: {
+                some: {
+                  lang,
+                },
+              },
             },
             select: {
               title: true,

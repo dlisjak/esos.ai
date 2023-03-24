@@ -1,13 +1,18 @@
-import prisma from "@/lib/prisma";
+import { notFound } from "next/navigation";
 
 import Navigation from "../components/Navbar";
 import Footer from "../components/Footer";
 
+import prisma from "@/lib/prisma";
+
 import "../../../../../styles/sites.css";
-import { notFound } from "next/navigation";
+
+import { locales } from "../../../../dictionaries";
 
 export async function generateStaticParams() {
-  return [{ lang: "en" }, { lang: "de" }, { lang: "nl" }];
+  const sites = await prisma.site.findMany({});
+
+  return locales;
 }
 
 const getData = async (site: string, lang: string) => {
@@ -42,6 +47,13 @@ const getData = async (site: string, lang: string) => {
       title: true,
       slug: true,
       children: {
+        where: {
+          translations: {
+            some: {
+              lang,
+            },
+          },
+        },
         select: {
           title: true,
           slug: true,

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { match as matchLocale } from "@formatjs/intl-localematcher";
 import Negotiator from "negotiator";
 
+import { locales } from "app/dictionaries";
+
 export const config = {
   matcher: [
     /*
@@ -15,8 +17,6 @@ export const config = {
   ],
 };
 
-const locales = ["en", "de", "nl"];
-
 function getLocale(request: NextRequest): string | undefined {
   // Negotiator expects plain object so we need to transform headers
   const negotiatorHeaders: Record<string, string> = {};
@@ -25,7 +25,11 @@ function getLocale(request: NextRequest): string | undefined {
   // Use negotiator and intl-localematcher to get best locale
   let languages = new Negotiator({ headers: negotiatorHeaders }).languages();
   // @ts-ignore locales are readonly
-  return matchLocale(languages, locales, "en");
+  return matchLocale(
+    languages,
+    [...locales.map((locale) => locale.lang)],
+    "en"
+  );
 }
 
 export default async function middleware(req: NextRequest) {
@@ -78,7 +82,8 @@ export default async function middleware(req: NextRequest) {
   }
 
   const pathnameIsMissingLocale = locales.every(
-    (locale) => !path.startsWith(`/${locale}/`) && path !== `/${locale}`
+    (locale) =>
+      !path.startsWith(`/${locale.lang}/`) && path !== `/${locale.lang}`
   );
 
   // Redirect if there is no locale

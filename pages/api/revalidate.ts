@@ -7,9 +7,6 @@ export default async function handler(
   const { urlPath } = req.body;
   const originUrl = `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://app.${process.env.NEXT_PUBLIC_DOMAIN_URL}`;
 
-  console.log({ urlPath });
-  console.log({ originUrl });
-
   res.setHeader("Access-Control-Allow-Origin", originUrl);
   res.setHeader("Access-Control-Allow-Methods", "POST");
 
