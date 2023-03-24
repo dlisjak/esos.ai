@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { toast } from "react-hot-toast";
 import rehypeSanitize from "rehype-sanitize";
 import { useS3Upload } from "next-s3-upload";
+import { GrammarlyEditorPlugin } from '@grammarly/editor-sdk-react'
 
 import Modal from "../Modal";
 import LoadingDots from "../app/loading-dots";
@@ -100,24 +101,26 @@ const TextEditor = ({ value, setValue, dataId }) => {
     <>
       <div className="w-full">
         <p className="py-1 text-xs italic">Images can be added to content by dragging and dropping</p>
-        <MDEditor
-          height={480}
-          value={value || ""}
-          onChange={setValue}
-          textareaProps={{
-            placeholder: "Please enter Markdown text",
-          }}
-          previewOptions={{
-            className: "prose lg:prose-xl mx-auto max-w-screen-xl",
-            rehypePlugins: [[rehypeSanitize]],
-          }}
-          onPaste={async (event) => {
-            await onImagePasted(event.clipboardData, sessionUser, subdomain, dataId, uploadToS3, setValue);
-          }}
-          onDrop={async (event) => {
-            await onImagePasted(event.dataTransfer, sessionUser, subdomain, dataId, uploadToS3, setValue);
-          }}
-        />
+        <GrammarlyEditorPlugin clientId="client_BFSnu3qQymueAZTtFf7Sni">
+          <MDEditor
+            height={480}
+            value={value || ""}
+            onChange={setValue}
+            textareaProps={{
+              placeholder: "Please enter Markdown text",
+            }}
+            previewOptions={{
+              className: "prose lg:prose-xl mx-auto max-w-screen-xl",
+              rehypePlugins: [[rehypeSanitize]],
+            }}
+            onPaste={async (event) => {
+              await onImagePasted(event.clipboardData, sessionUser, subdomain, dataId, uploadToS3, setValue);
+            }}
+            onDrop={async (event) => {
+              await onImagePasted(event.dataTransfer, sessionUser, subdomain, dataId, uploadToS3, setValue);
+            }}
+          />
+        </GrammarlyEditorPlugin>
         <div className="mb-4 flex w-full justify-between pt-2">
           <div className="flex">
             <select
