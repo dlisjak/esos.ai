@@ -1,7 +1,8 @@
-import prisma from "@/lib/prisma";
+import { notFound } from "next/navigation";
 
 import CategoryLayout from "../../components/CategoryLayout";
-import { notFound } from "next/navigation";
+
+import prisma from "@/lib/prisma";
 
 export async function generateStaticParams() {
   const categories = await prisma.category.findMany({
@@ -39,15 +40,15 @@ export async function generateStaticParams() {
   });
 
   const paths = categories
-    .map((category) => {
-      return category.translations
+    .map((category) =>
+      category.translations
         .map((translation) => ({
-          site: category.site?.customDomain || category.site?.subdomain,
+          site: category.site?.customDomain ?? category.site?.subdomain,
           lang: translation.lang.toLocaleLowerCase(),
           category: category.slug,
         }))
-        .flat();
-    })
+        .flat()
+    )
     .flat();
 
   return paths;

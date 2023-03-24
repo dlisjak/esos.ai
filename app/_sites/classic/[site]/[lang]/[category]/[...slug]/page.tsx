@@ -1,10 +1,79 @@
-import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
 import PostBody from "../../../components/PostBody";
 import CategoryLayout from "../../../components/CategoryLayout";
 
-export const dynamicParams = true;
+import prisma from "@/lib/prisma";
+
+export async function generateStaticParams() {
+  const categories = await prisma.category.findMany({
+    where: {
+      parent: {
+        isNot: null,
+      },
+      translations: {
+        some: {
+          lang: {
+            gt: "",
+          },
+        },
+      },
+      posts: {
+        some: {
+          published: true,
+        },
+      },
+    },
+    select: {
+      slug: true,
+      site: {
+        select: {
+          subdomain: true,
+          customDomain: true,
+        },
+      },
+      parent: {
+        select: {
+          slug: true,
+        },
+      },
+      posts: {
+        select: {
+          slug: true,
+          translations: {
+            select: {
+              lang: true,
+            },
+          },
+        },
+      },
+      translations: {
+        select: {
+          lang: true,
+        },
+      },
+    },
+  });
+
+  const paths = categories
+    .map((category) => {
+      return category.translations
+        .map((translation) => {
+          return category.posts.map((post) => {
+            return {
+              site: category.site?.customDomain ?? category.site?.subdomain,
+              lang: translation.lang.toLocaleLowerCase(),
+              category: category.parent?.slug ?? category.slug,
+              slug: category.parent ? [category.slug, post.slug] : [post.slug],
+            };
+          });
+        })
+        .flat();
+    })
+    .flat();
+
+  return paths;
+}
 
 const getData = async (site: string, slugObj: string, lang: string) => {
   let filter: {
