@@ -7,6 +7,7 @@ import path from "path";
 import prisma from "@/lib/prisma";
 import type { Site } from ".prisma/client";
 import { WithImageSite } from "@/types";
+import { revalidate } from "../revalidate";
 
 /**
  * Get Site
@@ -287,6 +288,8 @@ export async function updateSite(
         themeId,
       },
     });
+
+    await revalidate(site, undefined, undefined, undefined);
 
     return res.status(200).json(response);
   } catch (error) {

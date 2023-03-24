@@ -3,7 +3,7 @@ import { Site } from "@prisma/client";
 
 export async function revalidate(
   site: Site,
-  lang: string,
+  lang: string = "en",
   category: any,
   post: any = null
 ) {

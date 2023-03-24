@@ -3,7 +3,55 @@ import prisma from "@/lib/prisma";
 import CategoryLayout from "../../components/CategoryLayout";
 import { notFound } from "next/navigation";
 
-export const dynamicParams = true;
+export async function generateStaticParams() {
+  const categories = await prisma.category.findMany({
+    where: {
+      parent: {
+        is: null,
+      },
+      posts: {
+        some: {
+          published: true,
+        },
+      },
+      translations: {
+        some: {
+          lang: {
+            gt: "",
+          },
+        },
+      },
+    },
+    select: {
+      slug: true,
+      site: {
+        select: {
+          subdomain: true,
+          customDomain: true,
+        },
+      },
+      translations: {
+        select: {
+          lang: true,
+        },
+      },
+    },
+  });
+
+  const paths = categories
+    .map((category) => {
+      return category.translations
+        .map((translation) => ({
+          site: category.site?.customDomain || category.site?.subdomain,
+          lang: translation.lang,
+          category: category.slug,
+        }))
+        .flat();
+    })
+    .flat();
+
+  return paths;
+}
 
 const getData = async (site: string, categorySlug: string, lang: string) => {
   let filter: {
