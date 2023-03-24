@@ -44,6 +44,11 @@ const getData = async (site: string, categorySlug: string, lang: string) => {
         },
       },
       posts: {
+        where: {
+          translations: {
+            some: { lang },
+          },
+        },
         select: {
           title: true,
           slug: true,

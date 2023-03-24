@@ -7,11 +7,6 @@ import CategoryLayout from "../../../components/CategoryLayout";
 export const dynamicParams = true;
 
 const getData = async (site: string, slugObj: string, lang: string) => {
-  let slug = slugObj[1];
-  if (!slug) {
-    slug = slugObj[0];
-  }
-
   let filter: {
     subdomain?: string;
     customDomain?: string;
@@ -23,6 +18,87 @@ const getData = async (site: string, slugObj: string, lang: string) => {
     filter = {
       customDomain: site,
     };
+  }
+
+  let slug = slugObj[1];
+  if (!slug) {
+    slug = slugObj[0];
+
+    const category = await prisma.category.findFirst({
+      where: {
+        slug,
+        site: filter,
+        translations: {
+          some: {
+            lang,
+          },
+        },
+      },
+      select: {
+        title: true,
+        content: true,
+        slug: true,
+        image: true,
+        translations: {
+          where: {
+            lang,
+          },
+          select: {
+            title: true,
+            content: true,
+          },
+        },
+        posts: {
+          where: {
+            translations: {
+              some: {
+                lang,
+              },
+            },
+          },
+          select: {
+            title: true,
+            slug: true,
+            image: true,
+            content: true,
+            translations: {
+              where: { lang },
+            },
+            createdAt: true,
+            category: {
+              select: {
+                slug: true,
+                title: true,
+                translations: { where: { lang } },
+                parent: {
+                  select: {
+                    slug: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (category) {
+      const categoryData = {
+        ...category,
+        title: category?.translations[0].title || category?.title,
+        content: category?.translations[0].content || category?.content,
+        posts: category?.posts.map((post) => ({
+          ...post,
+          title: post?.translations[0]?.title || post.title,
+          content: post?.translations[0]?.content || post.content,
+        })),
+      };
+
+      return {
+        post: null,
+        category: categoryData,
+      };
+    }
   }
 
   const post = await prisma.post.findFirst({
@@ -79,78 +155,9 @@ const getData = async (site: string, slugObj: string, lang: string) => {
     content: post?.translations[0].content || post?.content,
   };
 
-  if (post) {
-    return {
-      post: postData,
-      category: null,
-    };
-  }
-
-  const category = await prisma.category.findFirst({
-    where: {
-      slug,
-      site: filter,
-      translations: {
-        some: {
-          lang,
-        },
-      },
-    },
-    select: {
-      title: true,
-      content: true,
-      slug: true,
-      image: true,
-      translations: {
-        where: {
-          lang,
-        },
-        select: {
-          title: true,
-          content: true,
-        },
-      },
-      posts: {
-        select: {
-          title: true,
-          slug: true,
-          image: true,
-          content: true,
-          translations: {
-            where: { lang },
-          },
-          createdAt: true,
-          category: {
-            select: {
-              slug: true,
-              title: true,
-              translations: { where: { lang } },
-              parent: {
-                select: {
-                  slug: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  const categoryData = {
-    ...category,
-    title: category?.translations[0].title || category?.title,
-    content: category?.translations[0].content || category?.content,
-    posts: category?.posts.map((post) => ({
-      ...post,
-      title: post.translations[0].title || post.title,
-      content: post.translations[0].content || post.content,
-    })),
-  };
-
   return {
-    post: null,
-    category: categoryData,
+    post: postData,
+    category: null,
   };
 };
 
