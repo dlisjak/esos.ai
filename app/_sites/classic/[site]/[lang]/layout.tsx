@@ -4,6 +4,7 @@ import Navigation from "../components/Navbar";
 import Footer from "../components/Footer";
 
 import "../../../../../styles/sites.css";
+import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
   return [{ lang: "en" }, { lang: "de" }, { lang: "nl" }];
@@ -22,6 +23,10 @@ const getData = async (site: string, lang: string) => {
       customDomain: site,
     };
   }
+
+  const data = await prisma.site.findFirst({
+    where: filter,
+  });
 
   const categories = await prisma.category.findMany({
     where: {
@@ -45,14 +50,16 @@ const getData = async (site: string, lang: string) => {
     },
   });
 
-  return categories;
+  return { data, categories };
 };
 
 export default async function RootLayout({
   children,
   params: { site, lang },
 }: any) {
-  const categories = await getData(site, lang);
+  const { data, categories } = await getData(site, lang);
+
+  if (!data) return notFound();
 
   return (
     <html lang={lang}>
