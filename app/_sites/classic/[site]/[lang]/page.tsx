@@ -3,7 +3,43 @@ import prisma from "@/lib/prisma";
 import type { _SiteData } from "@/types";
 import FeaturedPosts from "../components/FeaturedPosts";
 import LatestPosts from "../components/LatestPosts";
-import { getDictionary } from "app/dictionaries";
+import { getDictionary, locales } from "app/dictionaries";
+
+export async function generateStaticParams() {
+  const [subdomains, customDomains] = await Promise.all([
+    prisma.site.findMany({
+      select: {
+        subdomain: true,
+      },
+    }),
+    prisma.site.findMany({
+      where: {
+        NOT: {
+          customDomain: null,
+        },
+      },
+      select: {
+        customDomain: true,
+      },
+    }),
+  ]);
+
+  const allPaths = [
+    ...subdomains.map(({ subdomain }) => subdomain),
+    ...customDomains.map(({ customDomain }) => customDomain),
+  ].filter((path) => path) as Array<string>;
+
+  const paths = allPaths
+    .map((path) => {
+      return locales.map((locale) => ({
+        site: path,
+        lang: locale.lang,
+      }));
+    })
+    .flat();
+
+  return paths;
+}
 
 const getData = async (site: string, lang: string) => {
   let filter: {
