@@ -237,6 +237,7 @@ export async function updatePost(
     const data: any = {
       title,
       content,
+      excerpt: content.substring(0, 150),
       categoryId,
       slug,
       published,
@@ -450,6 +451,7 @@ export async function translatePost(
         data: {
           title,
           content,
+          excerpt: content.substring(0, 150),
         },
       });
 
@@ -479,6 +481,7 @@ export async function translatePost(
         data: {
           title: translatedTitle,
           content: translatedContent,
+          excerpt: translatedContent.substring(0, 150),
         },
       });
 

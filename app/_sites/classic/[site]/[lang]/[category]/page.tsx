@@ -121,6 +121,21 @@ const getData = async (site: string, categorySlug: string, lang: string) => {
           },
         },
       },
+      children: {
+        where: {
+          translations: {
+            some: {
+              lang,
+            },
+          },
+        },
+        select: {
+          title: true,
+          content: true,
+          slug: true,
+          image: true,
+        },
+      },
     },
   });
 

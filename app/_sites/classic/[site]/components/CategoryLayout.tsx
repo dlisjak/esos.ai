@@ -3,6 +3,7 @@ import Image from "next/image";
 import CategoryPosts from "./CategoryPosts";
 
 import { md } from "@/lib/md";
+import SubCategories from "./SubCategories";
 
 interface CategoryLayoutProps {
   category: any;
@@ -14,10 +15,12 @@ const CategoryLayout = ({ category, user, lang }: CategoryLayoutProps) => {
   return (
     <div className="mt-8 grid grid-flow-row grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:gap-8">
       <div className="col-span-1 mx-4 lg:col-span-2 xl:mx-0">
-        <div
-          className="prose lg:prose-xl md:pr-4"
-          dangerouslySetInnerHTML={{ __html: md.render(category.content) }}
-        />
+        <div className="prose lg:prose-xl md:pr-4">
+          <h1>{category.title}</h1>
+          <div
+            dangerouslySetInnerHTML={{ __html: md.render(category.content) }}
+          />
+        </div>
       </div>
       <div className="relative col-span-1 aspect-square">
         <Image
@@ -29,7 +32,11 @@ const CategoryLayout = ({ category, user, lang }: CategoryLayoutProps) => {
           priority
         />
       </div>
-      <CategoryPosts posts={category?.posts} user={user} lang={lang} />
+      {category.posts.length > 0 ? (
+        <CategoryPosts posts={category?.posts} user={user} lang={lang} />
+      ) : (
+        <SubCategories category={category} lang={lang} key={category.slug} />
+      )}
     </div>
   );
 };

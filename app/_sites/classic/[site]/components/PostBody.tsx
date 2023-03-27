@@ -20,6 +20,7 @@ const PostBody = ({ post, user, lang }: PostBodyProps) => {
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
         <div className="mt-8 grid grid-flow-row grid-cols-1 gap-4 lg:grid-cols-3 xl:gap-8">
           <div className="order-2 col-span-1 px-4 lg:order-1 lg:col-span-2 xl:px-0">
+            <h1>{post.title}</h1>
             <div
               className="prose mx-auto lg:prose-xl lg:mx-0"
               dangerouslySetInnerHTML={{ __html: md.render(mdExcerpt) }}

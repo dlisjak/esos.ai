@@ -95,6 +95,9 @@ const getData = async (site: string, lang: string) => {
 
   const data = await prisma.site.findFirst({
     where: filter,
+    select: {
+      image: true,
+    },
   });
 
   const categories = await prisma.category.findMany({
@@ -145,7 +148,12 @@ export default async function RootLayout({
   return (
     <html lang={lang}>
       <body>
-        <Navigation categories={categories} site={site} lang={lang} />
+        <Navigation
+          categories={categories}
+          logo={data.image}
+          site={site}
+          lang={lang}
+        />
         {children}
         <Footer site={site} />
       </body>

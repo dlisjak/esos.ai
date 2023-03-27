@@ -86,7 +86,7 @@ const PostCard = ({
           )}
         </Link>
         <p className="mb-2 w-full text-base line-clamp-2">
-          {post.content?.substring(0, 350)}
+          {post.content?.substring(0, 350).replace("#", "").replace("##", "")}
         </p>
       </div>
     </div>

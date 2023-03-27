@@ -274,6 +274,7 @@ export async function updateCategory(
     const data: any = {
       title,
       content,
+      excerpt: content.substring(0, 150),
       slug,
     };
 
@@ -431,6 +432,7 @@ export async function translateCategory(
         data: {
           title,
           content,
+          excerpt: content.substring(0, 150),
         },
       });
 
@@ -460,6 +462,7 @@ export async function translateCategory(
         data: {
           title: translatedTitle,
           content: translatedContent,
+          excerpt: translatedContent.substring(0, 150),
         },
         include: {
           category: {
