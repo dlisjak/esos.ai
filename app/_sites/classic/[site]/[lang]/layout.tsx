@@ -44,7 +44,6 @@ export async function generateStaticParams() {
 
   return {
     paths,
-    fallback: true,
   };
 }
 
