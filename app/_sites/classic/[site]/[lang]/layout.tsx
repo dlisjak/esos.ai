@@ -35,9 +35,7 @@ export async function generateStaticParams() {
 
   const paths = allPaths.map((path) => ({ site: path, lang: "en" }));
 
-  return {
-    paths,
-  };
+  return paths;
 }
 
 const getData = async (site: string, lang: string) => {
