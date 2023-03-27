@@ -245,8 +245,10 @@ const getData = async (site: string, slugObj: string, lang: string) => {
 export default async function Page({ params: { site, slug, lang } }: any) {
   const response = await getData(site, slug, lang);
   const { post, category } = response;
+  console.log({ post });
 
   if (!post && !category) return notFound();
+  if (!post?.content || !post?.content) return notFound();
 
   return (
     <>
