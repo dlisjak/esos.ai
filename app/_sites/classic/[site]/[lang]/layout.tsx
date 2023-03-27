@@ -7,13 +7,20 @@ import prisma from "@/lib/prisma";
 
 import "../../../../../styles/sites.css";
 
-import { locales } from "../../../../dictionaries";
-
 export async function generateStaticParams() {
   const [subdomains, customDomains] = await Promise.all([
     prisma.site.findMany({
       select: {
         subdomain: true,
+        categories: {
+          select: {
+            translations: {
+              select: {
+                lang: true,
+              },
+            },
+          },
+        },
       },
     }),
     prisma.site.findMany({
@@ -24,16 +31,50 @@ export async function generateStaticParams() {
       },
       select: {
         customDomain: true,
+        categories: {
+          select: {
+            translations: {
+              select: {
+                lang: true,
+              },
+            },
+          },
+        },
       },
     }),
   ]);
 
-  const allPaths = [
-    ...subdomains.map(({ subdomain }) => subdomain),
-    ...customDomains.map(({ customDomain }) => customDomain),
-  ].filter((path) => path) as Array<string>;
+  const subDomains = [...subdomains].map((site) => ({
+    ...site,
+    domain: site.subdomain,
+  }));
+  const domains = [...customDomains].map((site) => ({
+    ...site,
+    domain: site.customDomain,
+  }));
 
-  const paths = allPaths.map((path) => ({ site: path, lang: "en" }));
+  const langs = [...subDomains, ...domains]
+    .map((site) => {
+      return site.categories
+        .map((category) => {
+          return category.translations
+            .map((translation) => {
+              return {
+                site: site?.domain,
+                lang: translation.lang,
+              };
+            })
+            .flat();
+        })
+        .flat();
+    })
+    .flat();
+
+  const paths = langs.filter(
+    (value, index, self) =>
+      index ===
+      self.findIndex((t) => t.site === value.site && t.lang === value.lang)
+  );
 
   return paths;
 }
@@ -98,8 +139,6 @@ export default async function RootLayout({
   params: { site, lang },
 }: any) {
   const { data, categories } = await getData(site, lang);
-
-  console.log({ data });
 
   if (!data || !categories.length) return notFound();
 

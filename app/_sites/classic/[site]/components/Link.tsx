@@ -9,7 +9,7 @@ interface LinkProps {
   children: any;
 }
 
-const Link = ({ className = "", href, lang, children }: LinkProps) => {
+const Link = ({ className = "", href, lang = "", children }: LinkProps) => {
   return (
     <NextLink href={`/${lang}${href}`} className={className}>
       {children}
