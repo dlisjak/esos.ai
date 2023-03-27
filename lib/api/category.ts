@@ -81,14 +81,17 @@ export async function getCategory(
       include: {
         parent: true,
         image: true,
+        translations: true,
         children: {
           include: {
             posts: true,
             image: true,
+            translations: true,
             children: {
               include: {
                 posts: true,
                 image: true,
+                translations: true,
               },
             },
           },

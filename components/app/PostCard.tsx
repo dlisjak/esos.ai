@@ -1,3 +1,4 @@
+import { PostTranslation } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -24,7 +25,16 @@ const PostCard = ({
 }: any) => {
   if (!post || !postEditUrl) return <></>;
 
-  const { id, image, title, slug, category, isFeatured, published } = post;
+  const {
+    id,
+    image,
+    title,
+    slug,
+    category,
+    isFeatured,
+    published,
+    translations,
+  } = post;
 
   return (
     <div className="relative flex items-end rounded bg-white p-4 drop-shadow-sm">
@@ -55,6 +65,16 @@ const PostCard = ({
           >
             <p>{category?.title}</p>
           </Link>
+          <div className="mt-auto flex w-full overflow-x-auto text-sm">
+            {translations.map((translation: PostTranslation) => (
+              <div
+                className="mr-1 rounded bg-gray-100 p-1 text-xs"
+                key={translation.id}
+              >
+                {translation.lang}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       <div className="flex h-full flex-col items-end">

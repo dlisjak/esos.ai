@@ -1,3 +1,4 @@
+import { CategoryTranslation } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -13,7 +14,7 @@ const CategoryCard = ({
   isSubChild = false,
 }: any) => {
   if (!category) return <></>;
-  const { id, title, slug, image, children, posts } = category;
+  const { id, title, slug, image, children, posts, translations } = category;
 
   const categoryPostsUrl = `/site/${subdomain}/categories/${id}/posts`;
   const categoryEditUrl = `/site/${subdomain}/categories/${id}`;
@@ -53,6 +54,16 @@ const CategoryCard = ({
             >
               Posts({posts.length})
             </Link>
+            <div className="mt-auto flex w-full overflow-x-auto text-sm">
+              {translations?.map((translation: CategoryTranslation) => (
+                <div
+                  className="mr-1 rounded bg-gray-100 p-1 text-xs"
+                  key={translation.id}
+                >
+                  {translation.lang}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         <div className="flex h-full flex-col items-end">

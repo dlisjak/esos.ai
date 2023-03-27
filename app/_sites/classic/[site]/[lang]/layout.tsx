@@ -78,6 +78,11 @@ const getData = async (site: string, lang: string) => {
       slug: true,
       children: {
         where: {
+          posts: {
+            some: {
+              published: true,
+            },
+          },
           translations: {
             some: {
               lang,
@@ -101,7 +106,7 @@ export default async function RootLayout({
 }: any) {
   const { data, categories } = await getData(site, lang);
 
-  if (!data || !categories.length) return notFound();
+  if (!data || !categories) return notFound();
 
   return (
     <html lang={lang}>

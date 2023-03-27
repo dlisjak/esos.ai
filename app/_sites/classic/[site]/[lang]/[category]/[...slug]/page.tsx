@@ -21,6 +21,13 @@ export async function generateStaticParams() {
       posts: {
         some: {
           published: true,
+          translations: {
+            some: {
+              lang: {
+                gt: "",
+              },
+            },
+          },
         },
       },
     },
