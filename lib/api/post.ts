@@ -237,7 +237,6 @@ export async function updatePost(
     const data: any = {
       title,
       content,
-      excerpt: content.substring(0, 150),
       categoryId,
       slug,
       published,
