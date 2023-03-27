@@ -33,22 +33,17 @@ export async function generateStaticParams() {
     ...customDomains.map(({ customDomain }) => customDomain),
   ].filter((path) => path) as Array<string>;
 
-  // const paths = allPaths
-  //   .map((path) => {
-  //     return locales.map((locale) => ({
-  //       site: path,
-  //       lang: locale.lang,
-  //     }));
-  //   })
-  //   .flat();
+  const paths = allPaths
+    .map((path) => {
+      return locales.map((locale) => ({
+        site: path,
+        lang: locale.lang,
+      }));
+    })
+    .flat();
 
   return {
-    paths: allPaths.map((path) => ({
-      params: {
-        site: path,
-        lang: "en",
-      },
-    })),
+    paths,
     fallback: true,
   };
 }
