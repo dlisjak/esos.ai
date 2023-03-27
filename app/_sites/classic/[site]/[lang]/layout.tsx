@@ -42,7 +42,10 @@ export async function generateStaticParams() {
     })
     .flat();
 
-  return paths;
+  return {
+    paths: [],
+    fallback: true,
+  };
 }
 
 const getData = async (site: string, lang: string) => {
