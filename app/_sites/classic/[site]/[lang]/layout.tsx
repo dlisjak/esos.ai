@@ -33,14 +33,7 @@ export async function generateStaticParams() {
     ...customDomains.map(({ customDomain }) => customDomain),
   ].filter((path) => path) as Array<string>;
 
-  const paths = allPaths
-    .map((path) => {
-      return locales.map((locale) => ({
-        site: path,
-        lang: locale.lang,
-      }));
-    })
-    .flat();
+  const paths = allPaths.map((path) => ({ site: path, lang: "en" }));
 
   return {
     paths,
@@ -108,7 +101,9 @@ export default async function RootLayout({
 }: any) {
   const { data, categories } = await getData(site, lang);
 
-  if (!data || !categories) return notFound();
+  console.log({ data });
+
+  if (!data || !categories.length) return notFound();
 
   return (
     <html lang={lang}>
