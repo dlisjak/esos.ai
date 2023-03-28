@@ -7,6 +7,7 @@ import { WithAllCategory } from "@/types/category";
 import translate from "deepl";
 import getSlug from "speakingurl";
 import category from "pages/api/category";
+import { revalidate } from "../revalidate";
 
 /**
  * Get Category
@@ -580,12 +581,28 @@ export async function importCategories(
                       },
                     },
                   },
+                  select: {
+                    slug: true,
+                    parent: {
+                      select: {
+                        slug: true,
+                      },
+                    },
+                  },
                 })
             )
             .flat();
         })
         .flat()
     );
+
+    if (subSubCategories) {
+      await Promise.all(
+        subSubCategories.map((category) =>
+          revalidate(site, undefined, category, undefined)
+        )
+      );
+    }
 
     return res.status(200).json(true);
   } catch (error) {
