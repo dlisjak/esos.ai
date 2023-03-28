@@ -1,7 +1,12 @@
 import { WithImageSite } from "@/types";
 import { WithAllCategory, WithImageCategory } from "@/types/category";
 import { FeaturedPost, WithSitePost } from "@/types/post";
-import { CategoryTranslation, Post, PostTranslation } from "@prisma/client";
+import {
+  CategoryTranslation,
+  Post,
+  PostTranslation,
+  Prompt,
+} from "@prisma/client";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 import { Language } from "./api/translate";
@@ -255,7 +260,7 @@ export const usePrompts = () => {
     data: prompts,
     error,
     mutate,
-  } = useSWR<any>(`/api/prompt`, fetcher, {
+  } = useSWR<Prompt[]>(`/api/prompt`, fetcher, {
     dedupingInterval: 1000,
     onError: () => router.push("/"),
     revalidateOnFocus: false,

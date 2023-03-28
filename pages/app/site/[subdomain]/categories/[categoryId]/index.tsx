@@ -145,7 +145,6 @@ export default function CategoryPage() {
 
       if (response.ok) {
         toast.success("Successfuly Published Translation!");
-        mutateTranslations();
       }
     } catch (err) {
       console.error(err);
@@ -181,6 +180,7 @@ export default function CategoryPage() {
 
       if (response.ok) {
         toast.success("Successfuly Published Category!");
+        mutateTranslations();
         mutateCategory();
 
         if (redirect) {
@@ -384,7 +384,7 @@ export default function CategoryPage() {
                         parentId: (e.target as HTMLSelectElement).value,
                       }))
                     }
-                    value={data?.parentId || category?.parentId || ""}
+                    value={data?.parentId || ""}
                     className="w-full rounded-none border-none  bg-white px-5 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
                   >
                     <option value="">None</option>

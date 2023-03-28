@@ -5,6 +5,8 @@ import prisma from "@/lib/prisma";
 import type { Category, CategoryTranslation } from ".prisma/client";
 import { WithAllCategory } from "@/types/category";
 import translate from "deepl";
+import getSlug from "speakingurl";
+import category from "pages/api/category";
 
 /**
  * Get Category
@@ -53,6 +55,7 @@ export async function getCategory(
             include: {
               image: true,
               category: true,
+              translations: true,
             },
             orderBy: [
               {
@@ -212,7 +215,7 @@ export async function deleteCategory(
       },
     });
 
-    const category = await prisma.category.delete({
+    await prisma.category.delete({
       where: {
         id: categoryId,
       },
@@ -246,7 +249,7 @@ export async function updateCategory(
   res: NextApiResponse,
   session: Session
 ): Promise<void | NextApiResponse<Category>> {
-  const { id, title, content, parentId, slug, image } = req.body;
+  const { id, title, parentId, slug, image } = req.body;
 
   const parent = parentId || null;
 
@@ -273,14 +276,9 @@ export async function updateCategory(
   try {
     const data: any = {
       title,
-      content,
-      excerpt: content.substring(0, 150),
       slug,
+      parentId: parent,
     };
-
-    if (parent) {
-      data["parentId"] = parent;
-    }
 
     if (image) {
       const imageResponse = await prisma.image.create({
@@ -298,10 +296,6 @@ export async function updateCategory(
         id: id,
       },
       data,
-      include: {
-        translations: true,
-        parent: true,
-      },
     });
 
     return res.status(200).json(category);
@@ -476,6 +470,124 @@ export async function translateCategory(
 
       return res.status(200).json(translation);
     }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
+}
+
+/**
+ * import Categories
+ *
+ * Imports either a single or all categories available depending on
+ * JSON input
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+
+export async function importCategories(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+): Promise<void | NextApiResponse<CategoryTranslation | null>> {
+  const { subdomain, categories } = req.body;
+
+  if (!session.user.id || !subdomain || !categories)
+    return res.status(400).end("Bad request.");
+
+  const site = await prisma.site.findFirst({
+    where: {
+      subdomain,
+      user: {
+        id: session.user.id,
+      },
+    },
+  });
+  if (!site) return res.status(404).end("Site not found");
+
+  try {
+    const mainCategories = await Promise.all(
+      categories.map(async (category: any) => {
+        const cat = await prisma.category.create({
+          data: {
+            title: category.title,
+            slug: getSlug(category.title),
+            site: {
+              connect: {
+                id: site.id,
+              },
+            },
+          },
+          select: {
+            id: true,
+          },
+        });
+        return { ...category, id: cat.id };
+      })
+    );
+
+    const subCategories = await Promise.all(
+      mainCategories
+        .map((category: any) =>
+          category.children
+            ?.map(async (subCategory: any) => {
+              const subcat = await prisma.category.create({
+                data: {
+                  title: subCategory.title,
+                  slug: getSlug(subCategory.title),
+                  parent: {
+                    connect: {
+                      id: category.id,
+                    },
+                  },
+                  site: {
+                    connect: {
+                      id: site.id,
+                    },
+                  },
+                },
+                select: {
+                  id: true,
+                },
+              });
+
+              return { ...subCategory, id: subcat.id };
+            })
+            .flat()
+        )
+        .flat()
+    );
+
+    const subSubCategories = await Promise.all(
+      subCategories
+        .map((subCategory: any) => {
+          subCategory.children
+            ?.map(
+              async (child: any) =>
+                await prisma.category.create({
+                  data: {
+                    title: child.title,
+                    slug: getSlug(child.title),
+                    site: {
+                      connect: {
+                        id: site.id,
+                      },
+                    },
+                    parent: {
+                      connect: {
+                        id: subCategory.id,
+                      },
+                    },
+                  },
+                })
+            )
+            .flat();
+        })
+        .flat()
+    );
+
+    return res.status(200).json(true);
   } catch (error) {
     console.error(error);
     return res.status(500).end(error);

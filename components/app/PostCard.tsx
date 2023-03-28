@@ -66,7 +66,7 @@ const PostCard = ({
             <p>{category?.title}</p>
           </Link>
           <div className="mt-auto flex w-full overflow-x-auto text-sm">
-            {translations.map((translation: PostTranslation) => (
+            {translations?.map((translation: PostTranslation) => (
               <div
                 className="mr-1 rounded bg-gray-100 p-1 text-xs"
                 key={translation.id}

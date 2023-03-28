@@ -96,6 +96,7 @@ const getData = async (site: string, lang: string) => {
   const data = await prisma.site.findFirst({
     where: filter,
     select: {
+      name: true,
       image: true,
     },
   });
@@ -115,11 +116,6 @@ const getData = async (site: string, lang: string) => {
       slug: true,
       children: {
         where: {
-          posts: {
-            some: {
-              published: true,
-            },
-          },
           translations: {
             some: {
               lang,
@@ -151,11 +147,11 @@ export default async function RootLayout({
         <Navigation
           categories={categories}
           logo={data.image}
-          site={site}
+          site={data.name}
           lang={lang}
         />
         {children}
-        <Footer site={site} />
+        <Footer site={data.name} />
       </body>
     </html>
   );

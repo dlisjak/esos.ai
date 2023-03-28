@@ -247,17 +247,17 @@ export async function updateSite(
   res: NextApiResponse,
   session: Session
 ): Promise<void | NextApiResponse<Site>> {
-  const { id, currentSubdomain, name, font, image, themeId } = req.body;
+  const { subdomain, currentSubdomain, name, font, image, themeId } = req.body;
 
   if (!session?.user.id) return res.status(401).end("Unauthorized");
 
-  if (!id || typeof id !== "string") {
+  if (!subdomain || typeof subdomain !== "string") {
     return res.status(400).json({ error: "Missing or misconfigured site ID" });
   }
 
   const site = await prisma.site.findFirst({
     where: {
-      id,
+      subdomain,
       user: {
         id: session.user.id,
       },
@@ -266,27 +266,32 @@ export async function updateSite(
   if (!site) return res.status(404).end("Site not found");
 
   const sub = req.body.subdomain.replace(/[^a-zA-Z0-9/-]+/g, "");
-  const subdomain = sub.length > 0 ? sub : currentSubdomain;
+  const subdomainName = sub.length > 0 ? sub : currentSubdomain;
 
   try {
-    const imageRes = await prisma.image.create({
-      data: {
-        src: image.src,
-        alt: image.alt,
-      },
-    });
+    const data: any = {
+      name,
+      font,
+      subdomain: subdomainName,
+      themeId,
+    };
+
+    if (image) {
+      const imageRes = await prisma.image.create({
+        data: {
+          src: image.src,
+          alt: image.alt,
+        },
+      });
+
+      data["imageId"] = image.id;
+    }
 
     const response = await prisma.site.update({
       where: {
-        id: id,
+        subdomain: subdomain,
       },
-      data: {
-        name,
-        font,
-        subdomain,
-        imageId: imageRes.id,
-        themeId,
-      },
+      data,
     });
 
     await revalidate(site, undefined, undefined, undefined);

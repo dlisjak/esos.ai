@@ -14,11 +14,80 @@ import AddNewButton from "@/components/app/AddNewButton";
 import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
 import ContainerLoader from "@/components/app/ContainerLoader";
-import { useCategories } from "@/lib/queries";
+import { useCategories, usePrompts } from "@/lib/queries";
+
+const JSON_PLACEHOLDER = `{
+	"categories": [{
+			"title": "Services",
+			"children": [{
+					"title": "Writing",
+					"children": [
+						"Resume Writing",
+						"Grant Writing"
+					]
+				},
+				{
+					"title": "Design",
+					"children": [
+						"Landscape Design",
+						"Fashion Design"
+					]
+				},
+				{
+					"title": "Tech",
+					"children": [
+						"Blockchain Development",
+						"Cybersecurity"
+					]
+				},
+				{
+					"title": "Business",
+					"children": [
+						"PPC Advertising",
+						"Public Relations"
+					]
+				},
+				{
+					"title": "Admin",
+					"children": [
+						"Support",
+						"Live Chat"
+					]
+				},
+				{
+					"title": "Other",
+					"children": [
+						"Acting",
+						" Modeling"
+					]
+				}
+			]
+		},
+		{
+			"title": "Platforms",
+			"children": [
+				"Kolabtree",
+				"Quickengigs"
+			]
+		},
+		{
+			"title": "Resources",
+			"children": [
+				"Tools & Software",
+				"Workspace & Equipment"
+			]
+		}
+	]
+}`;
 
 export default function SiteCategories() {
   const [showCategoryModal, setShowCategoryModal] = useState<boolean>(false);
   const [showPostModal, setShowPostModal] = useState<boolean>(false);
+  const [showImportCategoriesModal, setShowImportCategoriesModal] =
+    useState<boolean>(false);
+  const [showImportCategoriesPrompts, setShowImportCategoriesPrompts] =
+    useState<boolean>(false);
+  const [importContentPrompt, setImportContentPrompt] = useState<string>("");
   const [creatingCategory, setCreatingCategory] = useState<boolean>(false);
   const [creatingPost, setCreatingPost] = useState(false);
   const [deletingCategory, setDeletingCategory] = useState(false);
@@ -30,10 +99,12 @@ export default function SiteCategories() {
   const postSlugRef = useRef<HTMLInputElement | null>(null);
   const categoryTitleRef = useRef<HTMLInputElement | null>(null);
   const categorySlugRef = useRef<HTMLInputElement | null>(null);
+  const categoriesJSONRef = useRef<HTMLTextAreaElement | null>(null);
   const router = useRouter();
   const { subdomain } = router.query;
 
   const { categories, isLoading, mutateCategories } = useCategories(subdomain);
+  const { prompts } = usePrompts();
 
   async function createCategory(subdomain: string | string[] | undefined) {
     if (!subdomain) return;
@@ -99,6 +170,36 @@ export default function SiteCategories() {
     }
   }
 
+  async function importCategories(subdomain: string | string[] | undefined) {
+    if (!subdomain) return;
+
+    const { categories } = JSON.parse(categoriesJSONRef?.current?.value ?? "");
+
+    const data = {
+      subdomain,
+      categories,
+    };
+
+    try {
+      const res = await fetch(`/api/category/import`, {
+        method: HttpMethod.POST,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (res.ok) {
+        toast.success(`Categories Imported`);
+        mutateCategories();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setShowImportCategoriesModal(false);
+    }
+  }
+
   async function deleteCategory(categoryId: any) {
     if (!categoryId) return;
     setDeletingCategory(true);
@@ -151,9 +252,17 @@ export default function SiteCategories() {
       <Header>
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Categories</h1>
-          <AddNewButton onClick={() => setShowCategoryModal(true)}>
-            Add Category <span className="ml-2">＋</span>
-          </AddNewButton>
+          <div className="flex space-x-2">
+            <AddNewButton
+              onClick={() => setShowImportCategoriesModal(true)}
+              light
+            >
+              Import <span className="ml-2">＋</span>
+            </AddNewButton>
+            <AddNewButton onClick={() => setShowCategoryModal(true)}>
+              Add Category <span className="ml-2">＋</span>
+            </AddNewButton>
+          </div>
         </div>
       </Header>
 
@@ -203,6 +312,101 @@ export default function SiteCategories() {
                 ref={categorySlugRef}
                 type="text"
               />
+            </div>
+          </div>
+          <div className="mt-10 flex w-full items-center justify-between">
+            <button
+              type="button"
+              className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
+              onClick={() => {
+                setShowCategoryModal(false);
+              }}
+            >
+              CANCEL
+            </button>
+
+            <button
+              type="submit"
+              disabled={creatingCategory}
+              className={`${
+                creatingCategory
+                  ? "cursor-not-allowed bg-gray-50 text-gray-400"
+                  : "bg-white text-gray-600 hover:text-black"
+              } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-0`}
+            >
+              {creatingCategory ? <LoadingDots /> : "CREATE CATEGORY"}
+            </button>
+          </div>
+        </form>
+      </Modal>
+      <Modal
+        showModal={showImportCategoriesModal}
+        setShowModal={setShowImportCategoriesModal}
+      >
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            importCategories(subdomain);
+          }}
+          className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+        >
+          <div className="px-8">
+            <h2 className="mb-6 text-2xl">Import Categories</h2>
+            <div className="flex-start flex flex-col items-center space-y-4">
+              <div className="text-start">
+                <label>
+                  Content JSON<span className="text-red-600">*</span>
+                </label>
+                <textarea
+                  className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
+                  name="importJSON"
+                  required
+                  placeholder={JSON_PLACEHOLDER}
+                  ref={categoriesJSONRef}
+                  rows={16}
+                />
+                <span className="text-sm italic text-gray-700">
+                  Validate JSON using a free tool like jsonlint.com
+                </span>
+              </div>
+              <div className="mt-auto flex items-center justify-between">
+                <label className="text-sm hover:cursor-pointer" htmlFor="check">
+                  Generate Content for Categories
+                </label>
+                <input
+                  className="ml-2 hover:cursor-pointer"
+                  id="check"
+                  name="check"
+                  checked={showImportCategoriesPrompts}
+                  onChange={() =>
+                    setShowImportCategoriesPrompts(!showImportCategoriesPrompts)
+                  }
+                  type="checkbox"
+                />
+              </div>
+              {showImportCategoriesPrompts && (
+                <div className="text-start">
+                  <label>Content Generating Prompt</label>
+                  <select
+                    className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
+                    name="importJSON"
+                    onChange={(e) => {
+                      const promptId = e.target.value;
+                      setImportContentPrompt(promptId);
+                    }}
+                    value={importContentPrompt || ""}
+                  >
+                    <option value="">
+                      Prompt to Generate Category Content
+                    </option>
+                    {prompts.map((prompt) => (
+                      <option value={prompt.id} key={prompt.id}>
+                        {prompt.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           </div>
           <div className="mt-10 flex w-full items-center justify-between">

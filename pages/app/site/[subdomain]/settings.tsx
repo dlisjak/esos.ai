@@ -91,7 +91,7 @@ export default function SiteSettings() {
         body: JSON.stringify({
           currentSubdomain: site?.subdomain ?? undefined,
           ...data,
-          id: data.id,
+          subdomain: site.subdomain,
           image,
         }),
       });

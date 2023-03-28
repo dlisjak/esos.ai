@@ -11,19 +11,15 @@ interface NavigationProps {
   lang: string;
 }
 
-const Navigation = ({ categories, logo, lang }: NavigationProps) => {
+const Navigation = ({ categories, site, logo, lang }: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="navigation sticky top-0 left-0 right-0 z-50 bg-white py-2 px-4 drop-shadow">
       <div className="container-2xl container mx-auto flex items-center justify-between">
-        <Link href="/" lang={lang}>
-          <Image
-            src={logo?.src}
-            alt={`${logo?.alt} logo`}
-            height={70}
-            width={70}
-          />
+        <Link className="flex items-center" href="/" lang={lang}>
+          <Image src={logo?.src} alt={`${site} logo`} height={70} width={70} />
+          <p className="text-xl hover:underline">{site}</p>
         </Link>
         <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden">
           Menu
