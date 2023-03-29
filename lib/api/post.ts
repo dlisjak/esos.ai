@@ -713,7 +713,7 @@ export async function importPosts(
 
         if (command) {
           const contentResponse = await openai.createChatCompletion({
-            model: "gpt-4-0314",
+            model: "gpt-4",
             messages: [{ role: "user", content: command }],
           });
 
