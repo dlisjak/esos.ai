@@ -251,9 +251,6 @@ export default async function Page({ params: { site, slug, lang } }: any) {
   const { post, category } = response;
 
   if (!post && !category) return notFound();
-  if (post) {
-    if (!post?.content || !post?.content) return notFound();
-  }
 
   return (
     <>

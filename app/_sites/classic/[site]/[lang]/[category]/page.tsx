@@ -160,9 +160,6 @@ export default async function Category({
 }: any) {
   const { categoryData } = await getData(site, category, lang);
 
-  if (!categoryData || !categoryData.title || !categoryData.content)
-    return notFound();
-
   return (
     <>
       <div className="container mx-auto mb-20 w-full max-w-screen-xl">
