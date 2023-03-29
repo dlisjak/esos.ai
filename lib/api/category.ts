@@ -588,6 +588,7 @@ export async function importCategories(
                   slug: true,
                   parent: {
                     select: {
+                      id: true,
                       slug: true,
                     },
                   },
@@ -627,9 +628,11 @@ export async function importCategories(
                   },
                 },
                 select: {
+                  id: true,
                   slug: true,
                   parent: {
                     select: {
+                      id: true,
                       slug: true,
                     },
                   },

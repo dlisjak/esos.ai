@@ -275,12 +275,7 @@ export async function updatePost(
     if (post) {
       await Promise.all(
         post.translations.map((translation) =>
-          revalidate(
-            site,
-            translation.lang.toLocaleLowerCase(),
-            post.category,
-            post
-          )
+          revalidate(site, translation.lang.toLowerCase(), post.category, post)
         )
       );
     }
@@ -591,11 +586,13 @@ export async function getLatestPosts(
         },
       },
       select: {
+        id: true,
         title: true,
         slug: true,
         published: true,
         translations: {
           select: {
+            id: true,
             lang: true,
           },
         },
@@ -655,11 +652,13 @@ export async function importPosts(
       title: true,
       posts: {
         select: {
+          id: true,
           slug: true,
         },
       },
       parent: {
         select: {
+          id: true,
           slug: true,
         },
       },
@@ -734,6 +733,7 @@ export async function importPosts(
         const p = await prisma.post.create({
           data,
           select: {
+            id: true,
             slug: true,
           },
         });

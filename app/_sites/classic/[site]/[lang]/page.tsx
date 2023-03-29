@@ -59,7 +59,7 @@ export async function generateStaticParams() {
             .map((translation) => {
               return {
                 site: site?.domain,
-                lang: translation.lang.toLocaleLowerCase(),
+                lang: translation.lang.toLowerCase(),
               };
             })
             .flat();

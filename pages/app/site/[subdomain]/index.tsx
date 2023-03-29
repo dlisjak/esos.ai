@@ -63,7 +63,7 @@ export default function Dashboard() {
                       <SlimCard
                         post={post}
                         editUrl={`/site/${subdomain}/posts/${post.id}`}
-                        key={post.id}
+                        key={`latest--${post.id}`}
                       />
                     ))}
                 </ul>
@@ -88,7 +88,7 @@ export default function Dashboard() {
                       <SlimCard
                         post={post}
                         editUrl={`/site/${subdomain}/posts/${post.id}`}
-                        key={post.id}
+                        key={`featured--${post.id}`}
                       />
                     ))}
                 </ul>
@@ -113,7 +113,7 @@ export default function Dashboard() {
                       <SlimCard
                         post={post}
                         editUrl={`/site/${subdomain}/posts/${post.id}`}
-                        key={post.id}
+                        key={`draft--${post.id}`}
                       />
                     ))}
                 </ul>

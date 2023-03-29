@@ -16,6 +16,7 @@ import "../../node_modules/@uiw/react-md-editor/markdown-editor.css";
 import "../../node_modules/@uiw/react-markdown-preview/markdown.css";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import { PER_GENERATE } from "@/lib/consts/credits";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
@@ -227,7 +228,13 @@ const TextEditor = ({ value, setValue, dataId }) => {
               </div>
             </div>
           </div>
-          <div className="mt-10 flex w-full items-center justify-between">
+          <div className="mt-auto pt-4 text-sm italic">
+            The cost of generating content is{" "}
+            <b>
+              {Math.ceil(PER_GENERATE)} credits
+            </b>
+          </div>
+          <div className="mt-4 flex w-full items-center justify-between">
             <button
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-200 ease-in-out hover:text-black focus:outline-none focus:ring-0"

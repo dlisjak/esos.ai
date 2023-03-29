@@ -71,7 +71,7 @@ const PostCard = ({
                 className="mr-1 rounded bg-gray-100 p-1 text-xs"
                 key={translation.id}
               >
-                {translation.lang}
+                {translation.lang.toUpperCase()}
               </div>
             ))}
           </div>

@@ -69,7 +69,7 @@ export async function generateStaticParams() {
           return category.posts.map((post) => {
             return {
               site: category.site?.customDomain ?? category.site?.subdomain,
-              lang: translation.lang.toLocaleLowerCase(),
+              lang: translation.lang.toLowerCase(),
               category: category.parent?.slug ?? category.slug,
               slug: category.parent ? [category.slug, post.slug] : [post.slug],
             };

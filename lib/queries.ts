@@ -7,22 +7,18 @@ import {
   PostTranslation,
   Prompt,
 } from "@prisma/client";
-import { useRouter } from "next/router";
 import useSWR from "swr";
 import { Language } from "./api/translate";
 
 import fetcher from "./fetcher";
 
 export const useSites = () => {
-  const router = useRouter();
-
   const {
     data: sites,
     error,
     mutate,
   } = useSWR<WithImageSite[]>(`/api/site`, fetcher, {
     dedupingInterval: 1000,
-    onError: () => router.push("/"),
     revalidateOnFocus: false,
   });
 
@@ -35,15 +31,12 @@ export const useSites = () => {
 };
 
 export const useSite = (subdomain: any) => {
-  const router = useRouter();
-
   const {
     data: site,
     error,
     mutate,
   } = useSWR<WithImageSite>(`/api/site?subdomain=${subdomain}`, fetcher, {
     dedupingInterval: 1000,
-    onError: () => router.push("/"),
     revalidateOnFocus: false,
   });
 
@@ -76,15 +69,12 @@ export const useDomainCheck = (domain: any) => {
 };
 
 export const usePost = (postId: any) => {
-  const router = useRouter();
-
   const {
     data: post,
     error,
     mutate,
   } = useSWR<WithSitePost>(`/api/post?postId=${postId}`, fetcher, {
     dedupingInterval: 1000,
-    onError: () => router.push("/"),
     revalidateOnFocus: false,
   });
 
@@ -119,8 +109,6 @@ export const usePostTranslations = (postId: any) => {
 };
 
 export const usePosts = (subdomain: any, published: any) => {
-  const router = useRouter();
-
   const {
     data: posts,
     error,
@@ -129,7 +117,6 @@ export const usePosts = (subdomain: any, published: any) => {
     `/api/post?subdomain=${subdomain}&published=${published}`,
     fetcher,
     {
-      onError: () => router.push("/"),
       revalidateOnFocus: false,
     }
   );
@@ -207,8 +194,6 @@ export const useCategories = (subdomain: any) => {
 };
 
 export const useCategory = (categoryId: any) => {
-  const router = useRouter();
-
   const {
     data: category,
     error,
@@ -218,7 +203,6 @@ export const useCategory = (categoryId: any) => {
     fetcher,
     {
       dedupingInterval: 1000,
-      onError: () => router.push("/"),
       revalidateOnFocus: false,
     }
   );
@@ -254,15 +238,12 @@ export const useCategoryTranslations = (categoryId: any) => {
 };
 
 export const usePrompts = () => {
-  const router = useRouter();
-
   const {
     data: prompts,
     error,
     mutate,
   } = useSWR<Prompt[]>(`/api/prompt`, fetcher, {
     dedupingInterval: 1000,
-    onError: () => router.push("/"),
     revalidateOnFocus: false,
   });
 

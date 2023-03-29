@@ -44,7 +44,7 @@ export async function generateStaticParams() {
       category.translations
         .map((translation) => ({
           site: category.site?.customDomain ?? category.site?.subdomain,
-          lang: translation.lang.toLocaleLowerCase(),
+          lang: translation.lang.toLowerCase(),
           category: category.slug,
         }))
         .flat()
