@@ -491,7 +491,7 @@ export async function importCategories(
   req: NextApiRequest,
   res: NextApiResponse,
   session: Session
-): Promise<void | NextApiResponse<CategoryTranslation | null>> {
+): Promise<void | NextApiResponse<any | null>> {
   const { subdomain, categories } = req.body;
 
   if (!session.user.id || !subdomain || !categories)

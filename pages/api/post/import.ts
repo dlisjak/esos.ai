@@ -1,4 +1,4 @@
-import { importCategories } from "@/lib/api/category";
+import { importPosts } from "@/lib/api";
 import { getServerSession } from "next-auth/next";
 
 import { authOptions } from "../auth/[...nextauth]";
@@ -17,7 +17,7 @@ export default async function categoryTranslate(
     // case HttpMethod.GET:
     //   return getCategoryTranslations(req, res, session);
     case HttpMethod.POST:
-      return importCategories(req, res, session);
+      return importPosts(req, res, session);
     // case HttpMethod.DELETE:
     // 	return deleteCategory(req, res, session);
     // case HttpMethod.PUT:

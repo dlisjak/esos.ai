@@ -12,7 +12,9 @@ export async function revalidate(
   if (post) {
     if (category) {
       urlPaths.push(
-        `/_sites/classic/${site.subdomain}/${lang}/${category.slug + post.slug}`
+        `/_sites/classic/${site.subdomain}/${lang}/${
+          category.slug + "/" + post.slug
+        }`
       );
       if (category.parent) {
         urlPaths.push(

@@ -89,12 +89,14 @@ export default function SiteCategories() {
     useState<boolean>(false);
   const [importContentPrompt, setImportContentPrompt] = useState<string>("");
   const [creatingCategory, setCreatingCategory] = useState<boolean>(false);
-  const [creatingPost, setCreatingPost] = useState(false);
-  const [deletingCategory, setDeletingCategory] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [creatingPost, setCreatingPost] = useState<boolean>(false);
+  const [deletingCategory, setDeletingCategory] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+
   const [creatingPostCategoryId, setCreatingPostCategoryId] = useState();
   const [deletingPostCategoryId, setDeletingPostCategoryId] = useState();
   const [deletingPostCategoryTitle, setDeletingPostCategoryTitle] = useState();
+
   const postTitleRef = useRef<HTMLInputElement | null>(null);
   const postSlugRef = useRef<HTMLInputElement | null>(null);
   const categoryTitleRef = useRef<HTMLInputElement | null>(null);

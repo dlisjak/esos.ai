@@ -14,21 +14,57 @@ import AddNewButton from "@/components/app/AddNewButton";
 import Container from "@/components/Layout/Container";
 import Header from "@/components/Layout/Header";
 import ContainerLoader from "@/components/app/ContainerLoader";
-import { usePosts } from "@/lib/queries";
+import { useCategories, usePosts, usePrompts } from "@/lib/queries";
+
+const JSON_PLACEHOLDER = `{
+	"posts": [{
+			"title": "Introduction to [Topic]: A Comprehensive Guide for Beginners",
+			"published": "true"
+		},
+		{
+			"title": "Top 7 Tips for [Topic]: Expert Advice for Success",
+			"published": "true"
+		},
+		{
+			"title": "The Future of [Topic]: Emerging Trends and Innovations to Watch",
+			"published": "true"
+		},
+		{
+			"title": "Common Mistakes to Avoid in [Topic]: Tips for Success",
+			"published": "true"
+		},
+		{
+			"title": "The Pros and Cons of [Topic]: Is it Right for You?",
+			"published": "true"
+		}
+	]
+}`;
 
 export default function Posts() {
+  const [bulkCreateContent, setBulkCreateContent] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [creatingPost, setCreatingPost] = useState<boolean>(false);
+  const [deletingPost, setDeletingPost] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [creatingPost, setCreatingPost] = useState(false);
+  const [showBulkCreateModal, setShowBulkCreateModal] =
+    useState<boolean>(false);
+
+  const [importContentPrompt, setImportContentPrompt] = useState<string>("");
+  const [bulkPostsCategory, setBulkPostsCategory] = useState<string>("");
+
+  const [deletingPostTitle, setDeletingPostTitle] = useState();
+  const [deletingPostId, setDeletingPostId] = useState();
+
+  const categoriesJSONRef = useRef<HTMLTextAreaElement | null>(null);
   const postTitleRef = useRef<HTMLInputElement | null>(null);
   const postSlugRef = useRef<HTMLInputElement | null>(null);
-  const [deletingPostId, setDeletingPostId] = useState();
-  const [deletingPostTitle, setDeletingPostTitle] = useState();
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deletingPost, setDeletingPost] = useState(false);
+
   const router = useRouter();
   const { subdomain } = router.query;
 
   const { posts, isLoading, mutateSubdomainPosts } = usePosts(subdomain, true);
+  const { categories } = useCategories(subdomain);
+  const { prompts } = usePrompts();
 
   async function createPost(subdomain: string | string[] | undefined) {
     if (!subdomain) return;
@@ -115,14 +151,25 @@ export default function Posts() {
     }
   };
 
+  const bulkCreatePosts = async (subdomain: string | string[] | undefined) => {
+    if (!subdomain) return;
+
+    console.log({ subdomain });
+  };
+
   return (
     <Layout>
       <Header>
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Published</h1>
-          <AddNewButton onClick={() => setShowModal(true)}>
-            Add Post <span className="ml-2">＋</span>
-          </AddNewButton>
+          <div className="flex space-x-2">
+            <AddNewButton onClick={() => setShowBulkCreateModal(true)} light>
+              Import <span className="ml-2">＋</span>
+            </AddNewButton>
+            <AddNewButton onClick={() => setShowModal(true)}>
+              Add Post <span className="ml-2">＋</span>
+            </AddNewButton>
+          </div>
         </div>
       </Header>
       <Container dark>
@@ -203,6 +250,112 @@ export default function Posts() {
               } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-0`}
             >
               {creatingPost ? <LoadingDots /> : "CREATE CATEGORY"}
+            </button>
+          </div>
+        </form>
+      </Modal>
+      <Modal
+        showModal={showBulkCreateModal}
+        setShowModal={setShowBulkCreateModal}
+      >
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            bulkCreatePosts(subdomain);
+          }}
+          className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+        >
+          <div className="px-8">
+            <h2 className="mb-6 text-2xl">Bulk Create Posts</h2>
+            <div className="flex-start flex flex-col items-center space-y-4">
+              <div className="text-start">
+                <label>
+                  Content JSON<span className="text-red-600">*</span>
+                </label>
+                <textarea
+                  className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
+                  name="importJSON"
+                  required
+                  placeholder={JSON_PLACEHOLDER}
+                  ref={categoriesJSONRef}
+                  rows={16}
+                />
+                <span className="text-sm italic text-gray-700">
+                  Validate JSON using a free tool like jsonlint.com
+                </span>
+              </div>
+              <div className="flex w-full items-start">
+                <select
+                  className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
+                  value={bulkPostsCategory || ""}
+                  onChange={(e) => {
+                    const categoryId = e.target.value;
+                    setBulkPostsCategory(categoryId);
+                  }}
+                >
+                  <option value="">Select a category</option>
+                  {categories?.map((category) => (
+                    <option key={category?.id}>{category?.title}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="mt-auto flex items-center justify-between">
+                <label className="text-sm hover:cursor-pointer" htmlFor="check">
+                  Generate Content for Posts from Title
+                </label>
+                <input
+                  className="ml-2 hover:cursor-pointer"
+                  id="check"
+                  name="check"
+                  checked={bulkCreateContent}
+                  onChange={() => setBulkCreateContent(!bulkCreateContent)}
+                  type="checkbox"
+                />
+              </div>
+              {bulkCreateContent && (
+                <div className="text-start">
+                  <label>Content Generating Prompt</label>
+                  <select
+                    className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
+                    name="importJSON"
+                    onChange={(e) => {
+                      const promptId = e.target.value;
+                      setImportContentPrompt(promptId);
+                    }}
+                    value={importContentPrompt || ""}
+                  >
+                    <option value="">Prompt to Generate Post Content</option>
+                    {prompts.map((prompt) => (
+                      <option value={prompt.id} key={prompt.id}>
+                        {prompt.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="mt-10 flex w-full items-center justify-between">
+            <button
+              type="button"
+              className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
+              onClick={() => {
+                setShowBulkCreateModal(false);
+              }}
+            >
+              CANCEL
+            </button>
+
+            <button
+              type="submit"
+              disabled={creatingPost}
+              className={`${
+                creatingPost
+                  ? "cursor-not-allowed bg-gray-50 text-gray-400"
+                  : "bg-white text-gray-600 hover:text-black"
+              } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-0`}
+            >
+              {creatingPost ? <LoadingDots /> : "CREATE POSTS"}
             </button>
           </div>
         </form>

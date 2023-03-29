@@ -6,6 +6,8 @@ import type { Session } from "next-auth";
 import { WithSitePost } from "@/types/post";
 import translate from "deepl";
 import { revalidate } from "../revalidate";
+import getSlug from "speakingurl";
+import { openai } from "../openai";
 
 /**
  * Get Post
@@ -450,7 +452,6 @@ export async function translatePost(
         data: {
           title,
           content,
-          excerpt: content.substring(0, 150),
         },
       });
 
@@ -571,6 +572,120 @@ export async function getLatestPosts(
     });
 
     return res.status(200).json(posts);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
+}
+
+/**
+ * import Posts
+ *
+ * Imports either a single or all posts available depending on
+ * JSON input
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+
+export async function importPosts(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+): Promise<void | NextApiResponse<any | null>> {
+  const { subdomain, posts, categoryId, bulkCreateContent, promptId } =
+    req.body;
+
+  if (!session.user.id || !subdomain || !posts || !categoryId)
+    return res.status(400).end("Bad request.");
+
+  const site = await prisma.site.findFirst({
+    where: {
+      subdomain,
+      user: {
+        id: session.user.id,
+      },
+    },
+  });
+  if (!site) return res.status(404).end("Site not found");
+
+  const category = await prisma.category.findFirst({
+    where: {
+      siteId: site.id,
+      id: categoryId,
+    },
+  });
+  if (!category) return res.status(404).end("Category not found");
+
+  let prompt: any = null;
+  if (bulkCreateContent) {
+    prompt = await prisma.prompt.findFirst({
+      where: {
+        id: promptId,
+      },
+    });
+  }
+
+  console.log({ prompt });
+
+  try {
+    const response = await Promise.all(
+      posts.map(async (post: any) => {
+        const regex = new RegExp(/\[(.*?)\]/g);
+        const title = post.title.replaceAll(regex, category.title);
+        const command = prompt.command.replaceAll(regex, title) ?? null;
+
+        const data: any = {
+          title,
+          slug: getSlug(title),
+          published: post.published === "true" ? true : false,
+          site: {
+            connect: {
+              id: site.id,
+            },
+          },
+          category: {
+            connect: {
+              id: category.id,
+            },
+          },
+          translations: {
+            create: {
+              title,
+              lang: "EN",
+            },
+          },
+        };
+
+        if (command) {
+          const contentResponse = await openai.createChatCompletion({
+            model: "gpt-4-0314",
+            messages: [{ role: "user", content: command }],
+          });
+          const content =
+            contentResponse?.data?.choices[0]?.message?.content.trim();
+
+          data["content"] = content;
+          data["translations"]["create"]["content"] = content;
+        }
+
+        const p = await prisma.post.create({
+          data,
+          select: {
+            slug: true,
+          },
+        });
+        return { ...post, ...p };
+      })
+    );
+
+    if (response) {
+      await Promise.all(
+        response.map((post) => revalidate(site, undefined, category, post))
+      );
+    }
+
+    return res.status(200).json(true);
   } catch (error) {
     console.error(error);
     return res.status(500).end(error);

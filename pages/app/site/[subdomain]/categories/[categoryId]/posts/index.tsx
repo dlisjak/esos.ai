@@ -13,22 +13,59 @@ import { toast } from "react-hot-toast";
 import AddNewButton from "@/components/app/AddNewButton";
 import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
-import { useCategory } from "@/lib/queries";
+import { useCategory, usePrompts } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
 
+const JSON_PLACEHOLDER = `{
+	"posts": [{
+			"title": "Introduction to [CATEGORY]: A Comprehensive Guide for Beginners",
+			"published": "true"
+		},
+		{
+			"title": "Top 7 Tips for [CATEGORY]: Expert Advice for Success",
+			"published": "false"
+		},
+		{
+			"title": "The Future of [CATEGORY]: Emerging Trends and Innovations to Watch",
+			"published": "true"
+		},
+		{
+			"title": "Common Mistakes to Avoid in [CATEGORY]: Tips for Success",
+			"published": "true"
+		},
+		{
+			"title": "The Pros and Cons of [CATEGORY]: Is it Right for You?",
+			"published": "true"
+		}
+	]
+}`;
+
 export default function CategoryPosts() {
+  const [bulkCreateContent, setBulkCreateContent] = useState<boolean>(false);
+  const [creatingPost, setCreatingPost] = useState<boolean>(false);
+  const [deletingPost, setDeletingPost] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [creatingPost, setCreatingPost] = useState(false);
+  const [showDeletePostModal, setShowDeletePostModal] =
+    useState<boolean>(false);
+  const [showBulkCreateModal, setShowBulkCreateModal] =
+    useState<boolean>(false);
+
+  const [importContentPromptId, setImportContentPromptId] =
+    useState<string>("");
+  const [promptHintValue, setPromptHintValue] = useState<string>("");
+
+  const [deletingPostTitle, setDeletingPostTitle] = useState();
+  const [deletingPostId, setDeletingPostId] = useState();
+
+  const postsJSONRef = useRef<HTMLTextAreaElement | null>(null);
   const postTitleRef = useRef<HTMLInputElement | null>(null);
   const postSlugRef = useRef<HTMLInputElement | null>(null);
-  const [deletingPostId, setDeletingPostId] = useState();
-  const [deletingPostTitle, setDeletingPostTitle] = useState();
-  const [showDeletePostModal, setShowDeletePostModal] = useState(false);
-  const [deletingPost, setDeletingPost] = useState(false);
+
   const router = useRouter();
   const { subdomain, categoryId } = router.query;
 
   const { category, isLoading, mutateCategory } = useCategory(categoryId);
+  const { prompts } = usePrompts();
 
   async function createPost(subdomain: string | string[] | undefined) {
     if (!subdomain) return;
@@ -119,18 +156,60 @@ export default function CategoryPosts() {
     }
   };
 
+  const bulkCreatePosts = async (subdomain: string | string[] | undefined) => {
+    if (!subdomain) return;
+    if (bulkCreateContent && !importContentPromptId) return;
+
+    const { posts } = JSON.parse(postsJSONRef?.current?.value ?? "");
+
+    console.log({ importContentPromptId });
+    console.log({ bulkCreateContent });
+
+    const data = {
+      subdomain,
+      posts,
+      categoryId,
+      bulkCreateContent,
+      promptId: importContentPromptId,
+    };
+
+    try {
+      const res = await fetch(`/api/post/import`, {
+        method: HttpMethod.POST,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (res.ok) {
+        toast.success(`Posts Imported`);
+        mutateCategory();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setShowBulkCreateModal(false);
+    }
+  };
+
   return (
     <Layout>
       <Header>
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Posts for {category?.title}</h1>
-          <AddNewButton
-            onClick={() => {
-              setShowModal(true);
-            }}
-          >
-            Add Post <span className="ml-2">＋</span>
-          </AddNewButton>
+          <div className="flex space-x-2">
+            <AddNewButton onClick={() => setShowBulkCreateModal(true)} light>
+              Import <span className="ml-2">＋</span>
+            </AddNewButton>
+            <AddNewButton
+              onClick={() => {
+                setShowModal(true);
+              }}
+            >
+              Add Post <span className="ml-2">＋</span>
+            </AddNewButton>
+          </div>
         </div>
       </Header>
       <Container dark>
@@ -210,6 +289,114 @@ export default function CategoryPosts() {
               } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-0`}
             >
               {creatingPost ? <LoadingDots /> : "CREATE CATEGORY"}
+            </button>
+          </div>
+        </form>
+      </Modal>
+      <Modal
+        showModal={showBulkCreateModal}
+        setShowModal={setShowBulkCreateModal}
+      >
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            bulkCreatePosts(subdomain);
+          }}
+          className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+        >
+          <div className="px-8">
+            <h2 className="mb-6 text-2xl">Bulk Create Posts</h2>
+            <div className="flex-start flex flex-col items-center space-y-4">
+              <div className="text-start">
+                <label>
+                  Content JSON<span className="text-red-600">*</span>
+                </label>
+                <textarea
+                  className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
+                  name="importJSON"
+                  required
+                  placeholder={JSON_PLACEHOLDER}
+                  ref={postsJSONRef}
+                  rows={16}
+                />
+                <span className="text-sm italic text-gray-700">
+                  Validate JSON using a free tool like jsonlint.com
+                </span>
+              </div>
+              <div className="flex w-full flex-col items-start">
+                <label htmlFor="category">Category</label>
+                <select
+                  id="category"
+                  className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
+                  defaultValue={categoryId}
+                >
+                  <option value={categoryId}>{category?.title}</option>
+                </select>
+              </div>
+              <div className="mt-auto flex items-center justify-between">
+                <label className="text-sm hover:cursor-pointer" htmlFor="check">
+                  Generate Content for Posts from Title
+                </label>
+                <input
+                  className="ml-2 hover:cursor-pointer"
+                  id="check"
+                  name="check"
+                  checked={bulkCreateContent}
+                  onChange={() => setBulkCreateContent(!bulkCreateContent)}
+                  type="checkbox"
+                />
+              </div>
+              {bulkCreateContent && (
+                <div className="text-start">
+                  <label htmlFor="prompt">Content Generating Prompt</label>
+                  <select
+                    id="prompt"
+                    className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
+                    name="importJSON"
+                    onChange={(e) => {
+                      const promptId = e.target.value;
+                      setImportContentPromptId(promptId);
+                    }}
+                    value={importContentPromptId || ""}
+                  >
+                    <option disabled value="">
+                      Select a Prompt
+                    </option>
+                    {prompts.map((prompt) => (
+                      <option value={prompt.id} key={prompt.id}>
+                        {prompt.name}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="text-sm italic">
+                    Your prompt has to include a place for a variable: e.g.
+                    [TITLE]
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="mt-10 flex w-full items-center justify-between">
+            <button
+              type="button"
+              className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
+              onClick={() => {
+                setShowBulkCreateModal(false);
+              }}
+            >
+              CANCEL
+            </button>
+
+            <button
+              type="submit"
+              disabled={creatingPost}
+              className={`${
+                creatingPost
+                  ? "cursor-not-allowed bg-gray-50 text-gray-400"
+                  : "bg-white text-gray-600 hover:text-black"
+              } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-0`}
+            >
+              {creatingPost ? <LoadingDots /> : "CREATE POSTS"}
             </button>
           </div>
         </form>
