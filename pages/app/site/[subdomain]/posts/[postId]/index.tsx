@@ -323,6 +323,7 @@ export default function Post() {
             <TitleEditor
               value={data.title}
               setValue={handleSetTitle}
+              slug={data.slug}
               setSlug={handleSetSlug}
             />
             <div className="flex w-full space-x-4">

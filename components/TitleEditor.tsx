@@ -9,7 +9,7 @@ import LoadingDots from "./app/loading-dots";
 import { useCredits, usePrompts } from "@/lib/queries";
 import { HttpMethod } from "@/types";
 
-const TitleEditor = ({ value, setValue, setSlug }: any) => {
+const TitleEditor = ({ value, setValue, slug, setSlug }: any) => {
   const [selectedPrompt, setSelectedPrompt] = useState("");
   const [generateInput, setGenerateInput] = useState("");
   const [showGenerateModal, setShowGenerateModal] = useState(false);
@@ -52,10 +52,10 @@ const TitleEditor = ({ value, setValue, setSlug }: any) => {
   };
 
   const generateSlug = (e: any) => {
+    if (slug.length) return;
     const title = value;
-    const slug = getSlug(title);
 
-    setSlug(slug);
+    setSlug(getSlug(title));
   };
 
   const setTitle = (e: any) => {

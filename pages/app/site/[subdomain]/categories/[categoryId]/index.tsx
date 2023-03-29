@@ -102,8 +102,8 @@ export default function CategoryPage() {
 
     setData({
       ...data,
-      title: selectedTranslation?.title || "",
-      content: selectedTranslation?.content || "",
+      title: selectedTranslation?.title || category?.title || "",
+      content: selectedTranslation?.content || category?.content || "",
     });
   }, [selectedTranslation]);
 
@@ -351,6 +351,7 @@ export default function CategoryPage() {
             <TitleEditor
               value={data.title}
               setValue={handleSetTitle}
+              slug={data.slug}
               setSlug={handleSetSlug}
             />
             <div className="flex w-full space-x-4">

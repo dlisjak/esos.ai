@@ -521,7 +521,7 @@ export async function importCategories(
             },
             translations: {
               create: {
-                lang: "en",
+                lang: "EN",
               },
             },
           },
@@ -555,7 +555,7 @@ export async function importCategories(
                   },
                   translations: {
                     create: {
-                      lang: "en",
+                      lang: "EN",
                     },
                   },
                 },
@@ -598,7 +598,7 @@ export async function importCategories(
                   },
                   translations: {
                     create: {
-                      lang: "en",
+                      lang: "EN",
                     },
                   },
                 },
