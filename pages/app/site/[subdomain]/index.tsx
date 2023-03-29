@@ -42,8 +42,8 @@ export default function Dashboard() {
         </div>
       </Header>
       <Container dark>
-        <div className="flex flex-col gap-y-4 gap-x-4">
-          <div className="flex gap-y-4 gap-x-4">
+        <div className="flex gap-x-4">
+          <div className="flex w-full flex-col gap-y-4 gap-x-4">
             <div className="w-full rounded border bg-white p-4">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-2xl">Latest Posts</h2>
@@ -69,29 +69,6 @@ export default function Dashboard() {
                 </ul>
               )}
             </div>
-            <div className="w-full rounded border bg-white p-4">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-2xl">Categories</h2>
-                <Link
-                  href={`/site/${subdomain}/categories`}
-                  className="hover:underline"
-                >
-                  All Categories ({categories?.length})
-                </Link>
-              </div>
-              {isLoadingCategories ? (
-                <ContainerLoader />
-              ) : (
-                <ul className="space-y-0 divide-y overflow-hidden rounded border">
-                  <SlimCategoryList
-                    categories={categories}
-                    subdomain={subdomain}
-                  />
-                </ul>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-y-4 gap-x-4">
             <div className="w-full rounded border bg-white p-4">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-2xl">Featured Posts</h2>
@@ -142,6 +119,27 @@ export default function Dashboard() {
                 </ul>
               )}
             </div>
+          </div>
+          <div className="w-full rounded border bg-white p-4">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-2xl">Categories</h2>
+              <Link
+                href={`/site/${subdomain}/categories`}
+                className="hover:underline"
+              >
+                All Categories ({categories?.length})
+              </Link>
+            </div>
+            {isLoadingCategories ? (
+              <ContainerLoader />
+            ) : (
+              <ul className="space-y-0 divide-y overflow-hidden rounded border">
+                <SlimCategoryList
+                  categories={categories}
+                  subdomain={subdomain}
+                />
+              </ul>
+            )}
           </div>
         </div>
       </Container>

@@ -1,3 +1,4 @@
+import { PostTranslation } from "@prisma/client";
 import Link from "next/link";
 import { StatusIndicator } from "./PostCard";
 
@@ -25,6 +26,16 @@ const SlimCategory = ({ category, subdomain, isChild, isSubChild }: any) => {
           <p className="right-1 flex w-auto rounded bg-gray-100 px-1 text-xs line-clamp-1">
             /{category.slug}
           </p>
+          <div className="mt-1 flex w-full overflow-x-auto text-sm">
+            {category?.translations?.map((translation: PostTranslation) => (
+              <div
+                className="mr-1 rounded bg-gray-100 p-1 text-xs"
+                key={translation.id}
+              >
+                {translation.lang.toUpperCase()}
+              </div>
+            ))}
+          </div>
         </div>
         <div className="flex h-full flex-col items-end">
           <div className="relative flex justify-between"></div>

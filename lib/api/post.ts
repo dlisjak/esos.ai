@@ -247,8 +247,8 @@ export async function updatePost(
     if (image) {
       const imageResponse = await prisma.image.create({
         data: {
-          src: image.src,
-          alt: image.alt,
+          src: image.src ?? "/placeholder.png",
+          alt: image.alt ?? title,
         },
       });
 
@@ -564,6 +564,16 @@ export async function getLatestPosts(
           subdomain: subdomain,
         },
       },
+      select: {
+        title: true,
+        slug: true,
+        published: true,
+        translations: {
+          select: {
+            lang: true,
+          },
+        },
+      },
       orderBy: [
         {
           createdAt: "desc",
@@ -614,6 +624,20 @@ export async function importPosts(
       siteId: site.id,
       id: categoryId,
     },
+    select: {
+      id: true,
+      title: true,
+      posts: {
+        select: {
+          slug: true,
+        },
+      },
+      parent: {
+        select: {
+          slug: true,
+        },
+      },
+    },
   });
   if (!category) return res.status(404).end("Category not found");
 
@@ -626,18 +650,23 @@ export async function importPosts(
     });
   }
 
-  console.log({ prompt });
-
   try {
     const response = await Promise.all(
-      posts.map(async (post: any) => {
+      posts.filter(async (post: any) => {
         const regex = new RegExp(/\[(.*?)\]/g);
         const title = post.title.replaceAll(regex, category.title);
-        const command = prompt.command.replaceAll(regex, title) ?? null;
+        const slug = getSlug(title);
+
+        const duplicatePosts = category.posts.filter(
+          (categoryPost) => categoryPost.slug === slug
+        );
+        if (duplicatePosts.length > 0) return false;
+
+        const command = prompt?.command?.replaceAll(regex, title) ?? null;
 
         const data: any = {
           title,
-          slug: getSlug(title),
+          slug,
           published: post.published === "true" ? true : false,
           site: {
             connect: {
@@ -681,7 +710,10 @@ export async function importPosts(
 
     if (response) {
       await Promise.all(
-        response.map((post) => revalidate(site, undefined, category, post))
+        response.map((post) => {
+          if (!post.slug) return;
+          return revalidate(site, undefined, category, post);
+        })
       );
     }
 

@@ -41,7 +41,7 @@ const CategoryCard = ({
           </div>
           <div className="relative flex flex-col items-start px-4">
             <div className="flex items-center">
-              <Link href={categoryEditUrl} className="hover:underline">
+              <Link href={categoryPostsUrl} className="hover:underline">
                 <h2 className="mb-1 text-xl font-semibold">{title}</h2>
               </Link>
             </div>

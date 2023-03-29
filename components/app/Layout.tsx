@@ -145,14 +145,14 @@ export default function Layout({ children }: any) {
                 >
                   Categories
                 </Link>
-                <Link
+                {/* <Link
                   href={`/site/${subdomain}/themes`}
                   className={`border-b-2 ${
                     themePage ? "border-black" : "border-transparent"
                   } py-3`}
                 >
                   Themes
-                </Link>
+                </Link> */}
                 <Link
                   href={`/site/${subdomain}/settings`}
                   className={`border-b-2 ${

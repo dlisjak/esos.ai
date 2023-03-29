@@ -46,7 +46,7 @@ const PostCard = ({
               width={240}
               height={120}
               className="h-full object-cover"
-              src={image?.src ?? "/placeholder.png"}
+              src={image?.src ? image?.src : "/placeholder.png"}
             />
           </Link>
         </div>
