@@ -315,7 +315,7 @@ export default function Post() {
                     onClick={() => setSelectedTranslation(translation)}
                     key={translation.lang}
                   >
-                    {translation.lang}
+                    {translation.lang.toUpperCase()}
                   </button>
                 ))}
               </ul>

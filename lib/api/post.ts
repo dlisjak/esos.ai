@@ -9,6 +9,7 @@ import { revalidate } from "../revalidate";
 import getSlug from "speakingurl";
 import { openai } from "../openai";
 import { extractBrokenLinks, removeBrokenLinks } from "../links";
+import { PER_TRANSLATION } from "../consts/credits";
 
 /**
  * Get Post
@@ -444,7 +445,32 @@ export async function translatePost(
   if (!session.user.id || !translationId)
     return res.status(400).end("Bad request. User not validated.");
 
+  const creditsUsage = Math.ceil(content.length / PER_TRANSLATION);
+
+  const user = await prisma.user.findFirst({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      credits: true,
+    },
+  });
+  if (!user || !user.credits) return res.status(400).end("User not found.");
+  if (user.credits < creditsUsage)
+    return res.status(400).end("Insufficient credits.");
+
   try {
+    await prisma.user.update({
+      where: {
+        id: session.user.id,
+      },
+      data: {
+        credits: {
+          decrement: creditsUsage,
+        },
+      },
+    });
+
     if (!postId) {
       const translation = await prisma.postTranslation.update({
         where: {
@@ -482,7 +508,6 @@ export async function translatePost(
         data: {
           title: translatedTitle,
           content: translatedContent,
-          excerpt: translatedContent.substring(0, 150),
         },
       });
 

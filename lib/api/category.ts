@@ -8,6 +8,7 @@ import translate from "deepl";
 import getSlug from "speakingurl";
 import category from "pages/api/category";
 import { revalidate } from "../revalidate";
+import { PER_TRANSLATION } from "../consts/credits";
 
 /**
  * Get Category
@@ -418,7 +419,32 @@ export async function translateCategory(
   if (!session.user.id || !translationId)
     return res.status(400).end("Bad request. User not validated.");
 
+  const creditsUsage = Math.ceil(content.length / PER_TRANSLATION);
+
+  const user = await prisma.user.findFirst({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      credits: true,
+    },
+  });
+  if (!user || !user.credits) return res.status(400).end("User not found.");
+  if (user.credits < creditsUsage)
+    return res.status(400).end("Insufficient credits.");
+
   try {
+    await prisma.user.update({
+      where: {
+        id: session.user.id,
+      },
+      data: {
+        credits: {
+          decrement: creditsUsage,
+        },
+      },
+    });
+
     if (!categoryId) {
       const translation = await prisma.categoryTranslation.update({
         where: {
@@ -427,7 +453,6 @@ export async function translateCategory(
         data: {
           title,
           content,
-          excerpt: content.substring(0, 150),
         },
       });
 
@@ -457,7 +482,6 @@ export async function translateCategory(
         data: {
           title: translatedTitle,
           content: translatedContent,
-          excerpt: translatedContent.substring(0, 150),
         },
         include: {
           category: {

@@ -23,6 +23,7 @@ import TextEditor from "@/components/TextEditor";
 import TitleEditor from "@/components/TitleEditor";
 import { Image as ImageType, PostTranslation } from "@prisma/client";
 import Modal from "@/components/Modal";
+import { PER_TRANSLATION } from "@/lib/consts/credits";
 
 interface PostData {
   title: string;
@@ -287,6 +288,8 @@ export default function Post() {
     }
   }
 
+  console.log(data.content.length);
+
   return (
     <Layout>
       <Header>
@@ -315,7 +318,7 @@ export default function Post() {
                     onClick={() => setSelectedTranslation(translation)}
                     key={translation.lang}
                   >
-                    {translation.lang}
+                    {translation.lang.toUpperCase()}
                   </button>
                 ))}
               </ul>
@@ -504,7 +507,13 @@ export default function Post() {
                   </select>
                 </div>
               </div>
-              <div className="mt-10 flex w-full items-center justify-between">
+              <div className="mt-auto pt-4 text-sm italic">
+                The cost of translating this article is{" "}
+                <b>
+                  {Math.ceil(data.content.length / PER_TRANSLATION)} credits
+                </b>
+              </div>
+              <div className="mt-4 flex w-full items-center justify-between">
                 <button
                   type="button"
                   className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-400 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"

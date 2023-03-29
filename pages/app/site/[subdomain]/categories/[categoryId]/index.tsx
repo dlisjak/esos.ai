@@ -343,7 +343,7 @@ export default function CategoryPage() {
                     onClick={() => setSelectedTranslation(translation)}
                     key={translation.lang}
                   >
-                    {translation.lang}
+                    {translation.lang.toUpperCase()}
                   </button>
                 ))}
               </ul>
@@ -580,6 +580,10 @@ export default function CategoryPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+                <div className="mt-auto pt-4 text-sm italic">
+                  The cost of translating is{" "}
+                  <b>{Math.ceil(data.content.length / 500)}</b>
                 </div>
               </div>
               <div className="mt-10 flex w-full items-center justify-between">

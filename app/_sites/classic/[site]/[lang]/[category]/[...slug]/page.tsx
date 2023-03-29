@@ -193,7 +193,6 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       content: true,
       image: true,
       createdAt: true,
-      excerpt: true,
       translations: {
         where: {
           lang,
@@ -235,9 +234,6 @@ const getData = async (site: string, slugObj: string, lang: string) => {
     ...post,
     title: post?.translations[0].title || post?.title,
     content: post?.translations[0].content || post?.content,
-    excerpt:
-      post?.translations[0].content?.substring(0, 150) ||
-      post?.content?.substring(0, 150),
   };
 
   return {
