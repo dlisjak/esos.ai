@@ -519,6 +519,11 @@ export async function importCategories(
                 id: site.id,
               },
             },
+            translations: {
+              create: {
+                lang: "en",
+              },
+            },
           },
           select: {
             id: true,
@@ -546,6 +551,11 @@ export async function importCategories(
                   site: {
                     connect: {
                       id: site.id,
+                    },
+                  },
+                  translations: {
+                    create: {
+                      lang: "en",
                     },
                   },
                 },
@@ -584,6 +594,11 @@ export async function importCategories(
                   parent: {
                     connect: {
                       id: subCategory.id,
+                    },
+                  },
+                  translations: {
+                    create: {
+                      lang: "en",
                     },
                   },
                 },
