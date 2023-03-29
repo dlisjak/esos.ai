@@ -11,6 +11,12 @@ interface PostBodyProps {
 }
 
 const PostBody = ({ post, user, lang }: PostBodyProps) => {
+  if (!post.content || !post.title)
+    return (
+      <div className="prose">
+        <h1>Content Not Found</h1>
+      </div>
+    );
   const firstSubheading = post.content.indexOf("##");
   const mdExcerpt = post.content.substring(0, firstSubheading);
   const mdElse = post.content.substring(firstSubheading - 2);
