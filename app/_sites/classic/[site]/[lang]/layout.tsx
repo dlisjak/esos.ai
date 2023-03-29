@@ -8,13 +8,47 @@ import prisma from "@/lib/prisma";
 import "../../../../../styles/sites.css";
 
 export async function generateStaticParams() {
-  const [subdomains, customDomains]: any = [];
+  const [subdomains, customDomains] = await Promise.all([
+    prisma.site.findMany({
+      select: {
+        subdomain: true,
+        categories: {
+          select: {
+            translations: {
+              select: {
+                lang: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.site.findMany({
+      where: {
+        NOT: {
+          customDomain: null,
+        },
+      },
+      select: {
+        customDomain: true,
+        categories: {
+          select: {
+            translations: {
+              select: {
+                lang: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+  ]);
 
-  const subDomains = [].map((site: any) => ({
+  const subDomains = [...subdomains].map((site) => ({
     ...site,
     domain: site.subdomain,
   }));
-  const domains = [].map((site: any) => ({
+  const domains = [...customDomains].map((site) => ({
     ...site,
     domain: site.customDomain,
   }));
@@ -22,9 +56,9 @@ export async function generateStaticParams() {
   const langs = [...subDomains, ...domains]
     .map((site) => {
       return site.categories
-        .map((category: any) => {
+        .map((category) => {
           return category.translations
-            .map((translation: any) => {
+            .map((translation) => {
               return {
                 site: site?.domain,
                 lang: translation.lang.toLowerCase(),
