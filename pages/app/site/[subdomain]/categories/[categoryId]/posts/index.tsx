@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import getSlug from "speakingurl";
 
 import Layout from "@/components/app/Layout";
@@ -49,10 +49,13 @@ export default function CategoryPosts() {
     useState<boolean>(false);
   const [showBulkCreateModal, setShowBulkCreateModal] =
     useState<boolean>(false);
+  const [bulkCreatingContent, setBulkCreatingContent] =
+    useState<boolean>(false);
 
   const [importContentPromptId, setImportContentPromptId] =
     useState<string>("");
   const [promptHintValue, setPromptHintValue] = useState<string>("");
+  const [importCost, setImportCost] = useState<number>(0);
 
   const [deletingPostTitle, setDeletingPostTitle] = useState();
   const [deletingPostId, setDeletingPostId] = useState();
@@ -160,10 +163,9 @@ export default function CategoryPosts() {
     if (!subdomain) return;
     if (bulkCreateContent && !importContentPromptId) return;
 
-    const { posts } = JSON.parse(postsJSONRef?.current?.value ?? "");
+    setBulkCreatingContent(true);
 
-    console.log({ importContentPromptId });
-    console.log({ bulkCreateContent });
+    const { posts } = JSON.parse(postsJSONRef?.current?.value ?? "");
 
     const data = {
       subdomain,
@@ -189,6 +191,7 @@ export default function CategoryPosts() {
     } catch (error) {
       console.error(error);
     } finally {
+      setBulkCreatingContent(false);
       setShowBulkCreateModal(false);
     }
   };
@@ -376,7 +379,11 @@ export default function CategoryPosts() {
               )}
             </div>
           </div>
-          <div className="mt-10 flex w-full items-center justify-between">
+          <div className="mt-auto pt-4 text-sm italic">
+            The cost of an import is{" "}
+            <b>{bulkCreateContent ? 5 : 1} credits per post</b>
+          </div>
+          <div className="mt-4 flex w-full items-center justify-between">
             <button
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
@@ -389,14 +396,14 @@ export default function CategoryPosts() {
 
             <button
               type="submit"
-              disabled={creatingPost}
+              disabled={bulkCreatingContent}
               className={`${
-                creatingPost
+                bulkCreatingContent
                   ? "cursor-not-allowed bg-gray-50 text-gray-400"
                   : "bg-white text-gray-600 hover:text-black"
               } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-0`}
             >
-              {creatingPost ? <LoadingDots /> : "CREATE POSTS"}
+              {bulkCreatingContent ? <LoadingDots /> : "CREATE POSTS"}
             </button>
           </div>
         </form>

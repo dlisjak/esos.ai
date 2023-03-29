@@ -8,6 +8,7 @@ import translate from "deepl";
 import { revalidate } from "../revalidate";
 import getSlug from "speakingurl";
 import { openai } from "../openai";
+import { extractBrokenLinks, removeBrokenLinks } from "../links";
 
 /**
  * Get Post
@@ -691,11 +692,18 @@ export async function importPosts(
             model: "gpt-4-0314",
             messages: [{ role: "user", content: command }],
           });
-          const content =
-            contentResponse?.data?.choices[0]?.message?.content.trim();
 
-          data["content"] = content;
-          data["translations"]["create"]["content"] = content;
+          if (contentResponse) {
+            const content =
+              contentResponse?.data?.choices[0]?.message?.content.trim();
+            if (content) {
+              const brokenLinks = await extractBrokenLinks(content);
+              const newMessage = removeBrokenLinks(content, brokenLinks);
+
+              data["content"] = newMessage;
+              data["translations"]["create"]["content"] = newMessage;
+            }
+          }
         }
 
         const p = await prisma.post.create({
