@@ -54,8 +54,6 @@ export default function CategoryPosts() {
 
   const [importContentPromptId, setImportContentPromptId] =
     useState<string>("");
-  const [promptHintValue, setPromptHintValue] = useState<string>("");
-  const [importCost, setImportCost] = useState<number>(0);
 
   const [deletingPostTitle, setDeletingPostTitle] = useState();
   const [deletingPostId, setDeletingPostId] = useState();

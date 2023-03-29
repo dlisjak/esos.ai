@@ -25,6 +25,7 @@ import { Image as ImageType, PostTranslation } from "@prisma/client";
 import Modal from "@/components/Modal";
 
 interface PostData {
+  id: string;
   title: string;
   slug: string;
   content: string;
@@ -61,6 +62,7 @@ export default function Post() {
   const { categories } = useCategories(subdomain);
 
   const [data, setData] = useState<PostData>({
+    id: "",
     title: "",
     slug: "",
     content: "",
@@ -70,16 +72,22 @@ export default function Post() {
 
   useEffect(() => {
     if (post) {
-      setData({
-        title: post.title ?? "",
-        slug: post.slug ?? "",
-        content: post.content ?? "",
-        categoryId: post.categoryId ?? "",
-        image: post.image ?? { id: "", src: "", alt: "" },
-      });
       setSelectedTranslation(post?.translations[0] ?? null);
     }
   }, [post]);
+
+  useEffect(() => {
+    if (post && selectedTranslation) {
+      return setData({
+        id: post.id ?? "",
+        slug: post.slug ?? "",
+        categoryId: post.categoryId ?? "",
+        image: post.image ?? null,
+        title: selectedTranslation?.title || post.title || "",
+        content: selectedTranslation?.content || post.content || "",
+      });
+    }
+  }, [selectedTranslation]);
 
   useEffect(() => {
     if (
@@ -92,22 +100,6 @@ export default function Post() {
       setDisabled(false);
     else setDisabled(true);
   }, [publishing, data]);
-
-  useEffect(() => {
-    if (!selectedTranslation) {
-      return setData({
-        ...data,
-        title: post?.title || "",
-        content: post?.content || "",
-      });
-    }
-
-    setData({
-      ...data,
-      title: selectedTranslation?.title || "",
-      content: selectedTranslation?.content || "",
-    });
-  }, [selectedTranslation]);
 
   const uploadImage = async (file: any, alt: any) => {
     const path = `${sessionUser}/${subdomain}`;

@@ -73,39 +73,28 @@ export default function CategoryPage() {
 
   useEffect(() => {
     if (category) {
-      setData({
-        id: category.id ?? "",
-        title: category.title ?? "",
-        content: category.content ?? "",
-        parentId: category.parentId ?? "",
-        slug: category.slug ?? "",
-        image: category.image ?? null,
-      });
       setSelectedTranslation(category?.translations[0] ?? null);
     }
   }, [category]);
+
+  useEffect(() => {
+    if (category && selectedTranslation) {
+      setData({
+        id: category.id ?? "",
+        parentId: category.parentId ?? "",
+        slug: category.slug ?? "",
+        image: category.image ?? null,
+        title: selectedTranslation?.title || category?.title || "",
+        content: selectedTranslation?.content || category?.content || "",
+      });
+    }
+  }, [selectedTranslation]);
 
   useEffect(() => {
     if (data.title && data.slug && data.content && !publishing)
       setDisabled(false);
     else setDisabled(true);
   }, [publishing, data]);
-
-  useEffect(() => {
-    if (!selectedTranslation) {
-      return setData({
-        ...data,
-        title: category?.title || "",
-        content: category?.content || "",
-      });
-    }
-
-    setData({
-      ...data,
-      title: selectedTranslation?.title || category?.title || "",
-      content: selectedTranslation?.content || category?.content || "",
-    });
-  }, [selectedTranslation]);
 
   const uploadImage = async (file: any, title: any) => {
     const path = `${sessionUser}/${subdomain}`;

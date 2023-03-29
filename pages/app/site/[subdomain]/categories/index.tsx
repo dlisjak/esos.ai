@@ -81,6 +81,8 @@ const JSON_PLACEHOLDER = `{
 }`;
 
 export default function SiteCategories() {
+  const [bulkCreatingContent, setBulkCreatingContent] =
+    useState<boolean>(false);
   const [showCategoryModal, setShowCategoryModal] = useState<boolean>(false);
   const [showPostModal, setShowPostModal] = useState<boolean>(false);
   const [showImportCategoriesModal, setShowImportCategoriesModal] =
@@ -174,6 +176,7 @@ export default function SiteCategories() {
 
   async function importCategories(subdomain: string | string[] | undefined) {
     if (!subdomain) return;
+    setBulkCreatingContent(true);
 
     const { categories } = JSON.parse(categoriesJSONRef?.current?.value ?? "");
 
@@ -198,6 +201,7 @@ export default function SiteCategories() {
     } catch (error) {
       console.error(error);
     } finally {
+      setBulkCreatingContent(false);
       setShowImportCategoriesModal(false);
     }
   }
@@ -424,14 +428,14 @@ export default function SiteCategories() {
 
             <button
               type="submit"
-              disabled={creatingCategory}
+              disabled={bulkCreatingContent}
               className={`${
-                creatingCategory
+                bulkCreatingContent
                   ? "cursor-not-allowed bg-gray-50 text-gray-400"
                   : "bg-white text-gray-600 hover:text-black"
               } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-0`}
             >
-              {creatingCategory ? <LoadingDots /> : "CREATE CATEGORY"}
+              {bulkCreatingContent ? <LoadingDots /> : "IMPORT CATEGORY"}
             </button>
           </div>
         </form>
