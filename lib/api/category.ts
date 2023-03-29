@@ -522,9 +522,10 @@ export async function importCategories(
           },
           select: {
             id: true,
+            slug: true,
           },
         });
-        return { ...category, id: cat.id };
+        return { ...category, ...cat };
       })
     );
 
@@ -550,10 +551,16 @@ export async function importCategories(
                 },
                 select: {
                   id: true,
+                  slug: true,
+                  parent: {
+                    select: {
+                      slug: true,
+                    },
+                  },
                 },
               });
 
-              return { ...subCategory, id: subcat.id };
+              return { ...subCategory, ...subcat };
             })
             .flat()
         )
@@ -562,43 +569,56 @@ export async function importCategories(
 
     const subSubCategories = await Promise.all(
       subCategories
-        .map((subCategory: any) => {
+        .map((subCategory: any) =>
           subCategory.children
-            ?.map(
-              async (child: any) =>
-                await prisma.category.create({
-                  data: {
-                    title: child.title,
-                    slug: getSlug(child.title),
-                    site: {
-                      connect: {
-                        id: site.id,
-                      },
-                    },
-                    parent: {
-                      connect: {
-                        id: subCategory.id,
-                      },
+            ?.map(async (child: any) => {
+              const subsubCat = await prisma.category.create({
+                data: {
+                  title: child.title,
+                  slug: getSlug(child.title),
+                  site: {
+                    connect: {
+                      id: site.id,
                     },
                   },
-                  select: {
-                    slug: true,
-                    parent: {
-                      select: {
-                        slug: true,
-                      },
+                  parent: {
+                    connect: {
+                      id: subCategory.id,
                     },
                   },
-                })
-            )
-            .flat();
-        })
+                },
+                select: {
+                  slug: true,
+                  parent: {
+                    select: {
+                      slug: true,
+                    },
+                  },
+                },
+              });
+
+              return { ...child, ...subsubCat };
+            })
+            .flat()
+        )
         .flat()
     );
 
-    if (subSubCategories) {
+    if (!!subSubCategories[0]) {
       await Promise.all(
         subSubCategories.map((category) =>
+          revalidate(site, undefined, category, undefined)
+        )
+      );
+    } else if (!!subCategories[0]) {
+      await Promise.all(
+        subCategories.map((category) =>
+          revalidate(site, undefined, category, undefined)
+        )
+      );
+    } else if (!!mainCategories[0]) {
+      await Promise.all(
+        mainCategories.map((category) =>
           revalidate(site, undefined, category, undefined)
         )
       );
