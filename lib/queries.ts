@@ -300,6 +300,7 @@ export const useCredits = () => {
   });
 
   return {
+    credits: user?.credits,
     isLoading: !error && !user,
     isError: error,
     mutateCredits: mutate,

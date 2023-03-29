@@ -37,7 +37,7 @@ export default function SiteSettings() {
   const [error, setError] = useState<any | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingSite, setDeletingSite] = useState(false);
-  const [imagePreview, setImagePreview] = useState<any>();
+  const [imagePreview, setImagePreview] = useState<any>(null);
   const [imageData, setImageData] = useState<any>();
   const { FileInput, uploadToS3 } = useS3Upload();
 
@@ -385,25 +385,22 @@ export default function SiteSettings() {
                   <div className="relative flex w-full max-w-lg flex-col space-y-2">
                     <h2 className="text-xl">Logo Image</h2>
                     <div className="w-full max-w-lg">
-                      <div
-                        className={`relative h-[480px] w-[480px] ${
-                          data.image ? "" : "h-150 animate-pulse bg-gray-300"
-                        } relative w-full overflow-hidden rounded border-2 border-dashed border-gray-800`}
-                      >
+                      <div className="relative relative h-[480px] w-[480px] w-full overflow-hidden rounded border-2 border-dashed border-gray-800">
                         <FileInput
                           className="fileUpload absolute left-0 top-0 bottom-0 right-0 z-50 cursor-pointer opacity-0"
                           onChange={handleImageSelect}
                         />
-                        {(imagePreview ||
-                          (data?.image && data?.image?.src)) && (
-                          <Image
-                            src={imagePreview || data?.image?.src}
-                            alt={data?.image?.alt ?? "placeholder"}
-                            width={480}
-                            height={480}
-                            className="h-full w-full cursor-pointer rounded object-contain"
-                          />
-                        )}
+                        <Image
+                          src={
+                            imagePreview
+                              ? imagePreview
+                              : data?.image?.src || "/placeholder.png"
+                          }
+                          alt={data?.image?.alt ?? "placeholder"}
+                          width={480}
+                          height={480}
+                          className="h-full w-full cursor-pointer rounded object-contain"
+                        />
                       </div>
                     </div>
                   </div>

@@ -284,7 +284,7 @@ export async function updateSite(
         },
       });
 
-      data["imageId"] = image.id;
+      data["imageId"] = imageRes.id;
     }
 
     const response = await prisma.site.update({

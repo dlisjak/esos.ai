@@ -8,9 +8,11 @@ import Loader from "./Loader";
 import useRequireAuth from "../../lib/useRequireAuth";
 
 import TopNavLink from "./NavLink/TopNavLink";
+import { useCredits } from "@/lib/queries";
 
 export default function Layout({ children }: any) {
   const router = useRouter();
+  const { credits } = useCredits();
   const { subdomain, categoryId } = router.query;
 
   const logo = "/favicon.ico";
@@ -105,6 +107,7 @@ export default function Layout({ children }: any) {
               <TopNavLink href="/account">Account</TopNavLink>
             </div>
             <div className="flex items-center">
+              <div className="mr-4">Credits: {credits}</div>
               <button
                 className="text-gray-500 transition-all duration-150 ease-in-out hover:text-gray-700"
                 onClick={() => signOut()}
