@@ -227,12 +227,18 @@ const TextEditor = ({ value, setValue, dataId }) => {
                 />
               </div>
             </div>
-          </div>
-          <div className="mt-auto pt-4 text-sm italic">
-            The cost of generating content is{" "}
-            <b>
-              {Math.ceil(PER_GENERATE)} credits
-            </b>
+            <div className="mt-auto pt-4 text-sm italic">
+              The cost of generating content is{" "}
+              <b>1 credit per {PER_GENERATE} words</b>
+            </div>
+            <div className="w-full mt-4 flex items-center">
+              <label className="font-semibold mr-2 hover:cursor-pointer" htmlFor="internalLink">Use Internal Linking</label>
+              <input className="hover:cursor-pointer rounded" id="internalLink" type="checkbox" />
+            </div>
+            <div className="w-full mt-2 pb-2 flex items-center">
+              <label className="font-semibold mr-2 hover:cursor-pointer" htmlFor="generateLink">Generate Internal Links</label>
+              <input className="hover:cursor-pointer rounded" id="generateLink" type="checkbox" />
+            </div>
           </div>
           <div className="mt-4 flex w-full items-center justify-between">
             <button

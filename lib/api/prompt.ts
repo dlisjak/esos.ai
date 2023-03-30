@@ -6,6 +6,7 @@ import { openai } from "@/lib/openai";
 
 import type { Prompt } from ".prisma/client";
 import { extractBrokenLinks, removeBrokenLinks } from "../links";
+import { GPT_3, GPT_4 } from "../consts/gpt";
 
 /**
  * Get Prompt
@@ -273,7 +274,7 @@ export async function generate(
     const command = prompt.command.replaceAll(regex, promptVariable);
 
     const response = await openai.createChatCompletion({
-      model: "gpt-4",
+      model: GPT_4,
       messages: [{ role: "user", content: command }],
     });
 
@@ -351,7 +352,7 @@ export async function testPrompt(
     }
 
     const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
+      model: GPT_3,
       messages: [{ role: "user", content: command }],
     });
 

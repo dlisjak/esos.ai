@@ -6,7 +6,6 @@ import type { Category, CategoryTranslation } from ".prisma/client";
 import { WithAllCategory } from "@/types/category";
 import translate from "deepl";
 import getSlug from "speakingurl";
-import category from "pages/api/category";
 import { revalidate } from "../revalidate";
 import { PER_TRANSLATION } from "../consts/credits";
 

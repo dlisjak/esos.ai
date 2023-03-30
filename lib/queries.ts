@@ -296,7 +296,7 @@ export const useCredits = () => {
     error,
     mutate,
   } = useSWR<any>(`/api/user`, fetcher, {
-    revalidateOnFocus: false,
+    revalidateOnFocus: true,
   });
 
   return {

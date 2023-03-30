@@ -397,6 +397,9 @@ export default function Post() {
                   />
                 </div>
               </div>
+              <div className="w-full max-w-lg">
+                <h2 className="mr-auto text-xl">Linking</h2>
+              </div>
             </div>
           </Container>
           <footer className="z-5 fixed inset-x-0 bottom-0 h-20 border-t border-solid border-gray-500 bg-white">

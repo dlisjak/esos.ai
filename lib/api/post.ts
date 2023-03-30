@@ -9,7 +9,12 @@ import { revalidate } from "../revalidate";
 import getSlug from "speakingurl";
 import { openai } from "../openai";
 import { extractBrokenLinks, removeBrokenLinks } from "../links";
-import { PER_TRANSLATION } from "../consts/credits";
+import {
+  PER_IMPORT,
+  PER_IMPORT_AND_GENERATE,
+  PER_TRANSLATION,
+} from "../consts/credits";
+import { GPT_4 } from "../consts/gpt";
 
 /**
  * Get Post
@@ -642,6 +647,17 @@ export async function importPosts(
   });
   if (!site) return res.status(404).end("Site not found");
 
+  const user = await prisma.user.findFirst({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      credits: true,
+    },
+  });
+  if (!user) return res.status(400).end("User not found.");
+  if (!user.credits) return res.status(400).end("Not enough credits.");
+
   const category = await prisma.category.findFirst({
     where: {
       siteId: site.id,
@@ -666,6 +682,29 @@ export async function importPosts(
   });
   if (!category) return res.status(404).end("Category not found");
 
+  const regex = new RegExp(/\[(.*?)\]/g);
+
+  const filteredPosts = posts.filter((post: any) => {
+    const title = post.title.replaceAll(regex, category.title);
+    const slug = getSlug(title);
+
+    const duplicatePosts = category.posts.filter(
+      (categoryPost) => categoryPost.slug === slug
+    );
+
+    if (duplicatePosts.length > 0) return false;
+    return true;
+  });
+
+  const creditsUsage = Math.ceil(
+    filteredPosts.length * bulkCreateContent
+      ? PER_IMPORT_AND_GENERATE
+      : PER_IMPORT
+  );
+
+  if (user.credits < creditsUsage)
+    return res.status(400).end("Insufficient credits.");
+
   let prompt: any = null;
   if (bulkCreateContent) {
     prompt = await prisma.prompt.findFirst({
@@ -677,15 +716,9 @@ export async function importPosts(
 
   try {
     const response = await Promise.all(
-      posts.filter(async (post: any) => {
-        const regex = new RegExp(/\[(.*?)\]/g);
+      filteredPosts.map(async (post: any) => {
         const title = post.title.replaceAll(regex, category.title);
         const slug = getSlug(title);
-
-        const duplicatePosts = category.posts.filter(
-          (categoryPost) => categoryPost.slug === slug
-        );
-        if (duplicatePosts.length > 0) return false;
 
         const command = prompt?.command?.replaceAll(regex, title) ?? null;
 
@@ -711,9 +744,9 @@ export async function importPosts(
           },
         };
 
-        if (command) {
+        if (!!command) {
           const contentResponse = await openai.createChatCompletion({
-            model: "gpt-4",
+            model: GPT_4,
             messages: [{ role: "user", content: command }],
           });
 
@@ -726,22 +759,42 @@ export async function importPosts(
 
               data["content"] = newMessage;
               data["translations"]["create"]["content"] = newMessage;
+
+              const p = await prisma.post.create({
+                data,
+                select: {
+                  id: true,
+                  slug: true,
+                },
+              });
+
+              return { ...post, ...p };
             }
           }
         }
 
-        const p = await prisma.post.create({
-          data,
-          select: {
-            id: true,
-            slug: true,
-          },
-        });
-        return { ...post, ...p };
+        return null;
       })
     );
 
     if (response) {
+      const creditPerPost = bulkCreateContent
+        ? PER_IMPORT_AND_GENERATE
+        : PER_IMPORT;
+
+      const creditsUsage = Math.ceil(response.length * creditPerPost);
+
+      await prisma.user.update({
+        where: {
+          id: session.user.id,
+        },
+        data: {
+          credits: {
+            decrement: creditsUsage,
+          },
+        },
+      });
+
       await Promise.all(
         response.map((post) => {
           if (!post.slug) return;

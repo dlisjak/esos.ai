@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import getSlug from "speakingurl";
 
 import Layout from "@/components/app/Layout";
@@ -15,6 +15,7 @@ import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
 import { useCategory, usePrompts } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
+import { isJsonString } from "@/lib/json";
 
 const JSON_PLACEHOLDER = `{
 	"posts": [{
@@ -163,7 +164,9 @@ export default function CategoryPosts() {
 
     setBulkCreatingContent(true);
 
-    const { posts } = JSON.parse(postsJSONRef?.current?.value ?? "");
+    const json: any = postsJSONRef?.current?.value;
+    if (!isJsonString(json)) return toast.error("Wrong JSON format");
+    const { posts } = JSON.parse(json);
 
     const data = {
       subdomain,
@@ -172,6 +175,8 @@ export default function CategoryPosts() {
       bulkCreateContent,
       promptId: importContentPromptId,
     };
+
+    if (!data.posts[0]) return toast.error("Wrong JSON format");
 
     try {
       const res = await fetch(`/api/post/import`, {
@@ -184,10 +189,13 @@ export default function CategoryPosts() {
 
       if (res.ok) {
         toast.success(`Posts Imported`);
-        mutateCategory();
+        setTimeout(() => {
+          mutateCategory();
+        }, 250);
       }
     } catch (error) {
       console.error(error);
+      return toast.error("Error. Please contact support.");
     } finally {
       setBulkCreatingContent(false);
       setShowBulkCreateModal(false);
@@ -381,6 +389,11 @@ export default function CategoryPosts() {
             The cost of an import is{" "}
             <b>{bulkCreateContent ? 5 : 1} credits per post</b>
           </div>
+          {bulkCreateContent && (
+            <div className="mt-auto pt-4 text-sm italic">
+              This might take a long time, depending on the number of posts
+            </div>
+          )}
           <div className="mt-4 flex w-full items-center justify-between">
             <button
               type="button"

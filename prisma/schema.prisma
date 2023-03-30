@@ -86,10 +86,19 @@ model Post {
   siteId        String?
   imageId       String?
   translations  PostTranslation[]
+  links         PostLink[]
 
   @@unique([id, siteId], name: "post_site_constraint")
   @@unique([id, categoryId], name: "post_category_constraint")
   @@index([siteId, categoryId])
+}
+
+model PostLink {
+  id         String   @id @default(cuid())
+  title      String?
+  href       String?  @db.Text
+  post       Post     @relation(fields: [postId], references: [id])
+  postId     String
 }
 
 model PostTranslation {
@@ -97,7 +106,7 @@ model PostTranslation {
   title      String?
   content    String?  @db.Text
   lang       String
-  post       Post @relation(fields: [postId], references: [id])
+  post       Post     @relation(fields: [postId], references: [id])
   postId     String
 }
 
