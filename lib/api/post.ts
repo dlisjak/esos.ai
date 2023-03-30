@@ -192,13 +192,7 @@ export async function deletePost(
   }
 
   try {
-    await prisma.postTranslation.deleteMany({
-      where: {
-        postId,
-      },
-    });
-
-    const response = await prisma.post.delete({
+    await prisma.post.delete({
       where: {
         id: postId,
       },

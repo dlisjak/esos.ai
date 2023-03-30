@@ -97,7 +97,7 @@ model PostLink {
   id         String   @id @default(cuid())
   title      String?
   href       String?  @db.Text
-  post       Post     @relation(fields: [postId], references: [id])
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   postId     String
 }
 
@@ -106,7 +106,7 @@ model PostTranslation {
   title      String?
   content    String?  @db.Text
   lang       String
-  post       Post     @relation(fields: [postId], references: [id])
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   postId     String
 }
 
@@ -135,7 +135,7 @@ model CategoryTranslation {
   title       String?
   content     String?  @db.Text
   lang        String
-  category    Category @relation(fields: [categoryId], references: [id])
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   categoryId  String
 }
 

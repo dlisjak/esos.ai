@@ -199,6 +199,9 @@ export async function deleteCategory(
 
   const site = await prisma.site.findFirst({
     where: {
+      user: {
+        id: session.user.id,
+      },
       categories: {
         some: {
           id: categoryId,
@@ -210,12 +213,6 @@ export async function deleteCategory(
   if (!site) return res.status(400).json({ error: "Cannot find site" });
 
   try {
-    await prisma.categoryTranslation.deleteMany({
-      where: {
-        categoryId,
-      },
-    });
-
     await prisma.category.delete({
       where: {
         id: categoryId,
