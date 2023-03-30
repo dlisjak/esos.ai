@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 
 import { NextApiRequest, NextApiResponse } from "next";
-import type { Post, PostTranslation } from "@prisma/client";
+import type { Post, PostLink, PostTranslation } from "@prisma/client";
 import type { Session } from "next-auth";
 import { WithSitePost } from "@/types/post";
 import translate from "deepl";
@@ -12,6 +12,7 @@ import { extractBrokenLinks, removeBrokenLinks } from "../links";
 import {
   PER_IMPORT,
   PER_IMPORT_AND_GENERATE,
+  PER_INTERLINK,
   PER_TRANSLATION,
 } from "../consts/credits";
 import { GPT_4 } from "../consts/gpt";
@@ -58,6 +59,11 @@ export async function getPost(
           category: true,
           image: true,
           translations: true,
+          links: {
+            orderBy: {
+              title: "asc",
+            },
+          },
         },
       });
 
@@ -85,6 +91,11 @@ export async function getPost(
         category: true,
         image: true,
         translations: true,
+        links: {
+          orderBy: {
+            title: "asc",
+          },
+        },
       },
     });
 
@@ -130,6 +141,12 @@ export async function createPost(
         site: {
           connect: {
             subdomain: subdomain,
+          },
+        },
+        links: {
+          create: {
+            title,
+            href: slug,
           },
         },
       },
@@ -742,6 +759,12 @@ export async function importPosts(
               lang: "EN",
             },
           },
+          links: {
+            create: {
+              title,
+              href: slug,
+            },
+          },
         };
 
         if (!!command) {
@@ -806,6 +829,296 @@ export async function importPosts(
     return res.status(200).json(true);
   } catch (error) {
     console.error(error);
+    return res.status(500).end(error);
+  }
+}
+
+/**
+ * Create Post Link
+ *
+ * Creates single PostLink for a specific post
+ * JSON input
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+export async function createPostLink(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+): Promise<void | NextApiResponse<PostLink | null>> {
+  const { postId, title, href } = req.body;
+
+  if (!session.user.id || !postId || !title || !href)
+    return res.status(400).end("Bad request.");
+
+  const post = await prisma.post.findFirst({
+    where: {
+      id: postId,
+    },
+    select: {
+      slug: true,
+      category: {
+        select: {
+          slug: true,
+          parent: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const postLinkSlug = `/${
+    post?.category?.parent
+      ? post?.category?.parent?.slug + "/" + post?.category?.slug + "/"
+      : post?.category?.slug + "/"
+  }${post?.slug}`;
+
+  try {
+    const postLink = await prisma.postLink.create({
+      data: {
+        title,
+        href: postLinkSlug,
+        post: {
+          connect: {
+            id: postId,
+          },
+        },
+      },
+    });
+
+    return res.status(200).json(postLink);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
+}
+
+/**
+ * Delete Post Link
+ *
+ * Deletes a single PostLink for a specific post
+ * JSON input
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+export async function deletePostLink(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+): Promise<void | NextApiResponse<PostLink | null>> {
+  const { postId, linkId } = req.body;
+
+  if (!session.user.id || !postId || !linkId)
+    return res.status(400).end("Bad request.");
+
+  try {
+    const postLink = await prisma.postLink.delete({
+      where: {
+        id: linkId,
+      },
+    });
+
+    return res.status(200).json(postLink);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end(error);
+  }
+}
+
+/**
+ * Interlink Posts
+ *
+ * Interlinks posts from the category for a specific phrase
+ * JSON input
+ *
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ */
+export async function interlinkPosts(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+): Promise<void | NextApiResponse<PostLink | null>> {
+  const { subdomain, postId, linkId, categoryId } = req.body;
+
+  if (!session.user.id || !subdomain || !postId || !linkId || !categoryId)
+    return res.status(400).end("Bad request.");
+
+  const site = await prisma.site.findFirst({
+    where: {
+      subdomain,
+      user: {
+        id: session.user.id,
+      },
+    },
+  });
+
+  if (!site) return res.status(500).end("No Site Found.");
+
+  const postLink = await prisma.postLink.findFirst({
+    where: {
+      id: linkId,
+      post: {
+        site: {
+          user: {
+            id: session.user.id,
+          },
+        },
+      },
+    },
+  });
+
+  if (!postLink?.href || !postLink.title)
+    return res.status(500).end("No PostLink Found.");
+
+  const translations = await prisma.postTranslation.findMany({
+    where: {
+      post: {
+        id: {
+          not: postId,
+        },
+        site: {
+          user: {
+            id: session.user.id,
+          },
+        },
+      },
+      OR: [
+        {
+          content: {
+            contains: `${postLink.title} `,
+          },
+        },
+        {
+          content: {
+            contains: `${postLink.title}`,
+          },
+        },
+        {
+          content: {
+            contains: `${postLink.title}.`,
+          },
+        },
+        {
+          content: {
+            contains: ` ${postLink.title} `,
+          },
+        },
+        {
+          content: {
+            contains: ` ${postLink.title}.`,
+          },
+        },
+        {
+          content: {
+            contains: ` ${postLink.title},`,
+          },
+        },
+      ],
+      NOT: {
+        content: {
+          contains: `[${postLink.title}]`,
+        },
+      },
+    },
+    select: {
+      id: true,
+      content: true,
+      post: {
+        select: {
+          id: true,
+          slug: true,
+          category: {
+            select: {
+              slug: true,
+              parent: {
+                select: {
+                  slug: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const translationSlugs = translations.map((translation) => {
+    if (!translation.content || !postLink.title || !postLink.href)
+      return { ...translation, content: translation.content };
+    const linkedContent = translation.content.replace(
+      postLink?.title,
+      `[${postLink.title}](${postLink?.href})`
+    );
+    return { ...translation, content: linkedContent };
+  });
+
+  try {
+    const response = await Promise.all(
+      translationSlugs.map(async (translation) => {
+        const updatedPost = await prisma.postTranslation.update({
+          where: {
+            id: translation.id,
+          },
+          data: {
+            content: translation.content,
+          },
+          select: {
+            id: true,
+            post: {
+              select: {
+                id: true,
+                slug: true,
+                category: {
+                  select: {
+                    slug: true,
+                    parent: {
+                      select: {
+                        slug: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        return updatedPost;
+      })
+    );
+
+    if (response) {
+      const creditPerPost = PER_INTERLINK;
+
+      const creditsUsage = Math.ceil(response.length * creditPerPost);
+
+      await prisma.user.update({
+        where: {
+          id: session.user.id,
+        },
+        data: {
+          credits: {
+            decrement: creditsUsage,
+          },
+        },
+      });
+
+      await Promise.all(
+        response.map(({ post }) => {
+          if (!post.slug) return;
+          return revalidate(site, undefined, post.category, post);
+        })
+      );
+    }
+
+    return res.status(200).json(translations);
+  } catch (error) {
     return res.status(500).end(error);
   }
 }

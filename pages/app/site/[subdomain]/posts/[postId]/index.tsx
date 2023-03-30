@@ -21,7 +21,7 @@ import {
 import ContainerLoader from "@/components/app/ContainerLoader";
 import TextEditor from "@/components/TextEditor";
 import TitleEditor from "@/components/TitleEditor";
-import { Image as ImageType, PostTranslation } from "@prisma/client";
+import { Image as ImageType, PostLink, PostTranslation } from "@prisma/client";
 import Modal from "@/components/Modal";
 
 interface PostData {
@@ -31,6 +31,7 @@ interface PostData {
   content: string;
   categoryId: string;
   image: ImageType | null;
+  links: PostLink[] | null;
 }
 
 export default function Post() {
@@ -41,21 +42,23 @@ export default function Post() {
   const [publishing, setPublishing] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [translatingPost, setTranslatingPost] = useState(false);
+  const [addLinkValue, setAddLinkValue] = useState("");
 
   const router = useRouter();
   const { subdomain, postId } = router.query;
 
+  const { data: session } = useSession();
+  const sessionUser = session?.user?.name;
+
   const [showTranslateModal, setShowTranslateModal] = useState(false);
-  const { translations, mutateTranslations } = usePostTranslations(postId);
   const [selectedTranslation, setSelectedTranslation] =
     useState<PostTranslation | null>(null);
   const [selectedTranslationLang, setSelectedTranslationLang] = useState<
     string | null
   >(null);
 
+  const { translations, mutateTranslations } = usePostTranslations(postId);
   const { languages } = useSupportedLanguages();
-  const { data: session } = useSession();
-  const sessionUser = session?.user?.name;
 
   const { post, isLoading, mutatePost } = usePost(postId);
 
@@ -68,6 +71,7 @@ export default function Post() {
     content: "",
     categoryId: "",
     image: null,
+    links: null,
   });
 
   useEffect(() => {
@@ -83,6 +87,7 @@ export default function Post() {
         slug: post.slug ?? "",
         categoryId: post.categoryId ?? "",
         image: post.image ?? null,
+        links: post.links ?? null,
         title: selectedTranslation?.title || post.title || "",
         content: selectedTranslation?.content || post.content || "",
       });
@@ -279,6 +284,88 @@ export default function Post() {
     }
   }
 
+  const handleAddLink = async () => {
+    if (!postId || !addLinkValue || !data.slug) return;
+
+    try {
+      const res = await fetch(`/api/post/link`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: HttpMethod.POST,
+        body: JSON.stringify({
+          postId,
+          title: addLinkValue,
+          href: data.slug,
+        }),
+      });
+
+      if (res.ok) {
+        toast.success("Added a New Post Link");
+        mutatePost();
+      }
+    } catch (err) {
+      toast.error("Seems there was an error. Please contact support.");
+      console.error(err);
+    } finally {
+      setAddLinkValue("");
+    }
+  };
+
+  const handleRemovePostLink = async (linkId: string) => {
+    if (!linkId) return;
+
+    try {
+      const res = await fetch(`/api/post/link`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: HttpMethod.DELETE,
+        body: JSON.stringify({
+          postId,
+          linkId,
+        }),
+      });
+
+      if (res.ok) {
+        toast.success("Removed a Post Link");
+        mutatePost();
+      }
+    } catch (err) {
+      toast.error("Seems there was an error. Please contact support.");
+      console.error(err);
+    }
+  };
+
+  const handleInterLinkPosts = async (linkId: string) => {
+    if (!linkId) return;
+
+    try {
+      const res = await fetch(`/api/post/link`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: HttpMethod.PUT,
+        body: JSON.stringify({
+          subdomain,
+          postId,
+          linkId,
+          categoryId: post.categoryId,
+        }),
+      });
+
+      if (res.ok) {
+        toast.success("Removed a Post Link");
+        mutatePost();
+      }
+    } catch (err) {
+      toast.error("Seems there was an error. Please contact support.");
+      console.error(err);
+    }
+  };
+
+  console.log(data);
+
   return (
     <Layout>
       <Header>
@@ -395,6 +482,57 @@ export default function Post() {
                     className="h-full w-full cursor-pointer rounded object-contain"
                   />
                 </div>
+              </div>
+              <div className="relative w-full">
+                <div className="mb-1 flex justify-between">
+                  <h2 className="mr-auto text-xl">
+                    Links({data?.links?.length})
+                  </h2>
+                  <button className="flex items-center whitespace-nowrap border bg-white bg-white px-2 py-1 tracking-wide text-black text-gray-600 duration-200 hover:border-black hover:text-black">
+                    Add Link
+                  </button>
+                </div>
+                <div className="sticky top-0 w-full rounded border">
+                  <form
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      handleAddLink();
+                    }}
+                  >
+                    <input
+                      className="w-full rounded border"
+                      placeholder="Write Your Anchor Text and Press Enter key"
+                      onChange={(e) => setAddLinkValue(e.target.value)}
+                      value={addLinkValue}
+                      type="text"
+                      required
+                    />
+                  </form>
+                </div>
+                <ul className="relative h-[440px] w-full overflow-y-scroll rounded border">
+                  {data?.links?.map((link) => (
+                    <li
+                      className="flex items-center justify-between border-b px-4 py-2"
+                      key={link.id}
+                    >
+                      <div>
+                        <b>Text:</b> {link.title}
+                      </div>
+                      <button
+                        className="ml-auto mr-2 flex items-center whitespace-nowrap border bg-white bg-white px-2 py-1 tracking-wide text-black text-gray-600 duration-200 hover:border-black hover:text-black"
+                        onClick={() => handleInterLinkPosts(link.id)}
+                      >
+                        Interlink
+                      </button>
+                      <button
+                        className="flex whitespace-nowrap bg-red-400 px-3 py-1 tracking-wide text-white duration-200 hover:bg-red-500"
+                        onClick={() => handleRemovePostLink(link.id)}
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </Container>
