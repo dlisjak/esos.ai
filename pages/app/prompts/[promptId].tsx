@@ -269,7 +269,7 @@ export default function Prompt() {
                 event.preventDefault();
                 await deletePrompt();
               }}
-              className="inline-block w-full max-w-md overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+              className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
             >
               <h2 className=" mb-6 text-2xl">Delete Prompt</h2>
               <div className="mx-auto grid w-5/6 gap-y-4">

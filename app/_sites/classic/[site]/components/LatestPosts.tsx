@@ -4,12 +4,13 @@ import CategoryBubble from "./CategoryBubble";
 
 import { toDateString } from "@/lib/utils";
 import Link from "./Link";
+import { Dict } from "app/dictionaries";
 
 interface LatestPostsProps {
   posts: any;
   user?: any;
   lang: string;
-  dict: any;
+  dict: Dict;
 }
 
 const LatestPosts = ({ posts, user, lang, dict }: LatestPostsProps) => {

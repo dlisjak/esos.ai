@@ -1,7 +1,10 @@
 import Image from "next/image";
-import { toDateString } from "@/lib/utils";
+import Toc from "react-toc";
+
 import CategoryBubble from "./CategoryBubble";
-import RelatedPosts from "./RelatedPosts";
+import Breadcrumbs from "./Breadcrumbs";
+
+import { toDateString } from "@/lib/utils";
 import { md } from "@/lib/md";
 
 interface PostBodyProps {
@@ -10,82 +13,53 @@ interface PostBodyProps {
   lang: string;
 }
 
-const PostBody = ({ post, user, lang }: PostBodyProps) => {
+const PostBody = ({ post, lang }: PostBodyProps) => {
   if (!post.content || !post.title)
     return (
       <div className="prose">
         <h1>Content Not Found</h1>
       </div>
     );
-  const firstSubheading = post.content.indexOf("##");
-  const mdExcerpt = post.content.substring(0, firstSubheading);
-  const mdElse = post.content.substring(firstSubheading - 2);
 
   return (
-    <div className="flex flex-col">
-      <div className="container mx-auto mb-20 w-full max-w-screen-xl">
-        <div className="mt-8 grid grid-flow-row grid-cols-1 gap-4 lg:grid-cols-3 xl:gap-8">
-          <div className="prose order-2 col-span-1 mx-auto px-4 lg:prose-xl lg:order-1 lg:col-span-2 lg:mx-0 xl:px-0">
-            <div
-              className="prose mx-auto lg:prose-xl lg:mx-0"
-              dangerouslySetInnerHTML={{ __html: md.render(mdExcerpt) }}
+    <div className="w-full pt-4">
+      <Breadcrumbs breadcrumbs={post.breadcrumbs} lang={lang} />
+      <div className="lg:grid-rows-max grid grid-flow-row grid-cols-1 gap-4 pb-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="relative col-span-1 row-span-1 w-full sm:order-2 md:col-span-2 lg:order-3 lg:col-span-1">
+          <Image
+            className="h-full w-full object-cover object-cover"
+            src={post?.image?.src ?? "/placeholder.png"}
+            alt={post?.image?.alt || ""}
+            width={767}
+            height={767}
+            priority
+          />
+        </div>
+        <Toc
+          className="table-of-contents lg:font-xl col-span-1 flex flex-col items-start divide-x-2 bg-slate-100 py-2 lg:order-2"
+          markdownText={post.content}
+        />
+        <div className="col-span-1 sm:order-3 sm:col-span-2 lg:order-2 lg:row-span-3">
+          <div className="mb-4 flex justify-start">
+            <CategoryBubble
+              href={`${
+                post.category?.parent?.slug
+                  ? "/" + post.category?.parent?.slug
+                  : ""
+              }/${post.category?.slug}`}
+              lang={lang}
+              title={post.category.title}
             />
-            <div
-              className="prose mx-auto lg:prose-xl lg:mx-0"
-              dangerouslySetInnerHTML={{
-                __html: md.render(
-                  firstSubheading > 0 ? "[[toc]]" + mdElse : "" + mdElse
-                ),
-              }}
-            />
+            <p className="my-2 whitespace-nowrap text-sm font-light text-gray-500 md:text-base">
+              {toDateString(post.createdAt)}
+            </p>
           </div>
-
-          <div className="relative col-span-1 aspect-[4/3] lg:order-2 lg:aspect-square">
-            <Image
-              className="h-full w-full object-cover"
-              src={post?.image?.src ?? "/placeholder.png"}
-              alt={post?.image?.alt || ""}
-              width={767}
-              height={767}
-              priority
-            />
-            <div className="m-2 flex justify-center lg:justify-start">
-              <CategoryBubble
-                href={`${
-                  post.category?.parent?.slug
-                    ? "/" + post.category?.parent?.slug
-                    : ""
-                }/${post.category?.slug}`}
-                lang={lang}
-                title={post.category.title}
-              />
-              <div className="flex items-center justify-start space-x-2 xl:space-x-4">
-                <p className="my-2 whitespace-nowrap text-sm font-light text-gray-500 md:text-base">
-                  {toDateString(post.createdAt)}
-                </p>
-                <div className="hidden h-6 border-r border-gray-600 xl:flex" />
-                <div className="relative hidden h-8 w-8 overflow-hidden rounded-full xl:flex">
-                  {user?.image && (
-                    <Image
-                      alt={user?.name ?? "User Avatar"}
-                      width={100}
-                      height={100}
-                      className="h-full w-full object-cover"
-                      src={user?.image}
-                    />
-                  )}
-                </div>
-                <p className="ml-3 inline-block hidden whitespace-nowrap align-middle text-sm font-semibold md:text-base xl:flex">
-                  {user?.name}
-                </p>
-              </div>
-            </div>
-          </div>
+          <div
+            className="prose"
+            dangerouslySetInnerHTML={{ __html: md.render(post.content) }}
+          />
         </div>
       </div>
-      {post.category.posts.length > 0 && (
-        <RelatedPosts post={post} user={user} lang={lang} />
-      )}
     </div>
   );
 };

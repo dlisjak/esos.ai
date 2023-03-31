@@ -15,81 +15,65 @@ import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import { useCategories, usePrompts } from "@/lib/queries";
+import { isJsonString } from "@/lib/json";
 
 const JSON_PLACEHOLDER = `{
 	"categories": [{
-			"title": "Services",
+		"title": "TITLE",
+		"slug": "SLUG",
+		"children": [{
+			"title": "TITLE",
+			"slug": "SLUG",
 			"children": [{
-					"title": "Writing",
-					"children": [
-						"Resume Writing",
-						"Grant Writing"
-					]
+					"title": "TITLE",
+					"slug": "SLUG",
+					"children": [{
+						"title": "TITLE",
+						"slug": "SLUG",
+						"children": [{
+								"title": "TITLE",
+								"slug": "SLUG"
+							},
+							{
+								"title": "TITLE",
+								"slug": "SLUG"
+							}
+						]
+					}]
 				},
 				{
-					"title": "Design",
-					"children": [
-						"Landscape Design",
-						"Fashion Design"
-					]
-				},
-				{
-					"title": "Tech",
-					"children": [
-						"Blockchain Development",
-						"Cybersecurity"
-					]
-				},
-				{
-					"title": "Business",
-					"children": [
-						"PPC Advertising",
-						"Public Relations"
-					]
-				},
-				{
-					"title": "Admin",
-					"children": [
-						"Support",
-						"Live Chat"
-					]
-				},
-				{
-					"title": "Other",
-					"children": [
-						"Acting",
-						" Modeling"
-					]
+					"title": "TITLE",
+					"slug": "SLUG",
+					"children": [{
+						"title": "TITLE",
+						"slug": "SLUG",
+						"children": [{
+								"title": "TITLE",
+								"slug": "SLUG"
+							},
+							{
+								"title": "TITLE",
+								"slug": "SLUG"
+							}
+						]
+					}]
 				}
 			]
-		},
-		{
-			"title": "Platforms",
-			"children": [
-				"Kolabtree",
-				"Quickengigs"
-			]
-		},
-		{
-			"title": "Resources",
-			"children": [
-				"Tools & Software",
-				"Workspace & Equipment"
-			]
-		}
-	]
+		}]
+	}]
 }`;
 
 export default function SiteCategories() {
+  const [bulkCreateContent, setBulkCreateContent] = useState<boolean>(false);
   const [bulkCreatingContent, setBulkCreatingContent] =
     useState<boolean>(false);
   const [showCategoryModal, setShowCategoryModal] = useState<boolean>(false);
   const [showPostModal, setShowPostModal] = useState<boolean>(false);
   const [showImportCategoriesModal, setShowImportCategoriesModal] =
     useState<boolean>(false);
-  const [showImportCategoriesPrompts, setShowImportCategoriesPrompts] =
-    useState<boolean>(false);
-  const [importContentPrompt, setImportContentPrompt] = useState<string>("");
+
+  const [importContentPromptId, setImportContentPromptId] =
+    useState<string>("");
   const [creatingCategory, setCreatingCategory] = useState<boolean>(false);
   const [creatingPost, setCreatingPost] = useState<boolean>(false);
   const [deletingCategory, setDeletingCategory] = useState<boolean>(false);
@@ -174,38 +158,6 @@ export default function SiteCategories() {
     }
   }
 
-  async function importCategories(subdomain: string | string[] | undefined) {
-    if (!subdomain) return;
-    setBulkCreatingContent(true);
-
-    const { categories } = JSON.parse(categoriesJSONRef?.current?.value ?? "");
-
-    const data = {
-      subdomain,
-      categories,
-    };
-
-    try {
-      const res = await fetch(`/api/category/import`, {
-        method: HttpMethod.POST,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (res.ok) {
-        toast.success(`Categories Imported`);
-        mutateCategories();
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setBulkCreatingContent(false);
-      setShowImportCategoriesModal(false);
-    }
-  }
-
   async function deleteCategory(categoryId: any) {
     if (!categoryId) return;
     setDeletingCategory(true);
@@ -253,6 +205,53 @@ export default function SiteCategories() {
     setShowDeleteModal(true);
   };
 
+  async function bulkCreateCategories(
+    subdomain: string | string[] | undefined
+  ) {
+    if (!subdomain) return;
+    if (bulkCreateContent && !importContentPromptId) return;
+
+    const json: any = categoriesJSONRef?.current?.value;
+    if (!isJsonString(json)) {
+      return toast.error("Wrong JSON format");
+    }
+    const { categories } = JSON.parse(json);
+
+    const data = {
+      subdomain,
+      categories,
+      bulkCreateContent,
+      promptId: importContentPromptId,
+    };
+
+    if (!data.categories[0]) {
+      return toast.error("Wrong JSON format");
+    }
+
+    try {
+      setBulkCreatingContent(true);
+      const res = await fetch(`/api/category/import`, {
+        method: HttpMethod.POST,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (res.ok) {
+        toast.success(`Categories Imported`);
+        setTimeout(() => {
+          mutateCategories();
+        }, 250);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setBulkCreatingContent(false);
+      setShowImportCategoriesModal(false);
+    }
+  }
+
   return (
     <Layout>
       <Header>
@@ -296,7 +295,7 @@ export default function SiteCategories() {
             event.preventDefault();
             createCategory(subdomain);
           }}
-          className="inline-block w-full max-w-md overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+          className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
         >
           <div className="px-8">
             <h2 className="mb-6 text-2xl">Add a New Category</h2>
@@ -352,7 +351,7 @@ export default function SiteCategories() {
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            importCategories(subdomain);
+            bulkCreateCategories(subdomain);
           }}
           className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
         >
@@ -383,27 +382,26 @@ export default function SiteCategories() {
                   className="ml-2 hover:cursor-pointer"
                   id="check"
                   name="check"
-                  checked={showImportCategoriesPrompts}
-                  onChange={() =>
-                    setShowImportCategoriesPrompts(!showImportCategoriesPrompts)
-                  }
+                  checked={bulkCreateContent}
+                  onChange={() => setBulkCreateContent(!bulkCreateContent)}
                   type="checkbox"
                 />
               </div>
-              {showImportCategoriesPrompts && (
+              {bulkCreateContent && (
                 <div className="text-start">
-                  <label>Content Generating Prompt</label>
+                  <label htmlFor="prompt">Content Generating Prompt</label>
                   <select
+                    id="prompt"
                     className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
                     name="importJSON"
                     onChange={(e) => {
                       const promptId = e.target.value;
-                      setImportContentPrompt(promptId);
+                      setImportContentPromptId(promptId);
                     }}
-                    value={importContentPrompt || ""}
+                    value={importContentPromptId || ""}
                   >
-                    <option value="">
-                      Prompt to Generate Category Content
+                    <option disabled value="">
+                      Select a Prompt
                     </option>
                     {prompts.map((prompt) => (
                       <option value={prompt.id} key={prompt.id}>
@@ -411,6 +409,10 @@ export default function SiteCategories() {
                       </option>
                     ))}
                   </select>
+                  <span className="text-sm italic">
+                    Your prompt has to include a place for a variable: e.g.
+                    [TITLE]
+                  </span>
                 </div>
               )}
             </div>
@@ -446,7 +448,7 @@ export default function SiteCategories() {
             event.preventDefault();
             createPost(subdomain, creatingPostCategoryId);
           }}
-          className="inline-block w-full max-w-md overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+          className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
         >
           <div className="px-8">
             <h2 className="mb-6 text-2xl">Add a New Post</h2>
@@ -501,7 +503,7 @@ export default function SiteCategories() {
             event.preventDefault();
             await deleteCategory(deletingPostCategoryId);
           }}
-          className="inline-block w-full max-w-md overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+          className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
         >
           <h2 className=" mb-6 text-2xl">Delete Category</h2>
           <div className="mx-auto grid w-5/6 gap-y-4">

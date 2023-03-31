@@ -11,7 +11,7 @@ const CategoryBubble = ({ href, title, lang }: CategoryBubbleProps) => {
     <Link
       href={href}
       lang={lang}
-      className="mr-4 flex w-auto items-center justify-center whitespace-nowrap rounded-full border px-4 py-1"
+      className="mr-4 flex w-auto items-center justify-center whitespace-nowrap rounded-full border px-4 py-1 text-center"
     >
       {title}
     </Link>

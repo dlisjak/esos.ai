@@ -5,6 +5,15 @@ import FeaturedPosts from "../components/FeaturedPosts";
 import LatestPosts from "../components/LatestPosts";
 import { getDictionary } from "app/dictionaries";
 
+interface PageParams {
+  site: string;
+  lang: string;
+}
+
+interface PageProps {
+  params: PageParams;
+}
+
 export async function generateStaticParams() {
   const [subdomains, customDomains] = await Promise.all([
     prisma.site.findMany({
@@ -192,7 +201,7 @@ const getData = async (site: string, lang: string) => {
   };
 };
 
-export default async function Index({ params: { site, lang } }: any) {
+export default async function Index({ params: { site, lang } }: PageProps) {
   const { featuredPosts, latestPosts } = await getData(site, lang);
   const dict = await getDictionary(lang);
 

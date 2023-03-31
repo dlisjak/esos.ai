@@ -1,8 +1,9 @@
+import { Dict } from "app/dictionaries";
 import PostCard from "./PostCard";
 
 interface FeaturedPostsProps {
   featuredPosts: any;
-  dict: any;
+  dict: Dict;
   lang: string;
 }
 
@@ -13,7 +14,7 @@ const FeaturedPosts = ({ featuredPosts, dict, lang }: FeaturedPostsProps) => {
         {dict.featuredPosts}
       </h2>
       <div className="grid grid-flow-row gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:gap-8">
-        {featuredPosts.map((post: any, i: any) => (
+        {featuredPosts.map((post: any, i: number) => (
           <PostCard
             className={`${
               i > 0 && i !== 3 && i !== 0

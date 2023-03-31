@@ -483,7 +483,7 @@ export default function SiteSettings() {
                 event.preventDefault();
                 await deleteSite(subdomain as string);
               }}
-              className="inline-block w-full max-w-md overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+              className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
             >
               <h2 className="mb-6 text-xl">Delete Site</h2>
               <div className="mx-auto grid w-5/6 gap-y-4">

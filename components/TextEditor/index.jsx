@@ -172,7 +172,7 @@ const TextEditor = ({ value, setValue, dataId }) => {
             event.preventDefault();
             handleGenerate();
           }}
-          className="inline-block w-full max-w-md overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+          className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
         >
           <div className="px-8">
             <h2 className="mb-6 text-2xl">Use Prompt</h2>

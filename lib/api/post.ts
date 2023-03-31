@@ -699,12 +699,12 @@ export async function importPosts(
     const title = post.title.replaceAll(regex, category.title);
     const slug = getSlug(title);
 
-    const duplicatePosts = category.posts.filter(
-      (categoryPost) => categoryPost.slug === slug
+    const unique = category.posts.filter(
+      (categoryPost) => categoryPost.slug !== slug
     );
 
-    if (duplicatePosts.length > 0) return false;
-    return true;
+    if (unique.length > 0) return true;
+    return false;
   });
 
   const creditsUsage = Math.ceil(

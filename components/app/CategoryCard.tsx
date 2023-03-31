@@ -8,13 +8,16 @@ import { StatusIndicator } from "./PostCard";
 const CategoryCard = ({
   subdomain,
   category,
+  slug,
   addPostClick,
   removePostClick,
   isChild = false,
   isSubChild = false,
+  isSubSubChild = false,
+  isSubSubSubChild = false,
 }: any) => {
   if (!category) return <></>;
-  const { id, title, slug, image, children, posts, translations } = category;
+  const { id, title, image, children, posts, translations } = category;
 
   const categoryPostsUrl = `/site/${subdomain}/categories/${id}/posts`;
   const categoryEditUrl = `/site/${subdomain}/categories/${id}`;
@@ -24,7 +27,15 @@ const CategoryCard = ({
     <li className="flex flex-col space-y-2">
       <div
         className={`relative flex items-end rounded bg-white p-4 drop-shadow-sm ${
-          isChild && !isSubChild ? "ml-8" : isSubChild ? "ml-16" : ""
+          isChild && !isSubChild
+            ? "ml-8"
+            : isSubChild && !isSubSubChild
+            ? "ml-16"
+            : isSubSubChild && !isSubSubSubChild
+            ? "ml-24"
+            : isSubSubSubChild
+            ? "ml-32"
+            : ""
         }`}
       >
         <div className="flex w-full overflow-hidden rounded">
@@ -46,7 +57,7 @@ const CategoryCard = ({
               </Link>
             </div>
             <p className="right-1 w-auto rounded bg-gray-100 px-1 text-sm line-clamp-1">
-              /{slug}
+              {slug}
             </p>
             <Link
               href={categoryPostsUrl}
@@ -98,7 +109,7 @@ const CategoryCard = ({
         </div>
         <Link
           className="absolute top-4 right-4 flex items-center justify-center rounded bg-slate-400 px-1 tracking-wide text-white duration-200 hover:bg-slate-600"
-          href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}/${slug}`}
+          href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}${slug}`}
           rel="noreferrer"
           target="_blank"
         >
@@ -109,11 +120,14 @@ const CategoryCard = ({
       {Array.isArray(children) && children.length > 0 && (
         <CategoryList
           categories={children}
+          slug={slug}
           subdomain={subdomain}
           addPostClick={addPostClick}
           isChild={true}
           removePostClick={removePostClick}
           isSubChild={isChild}
+          isSubSubChild={isSubChild}
+          isSubSubSubChild={isSubSubChild}
         />
       )}
     </li>

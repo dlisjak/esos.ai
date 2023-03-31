@@ -2,11 +2,11 @@ import Image from "next/image";
 
 import Link from "./Link";
 
-const SubCategories = ({ category, lang }: any) => {
-  return category?.children?.map((subcategory: any) => (
-    <div className="col-span-1" key={subcategory.slug}>
+const SubCategories = ({ category, navigation, lang }: any) => {
+  return category?.children?.map((subcategory: any, i: number) => (
+    <div className="col-span-1 pb-4" key={subcategory.slug}>
       <Link
-        href={`${category?.slug ? "/" + subcategory?.slug : ""}`}
+        href={navigation[i].href}
         lang={lang}
         className="relative flex aspect-square"
       >
@@ -18,9 +18,9 @@ const SubCategories = ({ category, lang }: any) => {
           src={subcategory.image?.src ?? "/placeholder.png"}
         />
       </Link>
-      <div className="mx-auto mt-4 flex w-full flex-col items-start px-4 xl:px-0">
-        <Link href={`${"/" + category?.slug}/${subcategory.slug}`} lang={lang}>
-          <h3 className="my-2 text-2xl font-bold hover:underline md:text-3xl">
+      <div className="mx-auto mt-2 flex w-full flex-col items-start xl:px-0">
+        <Link href={navigation[i].href} lang={lang}>
+          <h3 className="text-xl font-bold hover:underline md:text-2xl">
             {subcategory.title}
           </h3>
         </Link>

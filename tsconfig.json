@@ -15,7 +15,7 @@
       "@/styles/*": ["styles/*"],
       "@/types": ["types/index"],
       "@/types/*": ["types/*"],
-      "@/dictionaries/*": ["dictionaries/*"]
+      "@/dictionaries/*": ["app/dictionaries/*"]
     },
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,

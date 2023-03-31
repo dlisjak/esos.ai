@@ -7,6 +7,16 @@ import prisma from "@/lib/prisma";
 
 import "../../../../../styles/sites.css";
 
+interface PageParams {
+  site: string;
+  lang: string;
+}
+
+interface PageProps {
+  children: any;
+  params: PageParams;
+}
+
 export async function generateStaticParams() {
   const [subdomains, customDomains] = await Promise.all([
     prisma.site.findMany({
@@ -136,7 +146,7 @@ const getData = async (site: string, lang: string) => {
 export default async function RootLayout({
   children,
   params: { site, lang },
-}: any) {
+}: PageProps) {
   const { data, categories } = await getData(site, lang);
 
   if (!data || !categories.length) return notFound();
@@ -150,7 +160,7 @@ export default async function RootLayout({
           site={data.name}
           lang={lang}
         />
-        {children}
+        <div className="px-4">{children}</div>
         <Footer site={data.name} />
       </body>
     </html>
