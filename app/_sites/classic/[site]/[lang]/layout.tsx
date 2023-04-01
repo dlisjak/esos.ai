@@ -157,7 +157,7 @@ export default async function RootLayout({
         <Navigation
           categories={categories}
           logo={data.image}
-          site={data.name}
+          site={data.name ?? ""}
           lang={lang}
         />
         <div className="px-4">{children}</div>
