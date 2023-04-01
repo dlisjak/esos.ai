@@ -8,7 +8,7 @@ import { Image as ImageType } from "@prisma/client";
 
 interface NavigationProps {
   categories: any;
-  logo: ImageType;
+  logo: ImageType | null;
   site: string;
   lang: string;
 }
