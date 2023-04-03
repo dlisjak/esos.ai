@@ -401,12 +401,14 @@ const getData = async (site: string, slugObj: string, lang: string) => {
                         title: true,
                         content: true,
                         posts: true,
+                        image: true,
                         translations: { where: { lang } },
                         children: {
                           select: {
                             id: true,
                             slug: true,
                             title: true,
+                            image: true,
                           },
                         },
                         parent: {
@@ -577,12 +579,14 @@ const getData = async (site: string, slugObj: string, lang: string) => {
                     title: true,
                     content: true,
                     posts: true,
+                    image: true,
                     translations: { where: { lang } },
                     children: {
                       select: {
                         id: true,
                         title: true,
                         slug: true,
+                        image: true,
                       },
                     },
                     parent: {
@@ -722,12 +726,14 @@ const getData = async (site: string, slugObj: string, lang: string) => {
                 title: true,
                 content: true,
                 posts: true,
+                image: true,
                 translations: { where: { lang } },
                 children: {
                   select: {
                     id: true,
                     title: true,
                     slug: true,
+                    image: true,
                   },
                 },
                 parent: {
@@ -843,6 +849,7 @@ const getData = async (site: string, slugObj: string, lang: string) => {
             title: true,
             content: true,
             posts: true,
+            image: true,
             translations: { where: { lang } },
             parent: {
               select: {
@@ -856,6 +863,7 @@ const getData = async (site: string, slugObj: string, lang: string) => {
                 id: true,
                 title: true,
                 slug: true,
+                image: true,
               },
             },
           },
@@ -939,12 +947,14 @@ const getData = async (site: string, slugObj: string, lang: string) => {
         title: true,
         content: true,
         posts: true,
+        image: true,
         translations: { where: { lang } },
         children: {
           select: {
             id: true,
             title: true,
             slug: true,
+            image: true,
           },
         },
       },

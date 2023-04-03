@@ -3,6 +3,7 @@ import { WithAllCategory, WithImageCategory } from "@/types/category";
 import { FeaturedPost, WithSitePost } from "@/types/post";
 import {
   CategoryTranslation,
+  Image,
   Post,
   PostTranslation,
   Prompt,
@@ -336,6 +337,22 @@ export const useSupportedLanguages = () => {
   return {
     languages,
     isLoading: !error && !languages,
+    isError: error,
+  };
+};
+
+export const useImages = (subdomain: string | string[] | undefined) => {
+  const { data: images, error } = useSWR<Image[]>(
+    `/api/images?subdomain=${subdomain}`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+    }
+  );
+
+  return {
+    images,
+    isLoading: !error && !images,
     isError: error,
   };
 };

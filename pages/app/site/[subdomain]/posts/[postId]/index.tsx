@@ -174,6 +174,11 @@ export default function Post() {
       image = data.image;
     }
 
+    const postTitle =
+      selectedTranslation?.lang === "EN"
+        ? data.title
+        : translations.find((translation) => translation.lang === "EN")?.title;
+
     try {
       const response = await fetch(`/api/post`, {
         method: HttpMethod.PUT,
@@ -184,6 +189,7 @@ export default function Post() {
           id: postId,
           slug: data.slug,
           categoryId: data.categoryId,
+          title: postTitle,
           published,
           image,
           subdomain,
@@ -364,8 +370,6 @@ export default function Post() {
     }
   };
 
-  console.log(data);
-
   return (
     <Layout>
       <Header>
@@ -484,13 +488,10 @@ export default function Post() {
                 </div>
               </div>
               <div className="relative w-full">
-                <div className="mb-1 flex justify-between">
+                <div className="flex justify-between">
                   <h2 className="mr-auto text-xl">
                     Links({data?.links?.length})
                   </h2>
-                  <button className="flex items-center whitespace-nowrap border bg-white bg-white px-2 py-1 tracking-wide text-black text-gray-600 duration-200 hover:border-black hover:text-black">
-                    Add Link
-                  </button>
                 </div>
                 <div className="sticky top-0 w-full rounded border">
                   <form

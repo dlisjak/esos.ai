@@ -22,7 +22,7 @@ export default function Layout({ children }: any) {
   const categoriesPage = router.pathname.startsWith(
     "/app/site/[subdomain]/categories"
   );
-  const themePage = router.pathname.startsWith("/app/site/[subdomain]/themes");
+  const imagesPage = router.pathname.startsWith("/app/site/[subdomain]/images");
   const draftsPage = router.pathname.startsWith(
     "/app/site/[subdomain]/posts/drafts"
   );
@@ -148,14 +148,14 @@ export default function Layout({ children }: any) {
                 >
                   Categories
                 </Link>
-                {/* <Link
-                  href={`/site/${subdomain}/themes`}
+                <Link
+                  href={`/site/${subdomain}/images`}
                   className={`border-b-2 ${
-                    themePage ? "border-black" : "border-transparent"
+                    imagesPage ? "border-black" : "border-transparent"
                   } py-3`}
                 >
-                  Themes
-                </Link> */}
+                  Images
+                </Link>
                 <Link
                   href={`/site/${subdomain}/settings`}
                   className={`border-b-2 ${

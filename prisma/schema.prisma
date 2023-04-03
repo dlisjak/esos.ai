@@ -164,13 +164,13 @@ model Site {
 }
 
 model Image {
-  id       String     @id @default(cuid())
-  src      String?    @db.Text
-  alt      String?    @db.Text
-  Post     Post[]
-  Category Category[]
-  Site     Site[]
-  Theme    Theme[]
+  id          String     @id @default(cuid())
+  src         String?    @db.Text
+  alt         String?    @db.Text
+  posts       Post[]
+  categories  Category[]
+  sites       Site[]
+  themes      Theme[]
 }
 
 model Prompt {

@@ -299,14 +299,23 @@ export async function updateCategory(
     };
 
     if (image) {
-      const imageResponse = await prisma.image.create({
-        data: {
+      const imageExists = await prisma.image.findFirst({
+        where: {
           src: image.src,
-          alt: image.alt,
         },
       });
 
-      data["imageId"] = imageResponse.id;
+      if (imageExists) {
+        data["imageId"] = imageExists.id;
+      } else {
+        const imageResponse = await prisma.image.create({
+          data: {
+            src: image.src ?? "/placeholder.png",
+            alt: image.alt ?? title,
+          },
+        });
+        data["imageId"] = imageResponse.id;
+      }
     }
 
     const category = await prisma.category.update({
