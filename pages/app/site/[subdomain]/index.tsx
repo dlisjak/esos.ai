@@ -19,7 +19,7 @@ export default function Dashboard() {
   const router = useRouter();
   const { subdomain } = router.query;
 
-  const { posts, isLoading: isLoadingPosts } = usePosts(subdomain, true);
+  const { posts } = usePosts(subdomain, true);
 
   const { categories, isLoading: isLoadingCategories } =
     useCategories(subdomain);

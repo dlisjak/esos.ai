@@ -73,6 +73,9 @@ export async function getSite(
       include: {
         image: true,
       },
+      orderBy: {
+        customDomain: "asc",
+      },
     });
 
     return res.status(200).json(sites);
