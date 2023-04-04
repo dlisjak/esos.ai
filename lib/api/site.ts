@@ -284,6 +284,11 @@ export async function updateSite(
         data: {
           src: image.src,
           alt: image.alt,
+          user: {
+            connect: {
+              id: session.user.id,
+            },
+          },
         },
       });
 

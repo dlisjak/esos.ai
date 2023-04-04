@@ -276,6 +276,11 @@ export async function updatePost(
           data: {
             src: image.src ?? "/placeholder.png",
             alt: image.alt ?? title,
+            user: {
+              connect: {
+                id: session.user.id,
+              },
+            },
           },
         });
         data["imageId"] = imageResponse.id;

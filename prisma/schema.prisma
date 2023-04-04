@@ -26,6 +26,7 @@ model User {
   prompts       Prompt[]
   credits       Int?      @default(50)
   accessToken   String?   @db.LongText
+  images        Image[]
 }
 
 model Account {
@@ -171,6 +172,8 @@ model Image {
   categories  Category[]
   sites       Site[]
   themes      Theme[]
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      String?
 }
 
 model Prompt {
