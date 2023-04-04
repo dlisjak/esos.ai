@@ -631,6 +631,10 @@ export async function importCategories(
           },
         };
 
+        if (category.imageId) {
+          data["imageId"] = category.imageId;
+        }
+
         const command =
           prompt?.command?.replaceAll(regex, category.title) ?? null;
 
@@ -701,6 +705,10 @@ export async function importCategories(
                   },
                 },
               };
+
+              if (subCategory.imageId) {
+                data["imageId"] = subCategory.imageId;
+              }
 
               if (!!command) {
                 const contentResponse = await openai.createChatCompletion({
@@ -774,6 +782,10 @@ export async function importCategories(
                   },
                 },
               };
+
+              if (subSubCategory.imageId) {
+                data["imageId"] = subSubCategory.imageId;
+              }
 
               if (!!command) {
                 const contentResponse = await openai.createChatCompletion({
@@ -849,6 +861,10 @@ export async function importCategories(
                 },
               };
 
+              if (subSubSubCategory.imageId) {
+                data["imageId"] = subSubSubCategory.imageId;
+              }
+
               if (!!command) {
                 const contentResponse = await openai.createChatCompletion({
                   model: GPT_4,
@@ -923,6 +939,10 @@ export async function importCategories(
                   },
                 },
               };
+
+              if (subSubSubSubCategory.imageId) {
+                data["imageId"] = subSubSubSubCategory.imageId;
+              }
 
               if (!!command) {
                 const contentResponse = await openai.createChatCompletion({
