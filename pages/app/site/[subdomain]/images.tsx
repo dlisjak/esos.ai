@@ -14,8 +14,6 @@ export default function Images() {
 
   const { images, isLoading } = useImages(subdomain);
 
-  console.log({ images });
-
   return (
     <Layout>
       <Header>
