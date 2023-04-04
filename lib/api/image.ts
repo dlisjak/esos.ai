@@ -75,7 +75,7 @@ export async function getImage(
           {
             sites: {
               some: {
-                subdomain,
+                userId: session.user.id,
               },
             },
           },
@@ -83,7 +83,7 @@ export async function getImage(
             posts: {
               some: {
                 site: {
-                  subdomain,
+                  userId: session.user.id,
                 },
               },
             },
@@ -92,12 +92,15 @@ export async function getImage(
             categories: {
               some: {
                 site: {
-                  subdomain,
+                  userId: session.user.id,
                 },
               },
             },
           },
         ],
+      },
+      orderBy: {
+        alt: "asc",
       },
     });
 

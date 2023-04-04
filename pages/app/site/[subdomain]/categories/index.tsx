@@ -437,7 +437,7 @@ export default function SiteCategories() {
                   : "bg-white text-gray-600 hover:text-black"
               } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-150 ease-in-out focus:outline-none focus:ring-0`}
             >
-              {bulkCreatingContent ? <LoadingDots /> : "IMPORT CATEGORY"}
+              {bulkCreatingContent ? <LoadingDots /> : "IMPORT CATEGORIES"}
             </button>
           </div>
         </form>
