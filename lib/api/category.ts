@@ -637,7 +637,7 @@ export async function importCategories(
         };
 
         if (category.imageId) {
-          data["imageId"] = category.imageId;
+          data["image"]["connect"]["id"] = category.imageId;
         }
 
         const command =
@@ -669,7 +669,10 @@ export async function importCategories(
           }
         } else {
           const cat = await prisma.category.create({
-            data,
+            data: {
+              title: "",
+              imageId: "",
+            },
             select: {
               id: true,
               slug: true,
@@ -712,7 +715,7 @@ export async function importCategories(
               };
 
               if (subCategory.imageId) {
-                data["imageId"] = subCategory.imageId;
+                data["image"]["connect"]["id"] = subCategory.imageId;
               }
 
               if (!!command) {
@@ -789,7 +792,7 @@ export async function importCategories(
               };
 
               if (subSubCategory.imageId) {
-                data["imageId"] = subSubCategory.imageId;
+                data["image"]["connect"]["id"] = subSubCategory.imageId;
               }
 
               if (!!command) {
@@ -867,7 +870,7 @@ export async function importCategories(
               };
 
               if (subSubSubCategory.imageId) {
-                data["imageId"] = subSubSubCategory.imageId;
+                data["image"]["connect"]["id"] = subSubSubCategory.imageId;
               }
 
               if (!!command) {
@@ -946,7 +949,7 @@ export async function importCategories(
               };
 
               if (subSubSubSubCategory.imageId) {
-                data["imageId"] = subSubSubSubCategory.imageId;
+                data["image"]["connect"]["id"] = subSubSubSubCategory.imageId;
               }
 
               if (!!command) {
