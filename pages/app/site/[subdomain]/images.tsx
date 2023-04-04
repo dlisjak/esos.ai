@@ -45,6 +45,9 @@ export default function Images() {
                           <h2 className="mb-1 text-xl font-semibold">
                             {image.alt}
                           </h2>
+                          <h3 className="mb-1 text-lg font-semibold">
+                            {image.id}
+                          </h3>
                         </div>
                         <p className="right-1 flex w-auto rounded bg-gray-100 px-1 text-sm line-clamp-1">
                           {image.src}
