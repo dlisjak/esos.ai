@@ -30,14 +30,33 @@ export async function getImage(
       const image = await prisma.image.findFirst({
         where: {
           id: imageId,
-          sites: {
-            some: {
-              userId: session.user.id,
+          OR: [
+            {
+              sites: {
+                some: {
+                  userId: session.user.id,
+                },
+              },
             },
-          },
-        },
-        orderBy: {
-          alt: "asc",
+            {
+              posts: {
+                some: {
+                  site: {
+                    userId: session.user.id,
+                  },
+                },
+              },
+            },
+            {
+              categories: {
+                some: {
+                  site: {
+                    userId: session.user.id,
+                  },
+                },
+              },
+            },
+          ],
         },
       });
 
@@ -46,11 +65,33 @@ export async function getImage(
 
     const images = await prisma.image.findMany({
       where: {
-        sites: {
-          some: {
-            userId: session.user.id,
+        OR: [
+          {
+            sites: {
+              some: {
+                userId: session.user.id,
+              },
+            },
           },
-        },
+          {
+            posts: {
+              some: {
+                site: {
+                  userId: session.user.id,
+                },
+              },
+            },
+          },
+          {
+            categories: {
+              some: {
+                site: {
+                  userId: session.user.id,
+                },
+              },
+            },
+          },
+        ],
       },
       orderBy: {
         alt: "asc",
