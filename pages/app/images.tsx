@@ -9,9 +9,6 @@ import Image from "next/image";
 import ContainerLoader from "@/components/app/ContainerLoader";
 
 export default function Images() {
-  const router = useRouter();
-  const { subdomain } = router.query;
-
   const { images, isLoading } = useImages();
 
   return (
