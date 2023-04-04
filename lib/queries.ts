@@ -341,14 +341,10 @@ export const useSupportedLanguages = () => {
   };
 };
 
-export const useImages = (subdomain: string | string[] | undefined) => {
-  const { data: images, error } = useSWR<Image[]>(
-    `/api/images?subdomain=${subdomain}`,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-    }
-  );
+export const useImages = () => {
+  const { data: images, error } = useSWR<Image[]>(`/api/images`, fetcher, {
+    revalidateOnFocus: false,
+  });
 
   return {
     images,

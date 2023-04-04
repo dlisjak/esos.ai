@@ -20,13 +20,7 @@ export async function getImage(
   res: NextApiResponse,
   session: Session
 ): Promise<void | NextApiResponse<Array<Image> | (Image | null)>> {
-  const { subdomain } = req.query;
   const { imageId } = req.body;
-
-  if (Array.isArray(subdomain) || !subdomain)
-    return res
-      .status(400)
-      .end("Bad request. subdomain parameter cannot be an array or empty.");
 
   if (!session.user.id)
     return res.status(500).end("Server failed to get session user ID");
@@ -36,33 +30,14 @@ export async function getImage(
       const image = await prisma.image.findFirst({
         where: {
           id: imageId,
-          OR: [
-            {
-              sites: {
-                some: {
-                  subdomain,
-                },
-              },
+          sites: {
+            some: {
+              userId: session.user.id,
             },
-            {
-              posts: {
-                some: {
-                  site: {
-                    subdomain,
-                  },
-                },
-              },
-            },
-            {
-              categories: {
-                some: {
-                  site: {
-                    subdomain,
-                  },
-                },
-              },
-            },
-          ],
+          },
+        },
+        orderBy: {
+          alt: "asc",
         },
       });
 
