@@ -637,8 +637,11 @@ export async function importCategories(
         };
 
         if (category.imageId) {
-          data["image"]["connect"]["id"] = category.imageId;
+          data.image = {};
+          data.image.connect = {};
+          data.image.connect.id = category.imageId;
         }
+        console.log({ data });
 
         const command =
           prompt?.command?.replaceAll(regex, category.title) ?? null;
@@ -715,7 +718,9 @@ export async function importCategories(
               };
 
               if (subCategory.imageId) {
-                data["image"]["connect"]["id"] = subCategory.imageId;
+                data.image = {};
+                data.image.connect = {};
+                data.image.connect.id = subCategory.imageId;
               }
 
               if (!!command) {
@@ -792,7 +797,9 @@ export async function importCategories(
               };
 
               if (subSubCategory.imageId) {
-                data["image"]["connect"]["id"] = subSubCategory.imageId;
+                data.image = {};
+                data.image.connect = {};
+                data.image.connect.id = subSubCategory.imageId;
               }
 
               if (!!command) {
@@ -870,7 +877,9 @@ export async function importCategories(
               };
 
               if (subSubSubCategory.imageId) {
-                data["image"]["connect"]["id"] = subSubSubCategory.imageId;
+                data.image = {};
+                data.image.connect = {};
+                data.image.connect.id = subSubSubCategory.imageId;
               }
 
               if (!!command) {
@@ -949,7 +958,9 @@ export async function importCategories(
               };
 
               if (subSubSubSubCategory.imageId) {
-                data["image"]["connect"]["id"] = subSubSubSubCategory.imageId;
+                data.image = {};
+                data.image.connect = {};
+                data.image.connect.id = subSubSubSubCategory.imageId;
               }
 
               if (!!command) {
