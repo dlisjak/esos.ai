@@ -71,33 +71,11 @@ export async function getImage(
 
     const images = await prisma.image.findMany({
       where: {
-        OR: [
-          {
-            sites: {
-              some: {
-                userId: session.user.id,
-              },
-            },
+        sites: {
+          some: {
+            userId: session.user.id,
           },
-          {
-            posts: {
-              some: {
-                site: {
-                  userId: session.user.id,
-                },
-              },
-            },
-          },
-          {
-            categories: {
-              some: {
-                site: {
-                  userId: session.user.id,
-                },
-              },
-            },
-          },
-        ],
+        },
       },
       orderBy: {
         alt: "asc",
