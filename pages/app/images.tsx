@@ -1,5 +1,3 @@
-import { useRouter } from "next/router";
-
 import Layout from "@/components/app/Layout";
 import Container from "@/components/Layout/Container";
 import Header from "@/components/Layout/Header";
@@ -56,10 +54,7 @@ export default function Images() {
               ))
             ) : (
               <div className="text-center">
-                <p className="my-4 text-2xl text-gray-600">
-                  No categories yet. Click &quot;Add Category&quot; to create
-                  one.
-                </p>
+                <p className="my-4 text-2xl text-gray-600">No Images yet.</p>
               </div>
             )}
           </div>
