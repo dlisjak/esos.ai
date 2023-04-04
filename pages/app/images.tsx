@@ -12,7 +12,7 @@ export default function Images() {
   const router = useRouter();
   const { subdomain } = router.query;
 
-  const { images, isLoading } = useImages(subdomain);
+  const { images, isLoading } = useImages();
 
   return (
     <Layout>
