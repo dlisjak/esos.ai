@@ -14,29 +14,35 @@ import AddNewButton from "@/components/app/AddNewButton";
 import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
 import ContainerLoader from "@/components/app/ContainerLoader";
-import { useCategories, usePrompts } from "@/lib/queries";
+import { useCategories, usePrompts, useUser } from "@/lib/queries";
 import { isJsonString } from "@/lib/json";
 
 const JSON_PLACEHOLDER = `{
 	"categories": [{
 		"title": "TITLE",
 		"slug": "SLUG",
+		"imageId": "ID of uploaded image",
 		"children": [{
 			"title": "TITLE",
 			"slug": "SLUG",
+      "imageId": "ID of uploaded image",
 			"children": [{
 					"title": "TITLE",
 					"slug": "SLUG",
+          "imageId": "ID of uploaded image",
 					"children": [{
 						"title": "TITLE",
 						"slug": "SLUG",
+            "imageId": "ID of uploaded image",
 						"children": [{
 								"title": "TITLE",
-								"slug": "SLUG"
+								"slug": "SLUG",
+                "imageId": "ID of uploaded image"
 							},
 							{
 								"title": "TITLE",
-								"slug": "SLUG"
+								"slug": "SLUG",
+                "imageId": "ID of uploaded image"
 							}
 						]
 					}]
@@ -93,6 +99,7 @@ export default function SiteCategories() {
 
   const { categories, isLoading, mutateCategories } = useCategories(subdomain);
   const { prompts } = usePrompts();
+  const { user } = useUser();
 
   async function createCategory(subdomain: string | string[] | undefined) {
     if (!subdomain) return;
@@ -218,6 +225,7 @@ export default function SiteCategories() {
     const { categories } = JSON.parse(json);
 
     const data = {
+      userId: user.id,
       subdomain,
       categories,
       bulkCreateContent,
@@ -230,25 +238,41 @@ export default function SiteCategories() {
 
     try {
       setBulkCreatingContent(true);
-      const res = await fetch(`/api/category/import`, {
-        method: HttpMethod.POST,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/category/import`,
+        {
+          method: HttpMethod.POST,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (res.ok) {
+        const body = await res.json();
+
         toast.success(`Categories Imported`);
-        setTimeout(() => {
-          mutateCategories();
-        }, 250);
+
+        await fetch("/api/category/revalidate", {
+          method: HttpMethod.POST,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            subdomain,
+            mainCategories: body.mainCategories,
+          }),
+        });
       }
     } catch (error) {
       console.error(error);
     } finally {
       setBulkCreatingContent(false);
       setShowImportCategoriesModal(false);
+      setTimeout(() => {
+        mutateCategories();
+      }, 250);
     }
   }
 

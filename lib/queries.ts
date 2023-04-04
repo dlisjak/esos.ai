@@ -7,6 +7,7 @@ import {
   Post,
   PostTranslation,
   Prompt,
+  User,
 } from "@prisma/client";
 import useSWR from "swr";
 import { Language } from "./api/translate";
@@ -279,7 +280,7 @@ export const useUser = () => {
     data: user,
     error,
     mutate,
-  } = useSWR<any>(`/api/user`, fetcher, {
+  } = useSWR<User>(`/api/user`, fetcher, {
     revalidateOnFocus: false,
   });
 

@@ -14,6 +14,7 @@ import {
 } from "../consts/credits";
 import { openai } from "../openai";
 import { GPT_4 } from "../consts/gpt";
+import { revalidateMainCategories } from "../revalidateImportCategories";
 
 /**
  * Get Category
@@ -531,25 +532,15 @@ export async function translateCategory(
   }
 }
 
-/**
- * import Categories
- *
- * Imports either a single or all categories available depending on
- * JSON input
- *
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- */
-
-export async function importCategories(
+export async function revalidateCategories(
   req: NextApiRequest,
   res: NextApiResponse,
   session: Session
-): Promise<void | NextApiResponse<any | null>> {
-  const { subdomain, categories, bulkCreateContent, promptId } = req.body;
+): Promise<void | NextApiResponse<any>> {
+  const { subdomain, mainCategories } = req.body;
 
-  if (!session.user.id || !subdomain || !categories)
-    return res.status(400).end("Bad request.");
+  if (!session.user.id)
+    return res.status(400).end("Bad request. User not validated.");
 
   const site = await prisma.site.findFirst({
     where: {
@@ -561,484 +552,533 @@ export async function importCategories(
   });
   if (!site) return res.status(404).end("Site not found");
 
-  const user = await prisma.user.findFirst({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      credits: true,
-    },
-  });
-  if (!user) return res.status(400).end("User not found.");
-  if (!user.credits) return res.status(400).end("Not enough credits.");
-
-  const siteCategories = await prisma.category.findMany({
-    where: {
-      site: {
-        id: site.id,
-      },
-    },
-    select: {
-      title: true,
-      slug: true,
-    },
-  });
-
-  const regex = new RegExp(/\[(.*?)\]/g);
-
-  const filteredCategories = categories.filter((category: any) => {
-    const title = category.title.replaceAll(regex, category.title);
-    const slug = getSlug(title);
-
-    const exists = siteCategories.filter(
-      (siteCategory) => siteCategory.slug === slug
-    );
-
-    if (exists.length > 0) return false;
-    return true;
-  });
-
-  const creditsUsage = Math.ceil(
-    filteredCategories.length * bulkCreateContent
-      ? PER_IMPORT_AND_GENERATE
-      : PER_IMPORT
-  );
-
-  if (user.credits < creditsUsage)
-    return res.status(400).end("Insufficient credits.");
-
-  let prompt: any = null;
-  if (bulkCreateContent) {
-    prompt = await prisma.prompt.findFirst({
-      where: {
-        id: promptId,
-      },
-    });
-  }
-
   try {
-    const mainCategories = await Promise.all(
-      filteredCategories.map(async (category: any) => {
-        if (!category.title) return null;
-
-        const data: any = {
-          title: category.title,
-          slug: category.slug ?? getSlug(category.title),
-          site: {
-            connect: {
-              id: site.id,
-            },
-          },
-          translations: {
-            create: {
-              lang: "EN",
-            },
-          },
-        };
-
-        if (category.imageId) {
-          data.image = {};
-          data.image.connect = {};
-          data.image.connect.id = category.imageId;
-        }
-        console.log({ data });
-
-        const command =
-          prompt?.command?.replaceAll(regex, category.title) ?? null;
-
-        if (!!command) {
-          const contentResponse = await openai.createChatCompletion({
-            model: GPT_4,
-            messages: [{ role: "user", content: command }],
-          });
-
-          if (contentResponse) {
-            const content =
-              contentResponse?.data?.choices[0]?.message?.content.trim();
-            if (content) {
-              data["content"] = content;
-              data["translations"]["create"]["content"] = content;
-
-              const cat = await prisma.category.create({
-                data,
-                select: {
-                  id: true,
-                  slug: true,
-                },
-              });
-
-              return { ...category, ...cat };
-            }
-          }
-        } else {
-          const cat = await prisma.category.create({
-            data: {
-              title: "",
-              imageId: "",
-            },
-            select: {
-              id: true,
-              slug: true,
-            },
-          });
-
-          return { ...category, ...cat };
-        }
-      })
-    );
-
-    const subCategories = await Promise.all(
-      mainCategories
-        .map((category: any) =>
-          category.children
-            ?.map(async (subCategory: any) => {
-              if (!subCategory.title) return null;
-
-              const command =
-                prompt?.command?.replaceAll(regex, subCategory.title) ?? null;
-
-              const data: any = {
-                title: subCategory.title,
-                slug: subCategory.slug ?? getSlug(subCategory.title),
-                parent: {
-                  connect: {
-                    id: category.id,
-                  },
-                },
-                site: {
-                  connect: {
-                    id: site.id,
-                  },
-                },
-                translations: {
-                  create: {
-                    lang: "EN",
-                  },
-                },
-              };
-
-              if (subCategory.imageId) {
-                data.image = {};
-                data.image.connect = {};
-                data.image.connect.id = subCategory.imageId;
-              }
-
-              if (!!command) {
-                const contentResponse = await openai.createChatCompletion({
-                  model: GPT_4,
-                  messages: [{ role: "user", content: command }],
-                });
-
-                if (contentResponse) {
-                  const content =
-                    contentResponse?.data?.choices[0]?.message?.content.trim();
-                  if (content) {
-                    data["content"] = content;
-                    data["translations"]["create"]["content"] = content;
-
-                    const subcat = await prisma.category.create({
-                      data,
-                      select: {
-                        id: true,
-                        slug: true,
-                      },
-                    });
-
-                    return { ...subCategory, ...subcat };
-                  }
-                }
-              } else {
-                const subcat = await prisma.category.create({
-                  data,
-                  select: {
-                    id: true,
-                    slug: true,
-                  },
-                });
-
-                return { ...subCategory, ...subcat };
-              }
-            })
-            .flat()
-        )
-        .flat()
-    );
-
-    const subSubCategories = await Promise.all(
-      subCategories
-        .map((subCategory: any) =>
-          subCategory.children
-            ?.map(async (subSubCategory: any) => {
-              if (!subSubCategory.title) return null;
-
-              const command = prompt?.command?.replaceAll(
-                regex,
-                subSubCategory.title
-              );
-
-              const data: any = {
-                title: subSubCategory.title,
-                slug: subSubCategory.slug ?? getSlug(subSubCategory.title),
-                site: {
-                  connect: {
-                    id: site.id,
-                  },
-                },
-                parent: {
-                  connect: {
-                    id: subCategory.id,
-                  },
-                },
-                translations: {
-                  create: {
-                    lang: "EN",
-                  },
-                },
-              };
-
-              if (subSubCategory.imageId) {
-                data.image = {};
-                data.image.connect = {};
-                data.image.connect.id = subSubCategory.imageId;
-              }
-
-              if (!!command) {
-                const contentResponse = await openai.createChatCompletion({
-                  model: GPT_4,
-                  messages: [{ role: "user", content: command }],
-                });
-
-                if (contentResponse) {
-                  const content =
-                    contentResponse?.data?.choices[0]?.message?.content.trim();
-                  if (content) {
-                    data["content"] = content;
-                    data["translations"]["create"]["content"] = content;
-
-                    const subSubCat = await prisma.category.create({
-                      data,
-                      select: {
-                        id: true,
-                        slug: true,
-                      },
-                    });
-
-                    return { ...subSubCategory, ...subSubCat };
-                  }
-                }
-              } else {
-                const subSubCat = await prisma.category.create({
-                  data,
-                  select: {
-                    id: true,
-                    slug: true,
-                  },
-                });
-
-                return { ...subSubCategory, ...subSubCat };
-              }
-            })
-            .flat()
-        )
-        .flat()
-    );
-
-    const subSubSubCategories = await Promise.all(
-      subSubCategories
-        .map((subSubCategory: any) =>
-          subSubCategory.children
-            ?.map(async (subSubSubCategory: any) => {
-              if (!subSubSubCategory.title) return null;
-
-              const command = prompt?.command?.replaceAll(
-                regex,
-                subSubSubCategory.title
-              );
-
-              const data: any = {
-                title: subSubSubCategory.title,
-                slug:
-                  subSubSubCategory.slug ?? getSlug(subSubSubCategory.title),
-                site: {
-                  connect: {
-                    id: site.id,
-                  },
-                },
-                parent: {
-                  connect: {
-                    id: subSubCategory.id,
-                  },
-                },
-                translations: {
-                  create: {
-                    lang: "EN",
-                  },
-                },
-              };
-
-              if (subSubSubCategory.imageId) {
-                data.image = {};
-                data.image.connect = {};
-                data.image.connect.id = subSubSubCategory.imageId;
-              }
-
-              if (!!command) {
-                const contentResponse = await openai.createChatCompletion({
-                  model: GPT_4,
-                  messages: [{ role: "user", content: command }],
-                });
-
-                if (contentResponse) {
-                  const content =
-                    contentResponse?.data?.choices[0]?.message?.content.trim();
-                  if (content) {
-                    data["content"] = content;
-                    data["translations"]["create"]["content"] = content;
-
-                    const subSubCat = await prisma.category.create({
-                      data,
-                      select: {
-                        id: true,
-                        slug: true,
-                      },
-                    });
-
-                    return { ...subSubSubCategory, ...subSubCat };
-                  }
-                }
-              } else {
-                const subSubCat = await prisma.category.create({
-                  data,
-                  select: {
-                    id: true,
-                    slug: true,
-                  },
-                });
-
-                return { ...subSubSubCategory, ...subSubCat };
-              }
-            })
-            .flat()
-        )
-        .flat()
-    );
-
-    const subSubSubSubCategories = await Promise.all(
-      subSubSubCategories
-        .map((subSubSubCategory: any) =>
-          subSubSubCategory.children
-            ?.map(async (subSubSubSubCategory: any) => {
-              if (!subSubSubSubCategory.title) return null;
-
-              const command = prompt?.command?.replaceAll(
-                regex,
-                subSubSubSubCategory.title
-              );
-
-              const data: any = {
-                title: subSubSubSubCategory.title,
-                slug:
-                  subSubSubSubCategory.slug ??
-                  getSlug(subSubSubSubCategory.title),
-                site: {
-                  connect: {
-                    id: site.id,
-                  },
-                },
-                parent: {
-                  connect: {
-                    id: subSubSubCategory.id,
-                  },
-                },
-                translations: {
-                  create: {
-                    lang: "EN",
-                  },
-                },
-              };
-
-              if (subSubSubSubCategory.imageId) {
-                data.image = {};
-                data.image.connect = {};
-                data.image.connect.id = subSubSubSubCategory.imageId;
-              }
-
-              if (!!command) {
-                const contentResponse = await openai.createChatCompletion({
-                  model: GPT_4,
-                  messages: [{ role: "user", content: command }],
-                });
-
-                if (contentResponse) {
-                  const content =
-                    contentResponse?.data?.choices[0]?.message?.content.trim();
-                  if (content) {
-                    data["content"] = content;
-                    data["translations"]["create"]["content"] = content;
-
-                    const subSubCat = await prisma.category.create({
-                      data,
-                      select: {
-                        id: true,
-                        slug: true,
-                      },
-                    });
-
-                    return { ...subSubSubSubCategory, ...subSubCat };
-                  }
-                }
-              } else {
-                const subSubCat = await prisma.category.create({
-                  data,
-                  select: {
-                    id: true,
-                    slug: true,
-                  },
-                });
-
-                return { ...subSubSubSubCategory, ...subSubCat };
-              }
-            })
-            .flat()
-        )
-        .flat()
-    );
-
-    if (!!subSubSubSubCategories[0]) {
+    if (!!mainCategories[0]) {
       await Promise.all(
-        subSubSubCategories.map((category) =>
-          revalidate(site, undefined, category, undefined)
-        )
-      );
-    } else if (!!subSubSubCategories[0]) {
-      await Promise.all(
-        subSubSubCategories.map((category) =>
-          revalidate(site, undefined, category, undefined)
-        )
-      );
-    } else if (!!subSubCategories[0]) {
-      await Promise.all(
-        subSubCategories.map((category) =>
-          revalidate(site, undefined, category, undefined)
-        )
-      );
-    } else if (!!subCategories[0]) {
-      await Promise.all(
-        subCategories.map((category) =>
-          revalidate(site, undefined, category, undefined)
-        )
-      );
-    } else if (!!mainCategories[0]) {
-      await Promise.all(
-        mainCategories.map((category) =>
-          revalidate(site, undefined, category, undefined)
+        mainCategories.map((category: Category) =>
+          revalidateMainCategories(site, undefined, category)
         )
       );
     }
-
-    return res.status(200).json(true);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).end(error);
-  }
+  } catch (err) {}
 }
+
+// /**
+//  * import Categories
+//  *
+//  * Imports either a single or all categories available depending on
+//  * JSON input
+//  *
+//  * @param req - Next.js API Request
+//  * @param res - Next.js API Response
+//  */
+
+// export async function importCategories(
+//   req: NextApiRequest,
+//   res: NextApiResponse,
+//   session: Session
+// ): Promise<void | NextApiResponse<any | null>> {
+//   const { subdomain, categories, bulkCreateContent, promptId } = req.body;
+
+//   if (!session.user.id || !subdomain || !categories)
+//     return res.status(400).end("Bad request.");
+
+//   const site = await prisma.site.findFirst({
+//     where: {
+//       subdomain,
+//       user: {
+//         id: session.user.id,
+//       },
+//     },
+//   });
+//   if (!site) return res.status(404).end("Site not found");
+
+//   const user = await prisma.user.findFirst({
+//     where: {
+//       id: session.user.id,
+//     },
+//     select: {
+//       credits: true,
+//     },
+//   });
+//   if (!user) return res.status(400).end("User not found.");
+//   if (!user.credits) return res.status(400).end("Not enough credits.");
+
+//   const siteCategories = await prisma.category.findMany({
+//     where: {
+//       site: {
+//         id: site.id,
+//       },
+//     },
+//     select: {
+//       title: true,
+//       slug: true,
+//     },
+//   });
+
+//   const regex = new RegExp(/\[(.*?)\]/g);
+
+//   const filteredCategories = categories.filter((category: any) => {
+//     const title = category.title.replaceAll(regex, category.title);
+//     const slug = getSlug(title);
+
+//     const exists = siteCategories.filter(
+//       (siteCategory) => siteCategory.slug === slug
+//     );
+
+//     if (exists.length > 0) return false;
+//     return true;
+//   });
+
+//   const creditsUsage = Math.ceil(
+//     filteredCategories.length * bulkCreateContent
+//       ? PER_IMPORT_AND_GENERATE
+//       : PER_IMPORT
+//   );
+
+//   if (user.credits < creditsUsage)
+//     return res.status(400).end("Insufficient credits.");
+
+//   let prompt: any = null;
+//   if (bulkCreateContent) {
+//     prompt = await prisma.prompt.findFirst({
+//       where: {
+//         id: promptId,
+//       },
+//     });
+//   }
+
+//   try {
+//     const mainCategories = await Promise.all(
+//       filteredCategories.map(async (category: any) => {
+//         if (!category.title) return null;
+
+//         const data: any = {
+//           title: category.title,
+//           slug: category.slug ?? getSlug(category.title),
+//           site: {
+//             connect: {
+//               id: site.id,
+//             },
+//           },
+//           translations: {
+//             create: {
+//               lang: "EN",
+//             },
+//           },
+//         };
+
+//         if (category.imageId) {
+//           data.image = {};
+//           data.image.connect = {};
+//           data.image.connect.id = category.imageId;
+//         }
+//         console.log({ data });
+
+//         const command =
+//           prompt?.command?.replaceAll(regex, category.title) ?? null;
+
+//         if (!!command) {
+//           const contentResponse = await openai.createChatCompletion({
+//             model: GPT_4,
+//             messages: [{ role: "user", content: command }],
+//           });
+
+//           if (contentResponse) {
+//             const content =
+//               contentResponse?.data?.choices[0]?.message?.content.trim();
+//             if (content) {
+//               data["content"] = content;
+//               data["translations"]["create"]["content"] = content;
+
+//               const cat = await prisma.category.create({
+//                 data,
+//                 select: {
+//                   id: true,
+//                   slug: true,
+//                 },
+//               });
+
+//               return { ...category, ...cat };
+//             }
+//           }
+//         } else {
+//           const cat = await prisma.category.create({
+//             data: {
+//               title: "",
+//               imageId: "",
+//             },
+//             select: {
+//               id: true,
+//               slug: true,
+//             },
+//           });
+
+//           return { ...category, ...cat };
+//         }
+//       })
+//     );
+
+//     const subCategories = await Promise.all(
+//       mainCategories
+//         .map((category: any) =>
+//           category.children
+//             ?.map(async (subCategory: any) => {
+//               if (!subCategory.title) return null;
+
+//               const command =
+//                 prompt?.command?.replaceAll(regex, subCategory.title) ?? null;
+
+//               const data: any = {
+//                 title: subCategory.title,
+//                 slug: subCategory.slug ?? getSlug(subCategory.title),
+//                 parent: {
+//                   connect: {
+//                     id: category.id,
+//                   },
+//                 },
+//                 site: {
+//                   connect: {
+//                     id: site.id,
+//                   },
+//                 },
+//                 translations: {
+//                   create: {
+//                     lang: "EN",
+//                   },
+//                 },
+//               };
+
+//               if (subCategory.imageId) {
+//                 data.image = {};
+//                 data.image.connect = {};
+//                 data.image.connect.id = subCategory.imageId;
+//               }
+
+//               if (!!command) {
+//                 const contentResponse = await openai.createChatCompletion({
+//                   model: GPT_4,
+//                   messages: [{ role: "user", content: command }],
+//                 });
+
+//                 if (contentResponse) {
+//                   const content =
+//                     contentResponse?.data?.choices[0]?.message?.content.trim();
+//                   if (content) {
+//                     data["content"] = content;
+//                     data["translations"]["create"]["content"] = content;
+
+//                     const subcat = await prisma.category.create({
+//                       data,
+//                       select: {
+//                         id: true,
+//                         slug: true,
+//                       },
+//                     });
+
+//                     return { ...subCategory, ...subcat };
+//                   }
+//                 }
+//               } else {
+//                 const subcat = await prisma.category.create({
+//                   data,
+//                   select: {
+//                     id: true,
+//                     slug: true,
+//                   },
+//                 });
+
+//                 return { ...subCategory, ...subcat };
+//               }
+//             })
+//             .flat()
+//         )
+//         .flat()
+//     );
+
+//     const subSubCategories = await Promise.all(
+//       subCategories
+//         .map((subCategory: any) =>
+//           subCategory.children
+//             ?.map(async (subSubCategory: any) => {
+//               if (!subSubCategory.title) return null;
+
+//               const command = prompt?.command?.replaceAll(
+//                 regex,
+//                 subSubCategory.title
+//               );
+
+//               const data: any = {
+//                 title: subSubCategory.title,
+//                 slug: subSubCategory.slug ?? getSlug(subSubCategory.title),
+//                 site: {
+//                   connect: {
+//                     id: site.id,
+//                   },
+//                 },
+//                 parent: {
+//                   connect: {
+//                     id: subCategory.id,
+//                   },
+//                 },
+//                 translations: {
+//                   create: {
+//                     lang: "EN",
+//                   },
+//                 },
+//               };
+
+//               if (subSubCategory.imageId) {
+//                 data.image = {};
+//                 data.image.connect = {};
+//                 data.image.connect.id = subSubCategory.imageId;
+//               }
+
+//               if (!!command) {
+//                 const contentResponse = await openai.createChatCompletion({
+//                   model: GPT_4,
+//                   messages: [{ role: "user", content: command }],
+//                 });
+
+//                 if (contentResponse) {
+//                   const content =
+//                     contentResponse?.data?.choices[0]?.message?.content.trim();
+//                   if (content) {
+//                     data["content"] = content;
+//                     data["translations"]["create"]["content"] = content;
+
+//                     const subSubCat = await prisma.category.create({
+//                       data,
+//                       select: {
+//                         id: true,
+//                         slug: true,
+//                       },
+//                     });
+
+//                     return { ...subSubCategory, ...subSubCat };
+//                   }
+//                 }
+//               } else {
+//                 const subSubCat = await prisma.category.create({
+//                   data,
+//                   select: {
+//                     id: true,
+//                     slug: true,
+//                   },
+//                 });
+
+//                 return { ...subSubCategory, ...subSubCat };
+//               }
+//             })
+//             .flat()
+//         )
+//         .flat()
+//     );
+
+//     const subSubSubCategories = await Promise.all(
+//       subSubCategories
+//         .map((subSubCategory: any) =>
+//           subSubCategory.children
+//             ?.map(async (subSubSubCategory: any) => {
+//               if (!subSubSubCategory.title) return null;
+
+//               const command = prompt?.command?.replaceAll(
+//                 regex,
+//                 subSubSubCategory.title
+//               );
+
+//               const data: any = {
+//                 title: subSubSubCategory.title,
+//                 slug:
+//                   subSubSubCategory.slug ?? getSlug(subSubSubCategory.title),
+//                 site: {
+//                   connect: {
+//                     id: site.id,
+//                   },
+//                 },
+//                 parent: {
+//                   connect: {
+//                     id: subSubCategory.id,
+//                   },
+//                 },
+//                 translations: {
+//                   create: {
+//                     lang: "EN",
+//                   },
+//                 },
+//               };
+
+//               if (subSubSubCategory.imageId) {
+//                 data.image = {};
+//                 data.image.connect = {};
+//                 data.image.connect.id = subSubSubCategory.imageId;
+//               }
+
+//               if (!!command) {
+//                 const contentResponse = await openai.createChatCompletion({
+//                   model: GPT_4,
+//                   messages: [{ role: "user", content: command }],
+//                 });
+
+//                 if (contentResponse) {
+//                   const content =
+//                     contentResponse?.data?.choices[0]?.message?.content.trim();
+//                   if (content) {
+//                     data["content"] = content;
+//                     data["translations"]["create"]["content"] = content;
+
+//                     const subSubCat = await prisma.category.create({
+//                       data,
+//                       select: {
+//                         id: true,
+//                         slug: true,
+//                       },
+//                     });
+
+//                     return { ...subSubSubCategory, ...subSubCat };
+//                   }
+//                 }
+//               } else {
+//                 const subSubCat = await prisma.category.create({
+//                   data,
+//                   select: {
+//                     id: true,
+//                     slug: true,
+//                   },
+//                 });
+
+//                 return { ...subSubSubCategory, ...subSubCat };
+//               }
+//             })
+//             .flat()
+//         )
+//         .flat()
+//     );
+
+//     const subSubSubSubCategories = await Promise.all(
+//       subSubSubCategories
+//         .map((subSubSubCategory: any) =>
+//           subSubSubCategory.children
+//             ?.map(async (subSubSubSubCategory: any) => {
+//               if (!subSubSubSubCategory.title) return null;
+
+//               const command = prompt?.command?.replaceAll(
+//                 regex,
+//                 subSubSubSubCategory.title
+//               );
+
+//               const data: any = {
+//                 title: subSubSubSubCategory.title,
+//                 slug:
+//                   subSubSubSubCategory.slug ??
+//                   getSlug(subSubSubSubCategory.title),
+//                 site: {
+//                   connect: {
+//                     id: site.id,
+//                   },
+//                 },
+//                 parent: {
+//                   connect: {
+//                     id: subSubSubCategory.id,
+//                   },
+//                 },
+//                 translations: {
+//                   create: {
+//                     lang: "EN",
+//                   },
+//                 },
+//               };
+
+//               if (subSubSubSubCategory.imageId) {
+//                 data.image = {};
+//                 data.image.connect = {};
+//                 data.image.connect.id = subSubSubSubCategory.imageId;
+//               }
+
+//               if (!!command) {
+//                 const contentResponse = await openai.createChatCompletion({
+//                   model: GPT_4,
+//                   messages: [{ role: "user", content: command }],
+//                 });
+
+//                 if (contentResponse) {
+//                   const content =
+//                     contentResponse?.data?.choices[0]?.message?.content.trim();
+//                   if (content) {
+//                     data["content"] = content;
+//                     data["translations"]["create"]["content"] = content;
+
+//                     const subSubCat = await prisma.category.create({
+//                       data,
+//                       select: {
+//                         id: true,
+//                         slug: true,
+//                       },
+//                     });
+
+//                     return { ...subSubSubSubCategory, ...subSubCat };
+//                   }
+//                 }
+//               } else {
+//                 const subSubCat = await prisma.category.create({
+//                   data,
+//                   select: {
+//                     id: true,
+//                     slug: true,
+//                   },
+//                 });
+
+//                 return { ...subSubSubSubCategory, ...subSubCat };
+//               }
+//             })
+//             .flat()
+//         )
+//         .flat()
+//     );
+
+//     if (!!subSubSubSubCategories[0]) {
+//       await Promise.all(
+//         subSubSubCategories.map((category) =>
+//           revalidate(site, undefined, category, undefined)
+//         )
+//       );
+//     } else if (!!subSubSubCategories[0]) {
+//       await Promise.all(
+//         subSubSubCategories.map((category) =>
+//           revalidate(site, undefined, category, undefined)
+//         )
+//       );
+//     } else if (!!subSubCategories[0]) {
+//       await Promise.all(
+//         subSubCategories.map((category) =>
+//           revalidate(site, undefined, category, undefined)
+//         )
+//       );
+//     } else if (!!subCategories[0]) {
+//       await Promise.all(
+//         subCategories.map((category) =>
+//           revalidate(site, undefined, category, undefined)
+//         )
+//       );
+//     } else if (!!mainCategories[0]) {
+//       await Promise.all(
+//         mainCategories.map((category) =>
+//           revalidate(site, undefined, category, undefined)
+//         )
+//       );
+//     }
+
+//     return res
+//       .status(200)
+//       .json({
+//         mainCategories,
+//         subCategories,
+//         subSubCategories,
+//         subSubSubCategories,
+//         subSubSubSubCategories,
+//       });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).end(error);
+//   }
+// }

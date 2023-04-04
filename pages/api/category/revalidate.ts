@@ -1,8 +1,8 @@
-// import { importCategories } from "@/lib/api/category";
+import { revalidateCategories } from "@/lib/api/category";
 import { getServerSession } from "next-auth/next";
 
 import { authOptions } from "../auth/[...nextauth]";
-// import { HttpMethod } from "@/types";
+import { HttpMethod } from "@/types";
 
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -16,8 +16,8 @@ export default async function categoryTranslate(
   switch (req.method) {
     // case HttpMethod.GET:
     //   return getCategoryTranslations(req, res, session);
-    // case HttpMethod.POST:
-    //   return importCategories(req, res, session);
+    case HttpMethod.POST:
+      return revalidateCategories(req, res, session);
     // case HttpMethod.DELETE:
     // 	return deleteCategory(req, res, session);
     // case HttpMethod.PUT:
@@ -25,7 +25,7 @@ export default async function categoryTranslate(
     default:
       res.setHeader("Allow", [
         // HttpMethod.GET,
-        // HttpMethod.POST,
+        HttpMethod.POST,
         // HttpMethod.DELETE,
         // HttpMethod.PUT,
       ]);
