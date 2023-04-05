@@ -12,12 +12,15 @@ interface BreadcrumbsPromps {
 }
 
 const Breadcrumbs = ({ breadcrumbs, lang }: BreadcrumbsPromps) => {
-  if (!breadcrumbs || !breadcrumbs.length) return <div />;
   return (
     <div className="flex flex-wrap divide-x pb-4">
-      {breadcrumbs?.map((breadcrumb: any) => (
+      {breadcrumbs?.map((breadcrumb, i) => (
         <Link
-          className="whitespace-nowrap px-4 py-2 text-blue-700 hover:underline"
+          className={`whitespace-nowrap px-4 py-2 ${
+            i + 1 !== breadcrumbs.length
+              ? "text-blue-700"
+              : "font-semibold underline"
+          } hover:underline`}
           href={breadcrumb.slug}
           lang={lang}
           key={breadcrumb.id}
