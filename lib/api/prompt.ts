@@ -239,6 +239,17 @@ export async function generate(
     });
   }
 
+  const prompt = await prisma.prompt.findFirst({
+    where: {
+      id: promptId,
+      user: {
+        id: sessionId,
+      },
+    },
+  });
+
+  if (!prompt || !prompt.command) return res.status(500).end("Invalid prompt");
+
   try {
     const regex = new RegExp(/\[(.*?)\]/g);
 
