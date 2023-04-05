@@ -17,12 +17,14 @@ import "../../node_modules/@uiw/react-markdown-preview/markdown.css";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { PER_GENERATE } from "@/lib/consts/credits";
+import { extractBrokenLinks, removeBrokenLinks } from "@/lib/links";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
 const TextEditor = ({ content, setContent, dataId }) => {
   const router = useRouter();
   const [aiDetected, setAiDetected] = useState(null);
+  const [removingBrokenLinks, setRemovingBrokenLinks] = useState(false);
   const [checkingForAI, setCheckingForAI] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState("");
   const [generateInput, setGenerateInput] = useState("");
@@ -131,6 +133,18 @@ const TextEditor = ({ content, setContent, dataId }) => {
     }
   }
 
+  const handleRemoveBrokenLinks = async () => {
+    setRemovingBrokenLinks(true);
+    const brokenLinks = await extractBrokenLinks(content);
+    const newMessage = removeBrokenLinks(content, brokenLinks);
+
+    if (newMessage) {
+      setContent(newMessage);
+    }
+
+    setRemovingBrokenLinks(false)
+  }
+
   return (
     <>
       <div className="w-full">
@@ -179,6 +193,18 @@ const TextEditor = ({ content, setContent, dataId }) => {
               onClick={() => setShowGenerateModal(true)}
             >
               Generate
+            </button>
+          </div>
+          <div className="flex">
+            <button
+              className={`flex whitespace-nowrap border bg-white items-center px-2 py-1 tracking-wide text-black duration-200 hover:border-black ${removingBrokenLinks
+                ? "cursor-not-allowed bg-gray-50 text-gray-400"
+                : "bg-white text-gray-600 hover:text-black"
+                }`}
+              onClick={() => handleRemoveBrokenLinks()}
+              disabled={removingBrokenLinks}
+            >
+              Remove Broken Links
             </button>
           </div>
         </div>
