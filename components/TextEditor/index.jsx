@@ -69,6 +69,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
         },
         body: JSON.stringify({
           prompt: command,
+          useGPT_4,
         }),
       });
 
