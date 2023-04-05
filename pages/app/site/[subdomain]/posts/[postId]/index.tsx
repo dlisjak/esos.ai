@@ -28,7 +28,6 @@ interface PostData {
   id: string;
   title: string;
   slug: string;
-  content: string;
   categoryId: string;
   image: ImageType | null;
   links: PostLink[] | null;
@@ -64,11 +63,11 @@ export default function Post() {
 
   const { categories } = useCategories(subdomain);
 
+  const [content, setContent] = useState("");
   const [data, setData] = useState<PostData>({
     id: "",
     title: "",
     slug: "",
-    content: "",
     categoryId: "",
     image: null,
     links: null,
@@ -89,19 +88,14 @@ export default function Post() {
         image: post.image ?? null,
         links: post.links ?? null,
         title: selectedTranslation?.title || post.title || "",
-        content: selectedTranslation?.content || post.content || "",
       });
+
+      setContent(selectedTranslation?.content || post.content || "");
     }
   }, [selectedTranslation]);
 
   useEffect(() => {
-    if (
-      data.title &&
-      data.slug &&
-      data.content &&
-      data.categoryId &&
-      !publishing
-    )
+    if (data.title && data.slug && content && data.categoryId && !publishing)
       setDisabled(false);
     else setDisabled(true);
   }, [publishing, data]);
@@ -130,7 +124,7 @@ export default function Post() {
     const body: any = {
       translationId: selectedTranslation.id,
       title: data.title,
-      content: data.content,
+      content: content,
     };
 
     try {
@@ -154,13 +148,7 @@ export default function Post() {
   }
 
   async function publish(published = true, redirect = false) {
-    if (
-      !postId ||
-      !data.title ||
-      !data.slug ||
-      !data.content ||
-      !data.categoryId
-    )
+    if (!postId || !data.title || !data.slug || !content || !data.categoryId)
       return toast.error("Make sure the post has required data");
 
     setPublishing(true);
@@ -220,13 +208,6 @@ export default function Post() {
     return setImageData(file);
   };
 
-  const handleSetContent = (value: any) => {
-    setData({
-      ...data,
-      content: value,
-    });
-  };
-
   const handleSetTitle = (value: any) => {
     setData({
       ...data,
@@ -271,7 +252,7 @@ export default function Post() {
           translationId: translation.id,
           lang: translation.lang,
           title: data?.title,
-          content: data?.content,
+          content: content,
         }),
       });
 
@@ -463,8 +444,8 @@ export default function Post() {
                 Content<span className="text-red-600">*</span>
               </h2>
               <TextEditor
-                value={data.content}
-                setValue={handleSetContent}
+                content={content}
+                setContent={setContent}
                 dataId={postId}
               />
             </div>

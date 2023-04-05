@@ -20,9 +20,8 @@ import { PER_GENERATE } from "@/lib/consts/credits";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
-const TextEditor = ({ value, setValue, dataId }) => {
+const TextEditor = ({ content, setContent, dataId }) => {
   const router = useRouter();
-  const [content, setContent] = useState(value);
   const [aiDetected, setAiDetected] = useState(null);
   const [checkingForAI, setCheckingForAI] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState("");
@@ -38,10 +37,6 @@ const TextEditor = ({ value, setValue, dataId }) => {
 
   const { subdomain } = router.query;
   const { name: sessionUser } = session?.user;
-
-  useEffect(() => {
-    setValue(content);
-  }, [content])
 
   const handleGenerate = async () => {
     if (!generateInput || !selectedPrompt) return;
@@ -135,7 +130,6 @@ const TextEditor = ({ value, setValue, dataId }) => {
     }
   }
 
-
   return (
     <>
       <div className="w-full">
@@ -143,7 +137,7 @@ const TextEditor = ({ value, setValue, dataId }) => {
         <GrammarlyEditorPlugin clientId="client_BFSnu3qQymueAZTtFf7Sni">
           <MDEditor
             height={640}
-            value={content || value}
+            value={content}
             onChange={setContent}
             textareaProps={{
               placeholder: "Please enter Markdown text",

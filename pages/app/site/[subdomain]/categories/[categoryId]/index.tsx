@@ -27,7 +27,6 @@ import { CategoryTranslation, Image as ImageType } from "@prisma/client";
 interface CategoryData {
   id: string;
   title: string;
-  content: string;
   slug: string;
   parentId: string;
   image: ImageType | null;
@@ -62,10 +61,10 @@ export default function CategoryPage() {
     string | null
   >(null);
 
+  const [content, setContent] = useState("");
   const [data, setData] = useState<CategoryData>({
     id: "",
     title: "",
-    content: "",
     slug: "",
     parentId: "",
     image: null,
@@ -85,16 +84,16 @@ export default function CategoryPage() {
         slug: category.slug ?? "",
         image: category.image ?? null,
         title: selectedTranslation?.title || category?.title || "",
-        content: selectedTranslation?.content || category?.content || "",
       });
+
+      setContent(selectedTranslation?.content || category?.content || "");
     }
   }, [selectedTranslation]);
 
   useEffect(() => {
-    if (data.title && data.slug && data.content && !publishing)
-      setDisabled(false);
+    if (data.title && data.slug && content && !publishing) setDisabled(false);
     else setDisabled(true);
-  }, [publishing, data]);
+  }, [publishing, data, content]);
 
   const uploadImage = async (file: any, title: any) => {
     const path = `${sessionUser}/${subdomain}`;
@@ -120,7 +119,7 @@ export default function CategoryPage() {
     const body: any = {
       translationId: selectedTranslation.id,
       title: data.title,
-      content: data.content,
+      content: content,
     };
 
     try {
@@ -211,13 +210,6 @@ export default function CategoryPage() {
     return setImageData(file);
   };
 
-  const handleSetContent = (value: any) => {
-    setData({
-      ...data,
-      content: value,
-    });
-  };
-
   const handleSetTitle = (value: any) => {
     setData({
       ...data,
@@ -264,7 +256,7 @@ export default function CategoryPage() {
             translationId: translation.id,
             lang: translation.lang,
             title: data?.title,
-            content: data?.content,
+            content: content,
           }),
         }
       );
@@ -396,8 +388,8 @@ export default function CategoryPage() {
                 Content<span className="text-red-600">*</span>
               </h2>
               <TextEditor
-                value={data.content}
-                setValue={handleSetContent}
+                content={content}
+                setContent={setContent}
                 dataId={categoryId}
               />
             </div>
@@ -572,7 +564,7 @@ export default function CategoryPage() {
                 </div>
                 <div className="mt-auto pt-4 text-sm italic">
                   The cost of translating is{" "}
-                  <b>{Math.ceil(data.content.length / 500)}</b>
+                  <b>{Math.ceil(content.length / 500)} credits</b>
                 </div>
               </div>
               <div className="mt-10 flex w-full items-center justify-between">
