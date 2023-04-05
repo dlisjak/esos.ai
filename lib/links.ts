@@ -1,7 +1,10 @@
 const extractBrokenPart = (url: string) => {
   const remove404Regex = /(?<=\/\/[^\/]+\/)(.*)/;
 
+  console.log({ url });
+
   const match = url.match(remove404Regex);
+  console.log({ match });
   return match && match[1];
 };
 
