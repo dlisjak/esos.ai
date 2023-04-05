@@ -36,6 +36,7 @@
     "cuid": "^2.1.8",
     "date-fns": "^2.29.3",
     "deepl": "^1.0.13",
+    "eventsource-parser": "^1.0.0",
     "fs": "^0.0.1-security",
     "gray-matter": "^4.0.3",
     "i18next": "^22.4.11",

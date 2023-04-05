@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "react-hot-toast";
 import rehypeSanitize from "rehype-sanitize";
@@ -22,12 +22,14 @@ const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
 const TextEditor = ({ value, setValue, dataId }) => {
   const router = useRouter();
+  const [content, setContent] = useState(value);
   const [aiDetected, setAiDetected] = useState(null);
   const [checkingForAI, setCheckingForAI] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState("");
   const [generateInput, setGenerateInput] = useState("");
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [generatingResponse, setGeneratingResponse] = useState(false);
+  const [useGPT_4, setUseGPT_4] = useState(true);
   const [promptVariable, setPromptVariable] = useState("");
   const { uploadToS3 } = useS3Upload();
   const { prompts } = usePrompts();
@@ -35,38 +37,73 @@ const TextEditor = ({ value, setValue, dataId }) => {
   const { data: session } = useSession();
 
   const { subdomain } = router.query;
-  const sessionUser = session?.user?.name;
+  const { name: sessionUser } = session?.user;
+
+  useEffect(() => {
+    setValue(content);
+  }, [content])
 
   const handleGenerate = async () => {
     if (!generateInput || !selectedPrompt) return;
     setGeneratingResponse(true);
+    setContent("");
 
     try {
-      const response = await fetch(`/api/prompt/generate`, {
+      let prompt;
+      const promptResponse = await fetch(`/api/prompt?promptId=${selectedPrompt}`, {
+        method: HttpMethod.GET,
+      })
+
+      if (promptResponse.ok) {
+        prompt = await promptResponse.json()
+      }
+
+      if (!prompt) {
+        return toast.error("Prompt does not exist");
+      }
+      if (!prompt?.command) {
+        return toast.error("Prompt has no command");
+      }
+      const regex = new RegExp(/\[(.*?)\]/g);
+      const command = prompt.command.replaceAll(regex, promptVariable);
+
+      const response = await fetch(`/api/stream`, {
         method: HttpMethod.POST,
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          promptVariable,
-          promptId: selectedPrompt,
+          prompt: command,
         }),
       });
 
-      if (response.ok) {
-        const body = await response.json();
-
-        if (generateInput === "description") {
-          setValue(body);
-        }
-        toast.success("Prompt executed successfully");
+      if (!response.ok) {
+        return toast.error(response.statusText);
       }
+
+      setShowGenerateModal(false);
+
+      const data = response.body;
+      if (!data) {
+        return;
+      }
+
+      const reader = data.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value);
+        setContent((prev) => prev + chunkValue);
+      }
+      toast.success("Generated content")
     } catch (e) {
       console.error(e);
     } finally {
       mutateCredits();
       setGeneratingResponse(false);
-      setShowGenerateModal(false);
     }
   };
 
@@ -98,6 +135,7 @@ const TextEditor = ({ value, setValue, dataId }) => {
     }
   }
 
+
   return (
     <>
       <div className="w-full">
@@ -106,7 +144,7 @@ const TextEditor = ({ value, setValue, dataId }) => {
           <MDEditor
             height={640}
             value={value || ""}
-            onChange={setValue}
+            onChange={(e) => setContent(e.target.value)}
             textareaProps={{
               placeholder: "Please enter Markdown text",
             }}
@@ -142,6 +180,7 @@ const TextEditor = ({ value, setValue, dataId }) => {
             </select>
             <button
               className="flex items-center whitespace-nowrap border border-black bg-black px-3 py-1 tracking-wide text-white duration-200 hover:border hover:bg-white hover:text-black"
+              disabled={!selectedPrompt}
               onClick={() => setShowGenerateModal(true)}
             >
               Generate
@@ -236,8 +275,8 @@ const TextEditor = ({ value, setValue, dataId }) => {
               <input className="hover:cursor-pointer rounded" id="internalLink" type="checkbox" />
             </div>
             <div className="w-full mt-2 pb-2 flex items-center">
-              <label className="font-semibold mr-2 hover:cursor-pointer" htmlFor="generateLink">Generate Internal Links</label>
-              <input className="hover:cursor-pointer rounded" id="generateLink" type="checkbox" />
+              <label className="font-semibold mr-2 hover:cursor-pointer" htmlFor="useGPT4">Use GPT 4</label>
+              <input className="hover:cursor-pointer rounded" id="useGPT4" onChange={() => setUseGPT_4(!useGPT_4)} checked={useGPT_4} type="checkbox" />
             </div>
           </div>
           <div className="mt-4 flex w-full items-center justify-between">

@@ -240,35 +240,6 @@ export async function generate(
   }
 
   try {
-    const user = await prisma.user.findFirst({
-      where: {
-        id: sessionId,
-      },
-      select: {
-        credits: true,
-      },
-    });
-
-    if (!user) {
-      return res.status(404).end("User not found");
-    }
-    if (!user.credits) {
-      return res.status(404).end("Not enough credits to perform operation");
-    }
-
-    const prompt = await prisma.prompt.findFirst({
-      where: {
-        id: promptId,
-      },
-    });
-
-    if (!prompt) {
-      return res.status(404).end("Prompt does not exist");
-    }
-    if (!prompt?.command) {
-      return res.status(404).end("Prompt has no command");
-    }
-
     const regex = new RegExp(/\[(.*?)\]/g);
 
     const command = prompt.command.replaceAll(regex, promptVariable);
