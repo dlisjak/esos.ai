@@ -195,18 +195,6 @@ const TextEditor = ({ content, setContent, dataId }) => {
               Generate
             </button>
           </div>
-          <div className="flex">
-            <button
-              className={`flex whitespace-nowrap border bg-white items-center px-2 py-1 tracking-wide text-black duration-200 hover:border-black ${removingBrokenLinks
-                ? "cursor-not-allowed bg-gray-50 text-gray-400"
-                : "bg-white text-gray-600 hover:text-black"
-                }`}
-              onClick={() => handleRemoveBrokenLinks()}
-              disabled={removingBrokenLinks}
-            >
-              Remove Broken Links
-            </button>
-          </div>
         </div>
       </div>
       <Modal showModal={showGenerateModal} setShowModal={setShowGenerateModal}>
