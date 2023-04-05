@@ -26,6 +26,7 @@ export const extractBrokenLinks = async (message: string) => {
   const promises: any = [];
 
   links.forEach((link: string) => {
+    console.log({ link });
     promises.push(
       fetch(link, { mode: "no-cors" })
         .then((res) => {
