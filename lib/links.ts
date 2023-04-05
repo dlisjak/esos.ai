@@ -27,7 +27,7 @@ export const extractBrokenLinks = async (message: string) => {
 
   links.forEach((link: string) => {
     promises.push(
-      fetch(`https://cors-anywhere.herokuapp.com/${link}`)
+      fetch(link, { mode: "no-cors" })
         .then((res) => {
           if (res.status === 404) {
             const brokenLink = extractBrokenPart(link);
@@ -37,7 +37,10 @@ export const extractBrokenLinks = async (message: string) => {
           }
         })
         .catch((err) => {
-          return link;
+          const brokenLink = extractBrokenPart(link);
+          if (brokenLink) {
+            return brokenLink;
+          }
         })
     );
   });
