@@ -208,9 +208,9 @@ export default function CategoryPosts() {
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Posts for {category?.title}</h1>
           <div className="flex space-x-2">
-            <AddNewButton onClick={() => setShowBulkCreateModal(true)} light>
+            {/* <AddNewButton onClick={() => setShowBulkCreateModal(true)} light>
               Import <span className="ml-2">＋</span>
-            </AddNewButton>
+            </AddNewButton> */}
             <AddNewButton
               onClick={() => {
                 setShowModal(true);

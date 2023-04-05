@@ -282,12 +282,12 @@ export default function SiteCategories() {
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Categories</h1>
           <div className="flex space-x-2">
-            <AddNewButton
+            {/* <AddNewButton
               onClick={() => setShowImportCategoriesModal(true)}
               light
             >
               Import <span className="ml-2">＋</span>
-            </AddNewButton>
+            </AddNewButton> */}
             <AddNewButton onClick={() => setShowCategoryModal(true)}>
               Add Category <span className="ml-2">＋</span>
             </AddNewButton>
