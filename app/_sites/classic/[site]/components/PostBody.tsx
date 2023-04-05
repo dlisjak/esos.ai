@@ -24,7 +24,7 @@ const PostBody = ({ post, lang }: PostBodyProps) => {
   return (
     <div className="w-full pt-4">
       <Breadcrumbs breadcrumbs={post.breadcrumbs} lang={lang} />
-      <div className="lg:grid-rows-max grid grid-flow-row grid-cols-1 gap-4 pb-4 sm:grid-cols-2 md:grid-cols-4">
+      <div className="lg:grid-rows-max grid grid-flow-row grid-cols-1 gap-4 pb-4 sm:grid-cols-2 md:grid-cols-3">
         <div className="relative col-span-1 row-span-1 w-full sm:order-2 md:col-span-2 lg:order-2 lg:col-span-1">
           <Image
             className="h-full w-full object-cover object-cover"
@@ -39,7 +39,7 @@ const PostBody = ({ post, lang }: PostBodyProps) => {
           className="table-of-contents lg:font-xl col-span-1 flex flex-col items-start divide-x-2 bg-slate-100 py-2 lg:order-3"
           markdownText={post.content}
         />
-        <div className="col-span-1 sm:order-3 sm:col-span-2 lg:order-2 lg:row-span-4">
+        <div className="col-span-1 sm:order-3 sm:col-span-2 lg:order-2 lg:row-span-3">
           <div className="mb-4 flex justify-start">
             <CategoryBubble
               href={`${
