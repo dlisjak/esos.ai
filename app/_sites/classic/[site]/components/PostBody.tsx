@@ -16,7 +16,7 @@ interface PostBodyProps {
 const PostBody = ({ post, lang }: PostBodyProps) => {
   if (!post.content || !post.title)
     return (
-      <div className="prose">
+      <div className="prose lg:prose-lg">
         <h1>Content Not Found</h1>
       </div>
     );

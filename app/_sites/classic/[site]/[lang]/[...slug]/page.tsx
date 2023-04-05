@@ -492,10 +492,15 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       title: child.title,
       href: `/${cat?.parent?.parent?.parent?.parent?.slug}/${cat?.parent?.parent?.parent?.slug}/${cat?.parent?.parent?.slug}/${cat?.parent?.slug}/${child.slug}`,
     }));
+    const posts = cat?.posts.map((post) => ({
+      ...post,
+      slug: `/${cat?.parent?.parent?.parent?.parent?.slug}/${cat?.parent?.parent?.parent?.slug}/${cat?.parent?.parent?.slug}/${cat?.parent?.slug}/${cat.slug}/${post.slug}`,
+    }));
 
     if (cat) {
       const categoryData = {
         ...cat,
+        posts,
         breadcrumbs,
         navigation,
         title: cat?.translations[0].title || cat?.title,
@@ -649,10 +654,15 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       title: child.title,
       href: `/${cat?.parent?.parent?.parent?.slug}/${cat?.parent?.parent?.slug}/${cat?.parent?.slug}/${cat.slug}/${child.slug}`,
     }));
+    const posts = cat?.posts.map((post) => ({
+      ...post,
+      slug: `/${cat?.parent?.parent?.parent?.slug}/${cat?.parent?.parent?.slug}/${cat?.parent?.slug}/${cat.slug}/${post.slug}`,
+    }));
 
     if (cat) {
       const categoryData = {
         ...cat,
+        posts,
         breadcrumbs,
         navigation,
         title: cat?.translations[0].title || cat?.title,
@@ -782,10 +792,15 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       title: child.title,
       href: `/${cat?.parent?.parent?.slug}/${cat?.parent?.slug}/${cat.slug}/${child.slug}`,
     }));
+    const posts = cat?.posts.map((post) => ({
+      ...post,
+      slug: `/${cat?.parent?.parent?.slug}/${cat?.parent?.slug}/${cat.slug}/${post.slug}`,
+    }));
 
     if (cat) {
       const categoryData = {
         ...cat,
+        posts,
         breadcrumbs,
         navigation,
         title: cat?.translations[0].title || cat?.title,
@@ -891,10 +906,15 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       title: child.title,
       href: `/${cat?.parent?.slug}/${cat.slug}/${child.slug}`,
     }));
+    const posts = cat?.posts.map((post) => ({
+      ...post,
+      slug: `/${cat?.parent?.slug}/${cat.slug}/${post.slug}`,
+    }));
 
     if (cat) {
       const categoryData = {
         ...cat,
+        posts,
         breadcrumbs,
         navigation,
         title: cat?.translations[0].title || cat?.title,
@@ -970,10 +990,15 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       title: child.title,
       href: `/${cat.slug}/${child.slug}`,
     }));
+    const posts = cat?.posts.map((post) => ({
+      ...post,
+      slug: `/${cat.slug}/${post.slug}`,
+    }));
 
     if (cat) {
       const categoryData = {
         ...cat,
+        posts,
         breadcrumbs,
         navigation,
         title: cat?.translations[0].title || cat?.title,

@@ -14,7 +14,7 @@ import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
 
 import { HttpMethod } from "@/types";
-import { useSite, useSupportedLanguages, useThemes } from "@/lib/queries";
+import { useSite, useSupportedLanguages } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import { Image as ImageType } from "@prisma/client";
 
@@ -25,7 +25,6 @@ interface SiteData {
   subdomain: string;
   customDomain: string;
   image: ImageType | null;
-  themeId: string;
   lang: string;
 }
 
@@ -45,7 +44,6 @@ export default function SiteSettings() {
   const sessionUser = session?.user?.name;
 
   const { site, isLoading, mutateSite } = useSite(subdomain);
-  const { themes } = useThemes();
   const { languages } = useSupportedLanguages();
 
   const [data, setData] = useState<SiteData>({
@@ -55,7 +53,6 @@ export default function SiteSettings() {
     subdomain: "",
     customDomain: "",
     image: null,
-    themeId: "",
     lang: "",
   });
 
@@ -68,7 +65,6 @@ export default function SiteSettings() {
         subdomain: site.subdomain ?? "",
         customDomain: site.customDomain ?? "",
         image: site.image,
-        themeId: site.themeId ?? "",
         lang: site.lang ?? "",
       });
   }, [site]);
@@ -406,30 +402,6 @@ export default function SiteSettings() {
                   </div>
                 </div>
                 <div className="flex w-full flex-col justify-between">
-                  <div className="mb-4 flex w-full flex-col">
-                    <h2 className="text-xl">Theme</h2>
-                    <div className="flex w-full max-w-lg items-center overflow-hidden rounded border border-gray-700">
-                      <select
-                        onChange={(e) =>
-                          setData((data) => ({
-                            ...data,
-                            themeId: (e.target as HTMLSelectElement).value,
-                          }))
-                        }
-                        value={data?.themeId || ""}
-                        className="w-full rounded-none border-none  bg-white px-5 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
-                      >
-                        <option value="" disabled>
-                          Select a Theme
-                        </option>
-                        {themes?.map((theme: any) => (
-                          <option value={theme.id} key={theme.id}>
-                            {theme.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
                   <div className="mb-auto flex w-full flex-col">
                     <h2 className="text-xl">Default Language</h2>
                     <div className="flex w-full max-w-lg items-center overflow-hidden rounded border border-gray-700">

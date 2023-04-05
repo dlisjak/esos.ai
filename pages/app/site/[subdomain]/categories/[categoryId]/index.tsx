@@ -86,7 +86,9 @@ export default function CategoryPage() {
         title: selectedTranslation?.title || category?.title || "",
       });
 
-      setContent(selectedTranslation?.content || category?.content || "");
+      return setContent(
+        selectedTranslation?.content || category?.content || ""
+      );
     }
   }, [selectedTranslation]);
 
@@ -146,8 +148,14 @@ export default function CategoryPage() {
     await publishTranslation();
     let image;
 
+    const postTitle =
+      selectedTranslation?.lang === "EN"
+        ? data.title
+        : translations.find((translation) => translation.lang === "EN")?.title;
+
     const body: any = {
       id: categoryId,
+      title: postTitle,
       slug: data.slug,
       parentId: data.parentId,
     };

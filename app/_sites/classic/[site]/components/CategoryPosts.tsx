@@ -10,11 +10,12 @@ interface CategoryPostsProps {
 }
 
 const CategoryPosts = ({ category, lang }: CategoryPostsProps) => {
-  if (!category || !category.posts.length) return;
+  if (!category || !category.posts.length) return <div />;
+
   return category.posts.map((post: any) => (
     <div className="col-span-1 pb-4" key={post.slug}>
       <Link
-        href={`/${post.slug}`}
+        href={post.slug}
         lang={lang}
         className="relative flex aspect-square"
       >

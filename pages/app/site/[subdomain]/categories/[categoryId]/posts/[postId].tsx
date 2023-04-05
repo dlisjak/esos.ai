@@ -81,7 +81,7 @@ export default function Post() {
 
   useEffect(() => {
     if (post && selectedTranslation) {
-      return setData({
+      setData({
         id: post.id ?? "",
         slug: post.slug ?? "",
         categoryId: post.categoryId ?? "",
@@ -90,7 +90,7 @@ export default function Post() {
         title: selectedTranslation?.title || post.title || "",
       });
 
-      setContent(selectedTranslation?.content || post.content || "");
+      return setContent(selectedTranslation?.content || post.content || "");
     }
   }, [selectedTranslation]);
 
