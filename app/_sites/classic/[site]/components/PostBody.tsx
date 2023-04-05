@@ -55,7 +55,7 @@ const PostBody = ({ post, lang }: PostBodyProps) => {
             </p>
           </div>
           <div
-            className="prose"
+            className="prose lg:prose-lg"
             dangerouslySetInnerHTML={{ __html: md.render(post.content) }}
           />
         </div>
