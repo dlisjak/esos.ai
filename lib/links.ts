@@ -27,7 +27,7 @@ export const extractBrokenLinks = async (message: string) => {
 
   links.forEach((link: string) => {
     promises.push(
-      fetch(link)
+      fetch(link, { mode: "no-cors" })
         .then((res) => {
           if (res.status === 404) {
             const brokenLink = extractBrokenPart(link);
@@ -45,6 +45,8 @@ export const extractBrokenLinks = async (message: string) => {
   const brokenLinks = await Promise.all(promises).then((result) => {
     return result;
   });
+
+  console.log({ brokenLinks });
 
   return brokenLinks;
 };
