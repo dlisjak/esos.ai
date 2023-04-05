@@ -58,6 +58,8 @@ export async function getSite(
           themeId: true,
           image: true,
           lang: true,
+          customCss: true,
+          customJs: true,
         },
       });
 
@@ -250,7 +252,16 @@ export async function updateSite(
   res: NextApiResponse,
   session: Session
 ): Promise<void | NextApiResponse<Site>> {
-  const { subdomain, currentSubdomain, name, font, image, themeId } = req.body;
+  const {
+    subdomain,
+    currentSubdomain,
+    name,
+    font,
+    image,
+    themeId,
+    customCss,
+    customJs,
+  } = req.body;
 
   if (!session?.user.id) return res.status(401).end("Unauthorized");
 
@@ -277,6 +288,8 @@ export async function updateSite(
       font,
       subdomain: subdomainName,
       themeId,
+      customCss,
+      customJs,
     };
 
     if (image) {

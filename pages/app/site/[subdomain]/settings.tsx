@@ -5,7 +5,13 @@ import Image from "next/image";
 import { useDebounce } from "use-debounce";
 import toast from "react-hot-toast";
 import { useS3Upload } from "next-s3-upload";
+import dynamic from "next/dynamic";
+import rehypeSanitize from "rehype-sanitize";
 
+const CodeEditor = dynamic(
+  () => import("@uiw/react-textarea-code-editor").then((mod) => mod.default),
+  { ssr: false }
+);
 import DomainCard from "@/components/app/DomainCard";
 import Layout from "@/components/app/Layout";
 import LoadingDots from "@/components/app/loading-dots";
@@ -14,7 +20,7 @@ import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
 
 import { HttpMethod } from "@/types";
-import { useSite, useSupportedLanguages } from "@/lib/queries";
+import { useSite } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import { Image as ImageType } from "@prisma/client";
 
@@ -26,6 +32,8 @@ interface SiteData {
   customDomain: string;
   image: ImageType | null;
   lang: string;
+  customCss: string;
+  customJs: string;
 }
 
 export default function SiteSettings() {
@@ -44,7 +52,7 @@ export default function SiteSettings() {
   const sessionUser = session?.user?.name;
 
   const { site, isLoading, mutateSite } = useSite(subdomain);
-  const { languages } = useSupportedLanguages();
+  // const { languages } = useSupportedLanguages();
 
   const [data, setData] = useState<SiteData>({
     id: "",
@@ -54,6 +62,8 @@ export default function SiteSettings() {
     customDomain: "",
     image: null,
     lang: "",
+    customCss: "",
+    customJs: "",
   });
 
   useEffect(() => {
@@ -66,6 +76,8 @@ export default function SiteSettings() {
         customDomain: site.customDomain ?? "",
         image: site.image,
         lang: site.lang ?? "",
+        customCss: site.customCss ?? "",
+        customJs: site.customJs ?? "",
       });
   }, [site]);
 
@@ -400,11 +412,65 @@ export default function SiteSettings() {
                       </div>
                     </div>
                   </div>
+                  <div className="mt-8 flex w-full flex-col space-y-2">
+                    <h2 className="text-xl">Delete Site</h2>
+                    <p>
+                      Permanently delete your site and all of its contents from
+                      our platform. This action is not reversible – please
+                      continue with caution.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setShowDeleteModal(true);
+                      }}
+                      className="max-w-max rounded border border-solid border-red-500 bg-red-500 px-2 py-1 text-xs text-white transition-all duration-150 ease-in-out hover:bg-white hover:text-red-500 focus:outline-none"
+                    >
+                      Delete Site
+                    </button>
+                  </div>
                 </div>
                 <div className="flex w-full flex-col justify-between">
+                  <div className="mb-auto mt-4 flex w-full flex-col">
+                    <h2 className="text-xl">Custom JS</h2>
+                    <CodeEditor
+                      value={data.customJs}
+                      language="js"
+                      placeholder="Write custom JS code."
+                      onChange={(e) =>
+                        setData({ ...data, customJs: e.target.value })
+                      }
+                      padding={15}
+                      rehypePlugins={[[rehypeSanitize]]}
+                      style={{
+                        fontSize: 12,
+                        backgroundColor: "#f5f5f5",
+                        fontFamily:
+                          "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+                      }}
+                    />
+                  </div>
                   <div className="mb-auto flex w-full flex-col">
-                    <h2 className="text-xl">Default Language</h2>
-                    <div className="flex w-full max-w-lg items-center overflow-hidden rounded border border-gray-700">
+                    <h2 className="text-xl">Custom CSS</h2>
+                    <CodeEditor
+                      value={data.customCss}
+                      language="css"
+                      placeholder="Write custom CSS code."
+                      onChange={(e) => {
+                        setData((data) => ({
+                          ...data,
+                          customCss: (e.target as HTMLTextAreaElement).value,
+                        }));
+                      }}
+                      padding={15}
+                      rehypePlugins={[[rehypeSanitize]]}
+                      style={{
+                        fontSize: 12,
+                        backgroundColor: "#f5f5f5",
+                        fontFamily:
+                          "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+                      }}
+                    />
+                    {/* <div className="flex w-full max-w-lg items-center overflow-hidden rounded border border-gray-700">
                       <select
                         onChange={(e) =>
                           setData((data) => ({
@@ -427,23 +493,7 @@ export default function SiteSettings() {
                           </option>
                         ))}
                       </select>
-                    </div>
-                  </div>
-                  <div className="flex w-full flex-col space-y-2">
-                    <h2 className="text-xl">Delete Site</h2>
-                    <p>
-                      Permanently delete your site and all of its contents from
-                      our platform. This action is not reversible – please
-                      continue with caution.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setShowDeleteModal(true);
-                      }}
-                      className="max-w-max rounded border border-solid border-red-500 bg-red-500 px-5 py-3  text-white transition-all duration-150 ease-in-out hover:bg-white hover:text-red-500 focus:outline-none"
-                    >
-                      Delete Site
-                    </button>
+                    </div> */}
                   </div>
                 </div>
               </div>

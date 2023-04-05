@@ -159,6 +159,8 @@ model Site {
   categories   Category[]
   prompts      Prompt[]
   imageId      String?
+  customCss    String?    @db.LongText
+  customJs     String?    @db.LongText
   lang         String     @default("EN")
 
   @@index([userId])

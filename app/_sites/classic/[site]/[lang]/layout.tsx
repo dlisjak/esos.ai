@@ -108,6 +108,8 @@ const getData = async (site: string, lang: string) => {
     select: {
       name: true,
       image: true,
+      customCss: true,
+      customJs: true,
     },
   });
 
@@ -153,6 +155,9 @@ export default async function RootLayout({
 
   return (
     <html lang={lang}>
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: data.customCss || "" }} />
+      </head>
       <body>
         <Navigation
           categories={categories}
@@ -162,6 +167,7 @@ export default async function RootLayout({
         />
         <div className="px-4">{children}</div>
         <Footer site={data.name} />
+        <script>{data.customJs}</script>
       </body>
     </html>
   );
