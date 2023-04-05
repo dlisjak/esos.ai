@@ -143,8 +143,8 @@ const TextEditor = ({ value, setValue, dataId }) => {
         <GrammarlyEditorPlugin clientId="client_BFSnu3qQymueAZTtFf7Sni">
           <MDEditor
             height={640}
-            value={value || ""}
-            onChange={(e) => setContent(e.target.value)}
+            value={content || value}
+            onChange={setContent}
             textareaProps={{
               placeholder: "Please enter Markdown text",
             }}
