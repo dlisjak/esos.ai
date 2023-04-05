@@ -47,6 +47,16 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
           />
         </div>
       </div>
+      {category.posts && category.posts.length > 0 && (
+        <>
+          <h2 className="my-2 text-xl font-bold md:text-2xl">
+            Read about {category.title}:
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <CategoryPosts category={category} lang={lang} />
+          </div>
+        </>
+      )}
       {category.children && category?.children.length > 0 && (
         <>
           <h2 className="my-2 text-xl font-bold md:text-2xl">Discover:</h2>
@@ -56,16 +66,6 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
               navigation={category.navigation}
               lang={lang}
             />
-          </div>
-        </>
-      )}
-      {category.posts && category.posts.length > 0 && (
-        <>
-          <h2 className="my-2 text-xl font-bold md:text-2xl">
-            Read about {category.title}:
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <CategoryPosts category={category} lang={lang} />
           </div>
         </>
       )}
