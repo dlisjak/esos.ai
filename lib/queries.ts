@@ -292,6 +292,27 @@ export const useUser = () => {
   };
 };
 
+export const useStripeSession = (userId: string | string[] | undefined) => {
+  const {
+    data: user,
+    error,
+    mutate,
+  } = useSWR<User>(
+    userId ? `/api/stripe/success?userId=${userId}` : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+    }
+  );
+
+  return {
+    user,
+    isLoading: !error && !user,
+    isError: error,
+    mutateCredits: mutate,
+  };
+};
+
 export const useCredits = () => {
   const {
     data: user,
