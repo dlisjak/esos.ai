@@ -4,7 +4,7 @@ import GitHubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 
-const VERCEL_DEPLOYMENT = !!process.env.VERCEL_URL;
+const VERCEL_DEPLOYMENT = !!process.env.VERCEL;
 
 if (!process.env.GITHUB_ID || !process.env.GITHUB_SECRET)
   throw new Error("Failed to initialize Github authentication");
