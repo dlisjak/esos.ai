@@ -27,6 +27,7 @@ model User {
   credits       Int?      @default(50)
   accessToken   String?   @db.LongText
   images        Image[]
+  subscription   String?
   isSubscribed  Boolean   @default(false)
 }
 

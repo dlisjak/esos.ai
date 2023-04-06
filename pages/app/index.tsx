@@ -10,11 +10,12 @@ import SiteCard from "@/components/app/SiteCard";
 import AddNewButton from "@/components/app/AddNewButton";
 import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
-import { useSites } from "@/lib/queries";
+import { useSites, useUser } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import getSlug from "speakingurl";
 import { useRouter } from "next/router";
 import { toast } from "react-hot-toast";
+import PricingTable from "@/components/app/PricingTable";
 
 export default function AppIndex() {
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -31,6 +32,7 @@ export default function AppIndex() {
   const sessionId = session?.user?.id;
 
   const { sites, isLoading, mutateSites } = useSites();
+  const { user } = useUser();
 
   async function createSite() {
     setCreatingSite(true);
@@ -104,7 +106,7 @@ export default function AppIndex() {
       <Container dark>
         {isLoading ? (
           <ContainerLoader />
-        ) : (
+        ) : user && user.isSubscribed ? (
           <div className="grid gap-y-4">
             {sites && sites.length > 0 ? (
               sites.map((site) => <SiteCard site={site} key={site.id} />)
@@ -118,6 +120,8 @@ export default function AppIndex() {
               </>
             )}
           </div>
+        ) : (
+          <PricingTable />
         )}
       </Container>
 

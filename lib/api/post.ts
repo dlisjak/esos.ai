@@ -15,7 +15,7 @@ import {
   PER_INTERLINK,
   PER_TRANSLATION,
 } from "../consts/credits";
-import { GPT_4 } from "../consts/gpt";
+import { GPT_3, GPT_4 } from "../consts/gpt";
 
 /**
  * Get Post
@@ -678,6 +678,7 @@ export async function importPosts(
     },
     select: {
       credits: true,
+      isSubscribed: true,
     },
   });
   if (!user) return res.status(400).end("User not found.");
@@ -777,7 +778,7 @@ export async function importPosts(
 
         if (!!command) {
           const contentResponse = await openai.createChatCompletion({
-            model: GPT_4,
+            model: user.isSubscribed ? GPT_4 : GPT_3,
             messages: [{ role: "user", content: command }],
           });
 

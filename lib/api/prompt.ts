@@ -232,12 +232,28 @@ export async function generate(
   const sessionId = session?.user?.id;
   const { promptId, promptVariable } = req.body;
 
-  if (!promptId || typeof promptId !== "string" || !sessionId) {
+  if (
+    !session.user.id ||
+    !promptId ||
+    typeof promptId !== "string" ||
+    !sessionId
+  ) {
     return res.status(400).json({
       error:
         "Missing or misconfigured accessToken, command, site ID or session ID",
     });
   }
+
+  const user = await prisma.user.findFirst({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      isSubscribed: true,
+    },
+  });
+
+  if (!user) return res.status(500).end("User not found");
 
   const prompt = await prisma.prompt.findFirst({
     where: {
@@ -256,7 +272,7 @@ export async function generate(
     const command = prompt.command.replaceAll(regex, promptVariable);
 
     const response = await openai.createChatCompletion({
-      model: GPT_4,
+      model: user.isSubscribed ? GPT_4 : GPT_3,
       messages: [{ role: "user", content: command }],
     });
 

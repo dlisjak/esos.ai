@@ -1,12 +1,14 @@
+import Link from "next/link";
+
+import ContainerLoader from "@/components/app/ContainerLoader";
+import { StatusIndicator } from "@/components/app/PostCard";
+import AddNewButton from "@/components/app/AddNewButton";
+import PricingTable from "@/components/app/PricingTable";
+import Container from "@/components/Layout/Container";
+import Header from "@/components/Layout/Header";
 import Layout from "@/components/app/Layout";
 
-import Header from "@/components/Layout/Header";
-import Container from "@/components/Layout/Container";
-import AddNewButton from "@/components/app/AddNewButton";
 import { useUser } from "@/lib/queries";
-import ContainerLoader from "@/components/app/ContainerLoader";
-import Link from "next/link";
-import { StatusIndicator } from "@/components/app/PostCard";
 
 export default function Account() {
   const { user, isLoading } = useUser();
@@ -92,10 +94,26 @@ export default function Account() {
                         />
                       </div>
                     </li>
+                    <li className="relative flex items-center justify-between bg-white pl-4">
+                      <div className="w-1/2">
+                        <h3 className="ml-4 text-xl font-semibold line-clamp-1">
+                          Subscription
+                        </h3>
+                        <StatusIndicator
+                          className="top-3"
+                          published={!!user.isSubscribed}
+                        />
+                      </div>
+                      <div className="flex h-full w-1/2 flex-col items-end">
+                        <input
+                          className="w-full rounded border-l p-2 pl-4"
+                          value={user?.subscription || "No active Subscription"}
+                          placeholder="0"
+                          readOnly
+                        />
+                      </div>
+                    </li>
                   </ul>
-                  <button className="ml-auto mt-2 flex whitespace-nowrap rounded border bg-white px-3 py-1 tracking-wide text-black duration-200 hover:border-black">
-                    Save
-                  </button>
                 </div>
                 <div className="w-full rounded border bg-white p-4">
                   <div className="mb-4 flex items-center justify-between">
@@ -138,16 +156,7 @@ export default function Account() {
             </div>
           )
         )}
-        <div className="mt-4">
-          <script
-            async
-            src="https://js.stripe.com/v3/pricing-table.js"
-          ></script>
-          <stripe-pricing-table
-            pricing-table-id="prctbl_1Mts54LbJKr1G0zjRfQK9HJQ"
-            publishable-key="pk_test_51MtqnZLbJKr1G0zjSLt19WwYboC8SBTgB2jm1jao1BzWmzG79K6lPxSHiFzY0AL8UJznfI9eDVEI44XCbSBob3Ry00UKM6HL8L"
-          ></stripe-pricing-table>
-        </div>
+        <PricingTable />
       </Container>
     </Layout>
   );

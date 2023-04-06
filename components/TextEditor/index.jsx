@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "react-hot-toast";
 import rehypeSanitize from "rehype-sanitize";
@@ -8,7 +8,7 @@ import { GrammarlyEditorPlugin } from '@grammarly/editor-sdk-react'
 import Modal from "../Modal";
 import LoadingDots from "../app/loading-dots";
 
-import { useCredits, usePrompts } from "@/lib/queries";
+import { useCredits, usePrompts, useUser } from "@/lib/queries";
 import { HttpMethod } from "@/types";
 import onImagePasted from './onImagePasted';
 
@@ -30,7 +30,6 @@ const TextEditor = ({ content, setContent, dataId }) => {
   const [generateInput, setGenerateInput] = useState("");
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [generatingResponse, setGeneratingResponse] = useState(false);
-  const [useGPT_4, setUseGPT_4] = useState(true);
   const [promptVariable, setPromptVariable] = useState("");
   const { uploadToS3 } = useS3Upload();
   const { prompts } = usePrompts();
@@ -39,6 +38,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
 
   const { subdomain } = router.query;
   const { name: sessionUser } = session?.user;
+  const { user } = useUser();
 
   const handleGenerate = async () => {
     if (!generateInput || !selectedPrompt) return;
@@ -71,7 +71,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
         },
         body: JSON.stringify({
           prompt: command,
-          useGPT_4,
+          useGPT_4: user.isSubscribed ? true : false,
         }),
       });
 
@@ -265,10 +265,6 @@ const TextEditor = ({ content, setContent, dataId }) => {
             <div className="w-full mt-4 flex items-center">
               <label className="font-semibold mr-2 hover:cursor-pointer" htmlFor="internalLink">Use Internal Linking</label>
               <input className="hover:cursor-pointer rounded" id="internalLink" type="checkbox" />
-            </div>
-            <div className="w-full mt-2 pb-2 flex items-center">
-              <label className="font-semibold mr-2 hover:cursor-pointer" htmlFor="useGPT4">Use GPT 4</label>
-              <input className="hover:cursor-pointer rounded" id="useGPT4" onChange={() => setUseGPT_4(!useGPT_4)} checked={useGPT_4} type="checkbox" />
             </div>
           </div>
           <div className="mt-4 flex w-full items-center justify-between">
