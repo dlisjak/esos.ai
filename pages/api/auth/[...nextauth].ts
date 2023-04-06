@@ -33,11 +33,11 @@ export const authOptions: NextAuthOptions = {
       profile(profile) {
         console.log(profile);
         return {
-          id: profile.id.toString(),
-          name: profile.name || profile.login,
-          username: profile.login,
+          id: profile.sub.toString(),
+          name: profile.given_name || profile.login,
+          username: profile.name,
           email: profile.email,
-          image: profile.avatar_url,
+          image: profile.picture,
         };
       },
     }),
