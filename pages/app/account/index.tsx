@@ -138,6 +138,16 @@ export default function Account() {
             </div>
           )
         )}
+        <div className="mt-4">
+          <script
+            async
+            src="https://js.stripe.com/v3/pricing-table.js"
+          ></script>
+          <stripe-pricing-table
+            pricing-table-id="prctbl_1Mts54LbJKr1G0zjRfQK9HJQ"
+            publishable-key="pk_test_51MtqnZLbJKr1G0zjSLt19WwYboC8SBTgB2jm1jao1BzWmzG79K6lPxSHiFzY0AL8UJznfI9eDVEI44XCbSBob3Ry00UKM6HL8L"
+          ></stripe-pricing-table>
+        </div>
       </Container>
     </Layout>
   );
