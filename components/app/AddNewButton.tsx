@@ -1,4 +1,10 @@
+import { useUser } from "@/lib/queries";
+
 const AddNewButton = ({ onClick, light = false, children }: any) => {
+  const { user, isLoading } = useUser();
+
+  if (isLoading) return <div />;
+
   return (
     <button
       onClick={onClick}
@@ -10,6 +16,7 @@ const AddNewButton = ({ onClick, light = false, children }: any) => {
       ${
         !light ? "border-black bg-black text-white" : ""
       } rounded border px-4 py-1 transition-all duration-200 ease-in-out hover:bg-white hover:text-black`}
+      disabled={!user.isSubscribed}
     >
       {children}
     </button>

@@ -10,8 +10,9 @@ import PromptCard from "@/components/app/PromptCard";
 import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
 import AddNewButton from "@/components/app/AddNewButton";
-import { useCredits, usePrompts } from "@/lib/queries";
+import { useCredits, usePrompts, useUser } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
+import PricingTable from "@/components/app/PricingTable";
 
 export default function Prompts() {
   const [showCreatePromptModal, setShowCreatePromptModal] =
@@ -25,6 +26,7 @@ export default function Prompts() {
 
   const { prompts, isLoading, mutatePrompts } = usePrompts();
   const { mutateCredits } = useCredits();
+  const { user } = useUser();
 
   async function testPrompt(promptId: any, command: any) {
     setTestingPrompt(true);
@@ -108,25 +110,29 @@ export default function Prompts() {
         </h2>
         {isLoading ? (
           <ContainerLoader />
-        ) : prompts && prompts.length > 0 ? (
-          <div className="grid grid-cols-3 gap-x-4 gap-y-4">
-            {prompts?.map((prompt: any) => (
-              <PromptCard
-                prompt={prompt}
-                testOnClick={testPrompt}
-                testingPrompt={testingPrompt}
-                key={prompt.id}
-              />
-            ))}
-          </div>
-        ) : (
-          <>
-            <div className="text-center">
-              <p className="my-4 text-2xl text-gray-600">
-                No Prompts added. Click &quot;Add Prompt&quot; to add one.
-              </p>
+        ) : user && user.isSubscribed ? (
+          prompts && prompts.length > 0 ? (
+            <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+              {prompts?.map((prompt: any) => (
+                <PromptCard
+                  prompt={prompt}
+                  testOnClick={testPrompt}
+                  testingPrompt={testingPrompt}
+                  key={prompt.id}
+                />
+              ))}
             </div>
-          </>
+          ) : (
+            <>
+              <div className="text-center">
+                <p className="my-4 text-2xl text-gray-600">
+                  No Prompts added. Click &quot;Add Prompt&quot; to add one.
+                </p>
+              </div>
+            </>
+          )
+        ) : (
+          <PricingTable />
         )}
       </Container>
       <Modal
