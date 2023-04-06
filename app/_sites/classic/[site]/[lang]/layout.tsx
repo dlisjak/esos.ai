@@ -167,7 +167,7 @@ export default async function RootLayout({
         />
         <div className="px-4">{children}</div>
         <Footer site={data.name} />
-        <script>{data.customJs}</script>
+        <script dangerouslySetInnerHTML={{ __html: data.customJs || "" }} />
       </body>
     </html>
   );
