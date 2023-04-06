@@ -27,26 +27,26 @@ model User {
   credits       Int?      @default(50)
   accessToken   String?   @db.LongText
   images        Image[]
-  subscription   String?
+  subscription  String?
   isSubscribed  Boolean   @default(false)
 }
 
 model Account {
-  id                       String  @id @default(cuid())
+  id                       String     @id @default(cuid())
   userId                   String
   type                     String
   provider                 String
-  providerAccountId        String
+  providerAccountId        String     @db.Text
   refresh_token            String?
   refresh_token_expires_in Int?
-  access_token             String?
+  access_token             String?    @db.Text
   expires_at               Int?
   token_type               String?
   scope                    String?
-  id_token                 String?
+  id_token                 String?    @db.Text
   session_state            String?
-  oauth_token_secret       String?
-  oauth_token              String?
+  oauth_token_secret       String?    @db.Text
+  oauth_token              String?    @db.Text
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

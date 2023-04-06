@@ -35,7 +35,7 @@ export const authOptions: NextAuthOptions = {
         return {
           id: profile.sub.toString(),
           name: profile.given_name || profile.login,
-          username: profile.name,
+          username: profile.given_name,
           email: profile.email,
           image: profile.picture,
         };
