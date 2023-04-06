@@ -9,6 +9,9 @@ const VERCEL_DEPLOYMENT = !!process.env.VERCEL;
 if (!process.env.GITHUB_ID || !process.env.GITHUB_SECRET)
   throw new Error("Failed to initialize Github authentication");
 
+if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET)
+  throw new Error("Failed to initialize Github authentication");
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GitHubProvider({
@@ -25,8 +28,8 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     GoogleProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       profile(profile) {
         return {
           id: profile.id.toString(),
