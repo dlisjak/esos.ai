@@ -1,18 +1,18 @@
+import { useRouter } from "next/router";
+import { toast } from "react-hot-toast";
+
 import ContainerLoader from "@/components/app/ContainerLoader";
 import Container from "@/components/Layout/Container";
 import Header from "@/components/Layout/Header";
 import Layout from "@/components/app/Layout";
 
 import { useStripeSession } from "@/lib/queries";
-import { useRouter } from "next/router";
-import { toast } from "react-hot-toast";
 
-export default function Subscribed() {
+export default function Subscribed({ userId }: any) {
   const router = useRouter();
-  const { userId } = router.query;
   const { user } = useStripeSession(userId);
 
-  if (user.subscription) {
+  if (user?.subscription) {
     toast.success("Subcription Active!");
     router.push("/");
   }
@@ -34,4 +34,20 @@ export default function Subscribed() {
       </Container>
     </Layout>
   );
+}
+
+export async function getServerSideProps({ query }: any) {
+  const { userId } = query;
+
+  if (!userId) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: {
+      userId,
+    },
+  };
 }

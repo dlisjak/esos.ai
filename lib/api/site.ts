@@ -115,6 +115,30 @@ export async function createSite(
 
   const sub = subdomain.replace(/[^a-zA-Z0-9/-]+/g, "");
 
+  const user = await prisma.user.findFirst({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      sites: true,
+      subscription: true,
+    },
+  });
+
+  if (!user?.subscription) return res.status(500).end("User not subscribed");
+
+  const maxSites =
+    user?.subscription === "beginner"
+      ? 1
+      : user.subscription === "intermediate"
+      ? 3
+      : 10;
+
+  if (user.sites.length >= maxSites)
+    return res
+      .status(500)
+      .end("User reached max amount of sites. Please contact support");
+
   try {
     const response = await prisma.site.create({
       data: {

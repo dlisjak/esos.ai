@@ -9,6 +9,7 @@ import {
   Prompt,
   User,
 } from "@prisma/client";
+import { useRouter } from "next/router";
 import useSWR from "swr";
 import { Language } from "./api/translate";
 
@@ -293,6 +294,8 @@ export const useUser = () => {
 };
 
 export const useStripeSession = (userId: string | string[] | undefined) => {
+  const router = useRouter();
+
   const {
     data: user,
     error,
@@ -301,6 +304,7 @@ export const useStripeSession = (userId: string | string[] | undefined) => {
     userId ? `/api/stripe/success?userId=${userId}` : null,
     fetcher,
     {
+      onError: () => router.push("/account"),
       revalidateOnFocus: false,
     }
   );

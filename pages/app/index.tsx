@@ -50,8 +50,8 @@ export default function AppIndex() {
         }),
       });
 
+      const body = await res.json();
       if (res.ok) {
-        const body = await res.json();
         toast.success("Successfully created a new site!");
         router.push(`/site/${body.subdomain}`);
       }
