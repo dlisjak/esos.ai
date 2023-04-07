@@ -468,7 +468,7 @@ export default function Post() {
                   />
                 </div>
               </div>
-              <div className="relative w-full">
+              {/* <div className="relative w-full">
                 <div className="flex justify-between">
                   <h2 className="mr-auto text-xl">
                     Links({data?.links?.length})
@@ -515,7 +515,7 @@ export default function Post() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </div> */}
             </div>
           </Container>
           <footer className="z-5 fixed inset-x-0 bottom-0 h-20 border-t border-solid border-gray-500 bg-white">
