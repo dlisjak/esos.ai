@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import type { Session } from "next-auth";
 import stripeApi from "../stripe";
+import prisma from "../prisma";
 
 /**
  * Get Session
