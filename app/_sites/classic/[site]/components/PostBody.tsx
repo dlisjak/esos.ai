@@ -54,6 +54,7 @@ const PostBody = ({ post, lang }: PostBodyProps) => {
               {toDateString(post.createdAt)}
             </p>
           </div>
+          <h1>{post.title}</h1>
           <div
             className="prose lg:prose-lg"
             dangerouslySetInnerHTML={{ __html: md.render(post.content) }}
