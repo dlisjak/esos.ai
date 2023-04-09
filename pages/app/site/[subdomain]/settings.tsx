@@ -97,8 +97,8 @@ export default function SiteSettings() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          currentSubdomain: site?.subdomain ?? undefined,
           ...data,
+          currentSubdomain: site?.subdomain ?? undefined,
           subdomain: site.subdomain,
           image,
         }),
