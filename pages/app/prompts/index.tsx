@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import Layout from "@/components/app/Layout";
@@ -14,19 +14,37 @@ import { useCredits, usePrompts, useUser } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import PricingTable from "@/components/app/PricingTable";
 
+const regex = new RegExp(/\[(.*?)\]/g);
+
 export default function Prompts() {
   const [showCreatePromptModal, setShowCreatePromptModal] =
     useState<boolean>(false);
   const [creatingPrompt, setCreatingPrompt] = useState(false);
   const [testingPrompt, setTestingPrompt] = useState(false);
+  const [promptVariables, setPromptVariables] = useState<
+    | {
+        name: string;
+        value: string;
+      }[]
+    | null
+  >(null);
+  const [promptCommand, setPromptCommand] = useState("");
   const promptNameRef = useRef<HTMLInputElement | null>(null);
   const promptDescriptionRef = useRef<HTMLTextAreaElement | null>(null);
-  const promptCommandRef = useRef<HTMLTextAreaElement | null>(null);
   const promptHintRef = useRef<HTMLInputElement | null>(null);
 
   const { prompts, isLoading, mutatePrompts } = usePrompts();
   const { mutateCredits } = useCredits();
   const { user } = useUser();
+
+  useEffect(() => {
+    const match = promptCommand.match(regex);
+    if (!match || !match.length) return setPromptVariables(null);
+
+    setPromptVariables(
+      match?.map((variable) => ({ name: variable, value: variable }))
+    );
+  }, [promptCommand]);
 
   async function testPrompt(promptId: any, command: any) {
     setTestingPrompt(true);
@@ -55,9 +73,9 @@ export default function Prompts() {
 
   async function createPrompt() {
     setCreatingPrompt(true);
-    if (!promptNameRef.current || !promptCommandRef.current) return;
+    if (!promptNameRef.current || !promptCommand) return;
     const name = promptNameRef.current.value;
-    const command = promptCommandRef.current.value;
+    const command = promptCommand;
 
     let description = "";
     if (promptDescriptionRef.current) {
@@ -90,6 +108,17 @@ export default function Prompts() {
       setShowCreatePromptModal(false);
     }
   }
+
+  const addPromptVariable = () => {
+    if (!promptVariables) return;
+
+    const newArr = [
+      ...promptVariables,
+      { name: "New Prompt Variable", value: "[TOPIC]" },
+    ];
+
+    return setPromptVariables(newArr);
+  };
 
   return (
     <Layout>
@@ -144,7 +173,7 @@ export default function Prompts() {
             event.preventDefault();
             createPrompt();
           }}
-          className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+          className="inline-block w-full max-w-2xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
         >
           <div className="px-8">
             <h2 className="mb-6 text-2xl">Create a New Prompt</h2>
@@ -165,40 +194,37 @@ export default function Prompts() {
               </div>
               <div className="flex w-full flex-col">
                 <label className="mb-1 text-start" htmlFor="name">
-                  Prompt Description
-                </label>
-                <textarea
-                  className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
-                  name="description"
-                  placeholder="To Help Write a Long Form Blog Post in the Style of..."
-                  ref={promptDescriptionRef}
-                />
-              </div>
-              <div className="flex w-full flex-col">
-                <label className="mb-1 text-start" htmlFor="name">
                   Prompt Command <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
                   name="command"
+                  value={promptCommand}
+                  onChange={(e) => setPromptCommand(e.target.value)}
+                  placeholder="Prompt command including placeholders such as [KEYWORD] or [TITLE], will be recognised automatically"
+                  rows={16}
                   required
-                  placeholder="Prompt command including placeholders such as [KEYWORD] or [TITLE], these will be replaced automatically"
-                  rows={8}
-                  ref={promptCommandRef}
                 />
               </div>
-              <div className="flex w-full flex-col">
-                <label className="mb-1 text-start" htmlFor="name">
-                  Prompt Hint
-                </label>
-                <input
-                  className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
-                  name="hint"
-                  required
-                  placeholder="[TITLE] or [KEYWORD]"
-                  type="text"
-                  ref={promptHintRef}
-                />
+              <div className="flex w-full flex-col items-start">
+                <div className="flex w-full justify-between">
+                  <label className="mb-1 text-start" htmlFor="name">
+                    Prompt Variables
+                  </label>
+                </div>
+                <div className="flex flex-wrap">
+                  {promptVariables?.map((variable) => (
+                    <input
+                      className="my-1 mx-1 w-auto rounded bg-white px-2 py-1 text-sm text-gray-700 placeholder-gray-400"
+                      name="hint"
+                      required
+                      readOnly
+                      placeholder={variable.name}
+                      type="text"
+                      key={variable.name}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>

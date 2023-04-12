@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "react-hot-toast";
 import rehypeSanitize from "rehype-sanitize";
@@ -17,20 +17,20 @@ import "../../node_modules/@uiw/react-markdown-preview/markdown.css";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { PER_GENERATE } from "@/lib/consts/credits";
-import { extractBrokenLinks, removeBrokenLinks } from "@/lib/links";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
+const regex = new RegExp(/\[(.*?)\]/g);
+
 const TextEditor = ({ content, setContent, dataId }) => {
   const router = useRouter();
-  const [aiDetected, setAiDetected] = useState(null);
-  const [removingBrokenLinks, setRemovingBrokenLinks] = useState(false);
-  const [checkingForAI, setCheckingForAI] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState("");
-  const [generateInput, setGenerateInput] = useState("");
+  const [promptCommand, setPromptCommand] = useState("");
+  const [modifiedPromptCommand, setModifiedPromptCommand] = useState("");
+  const [promptVariables, setPromptVariables] = useState(null)
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [generatingResponse, setGeneratingResponse] = useState(false);
-  const [promptVariable, setPromptVariable] = useState("");
+  const [previewingPrompt, setPreviewingPrompt] = useState(false);
   const { uploadToS3 } = useS3Upload();
   const { prompts } = usePrompts();
   const { mutateCredits } = useCredits();
@@ -40,8 +40,27 @@ const TextEditor = ({ content, setContent, dataId }) => {
   const { name: sessionUser } = session?.user;
   const { user } = useUser();
 
+  useEffect(() => {
+    const match = promptCommand.match(regex);
+    if (!match || !match.length) return setPromptVariables(null);
+
+    setPromptVariables(
+      match?.map((variable) => ({ name: variable, value: variable }))
+    );
+    setModifiedPromptCommand(promptCommand)
+  }, [promptCommand]);
+
+  const handleGenerateButton = () => {
+    setPreviewingPrompt(false)
+    if (selectedPrompt) {
+      const prompt = prompts?.find((prompt) => prompt.id === selectedPrompt)?.command;
+      setPromptCommand(prompt);
+    }
+    setShowGenerateModal(true)
+  }
+
   const handleGenerate = async () => {
-    if (!generateInput || !selectedPrompt) return;
+    if (!modifiedPromptCommand) return;
     setGeneratingResponse(true);
     setContent("");
 
@@ -58,11 +77,9 @@ const TextEditor = ({ content, setContent, dataId }) => {
       if (!prompt) {
         return toast.error("Prompt does not exist");
       }
-      if (!prompt?.command) {
+      if (!modifiedPromptCommand) {
         return toast.error("Prompt has no command");
       }
-      const regex = new RegExp(/\[(.*?)\]/g);
-      const command = prompt.command.replaceAll(regex, promptVariable);
 
       const response = await fetch(`/api/stream`, {
         method: HttpMethod.POST,
@@ -70,7 +87,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          prompt: command,
+          prompt: modifiedPromptCommand,
           useGPT_4: user.isSubscribed ? true : false,
         }),
       });
@@ -105,44 +122,52 @@ const TextEditor = ({ content, setContent, dataId }) => {
     }
   };
 
-  const checkAIContent = async () => {
-    if (!value) return;
-    setCheckingForAI(true);
+  // const checkAIContent = async () => {
+  //   if (!value) return;
+  //   setCheckingForAI(true);
 
-    try {
-      const response = await fetch(`/api/content`, {
-        method: HttpMethod.POST,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          input: value,
-        }),
-      });
+  //   try {
+  //     const response = await fetch(`/api/content`, {
+  //       method: HttpMethod.POST,
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         input: value,
+  //       }),
+  //     });
 
-      if (response.ok) {
-        const body = await response.json();
-        setAiDetected(body);
-        toast.success("Content analyzed successfully");
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      mutateCredits();
-      setCheckingForAI(false);
-    }
-  }
+  //     if (response.ok) {
+  //       const body = await response.json();
+  //       setAiDetected(body);
+  //       toast.success("Content analyzed successfully");
+  //     }
+  //   } catch (e) {
+  //     console.error(e);
+  //   } finally {
+  //     mutateCredits();
+  //     setCheckingForAI(false);
+  //   }
+  // }
 
-  const handleRemoveBrokenLinks = async () => {
-    setRemovingBrokenLinks(true);
-    const brokenLinks = await extractBrokenLinks(content);
-    const newMessage = removeBrokenLinks(content, brokenLinks);
+  // const handleRemoveBrokenLinks = async () => {
+  //   setRemovingBrokenLinks(true);
+  //   const brokenLinks = await extractBrokenLinks(content);
+  //   const newMessage = removeBrokenLinks(content, brokenLinks);
 
-    if (newMessage) {
-      setContent(newMessage);
-    }
+  //   if (newMessage) {
+  //     setContent(newMessage);
+  //   }
 
-    setRemovingBrokenLinks(false)
+  //   setRemovingBrokenLinks(false)
+  // }
+
+
+  const handleChangeVariableValue = (variable, value) => {
+    // setSuccessfulVariables([...successfulVariables, { name: variable.name, value: value }]);
+    const newCommand = modifiedPromptCommand.replaceAll(variable.value, value)
+
+    setModifiedPromptCommand(newCommand);
   }
 
   return (
@@ -174,12 +199,11 @@ const TextEditor = ({ content, setContent, dataId }) => {
             <select
               onChange={(e) => {
                 setSelectedPrompt(e.target.value);
-                setGenerateInput("description");
               }}
               value={selectedPrompt}
             >
-              <option value="" disabled>
-                Select a Prompt
+              <option value="blank">
+                Blank Prompt
               </option>
               {prompts?.map((prompt) => (
                 <option key={prompt.id} value={prompt.id}>
@@ -189,8 +213,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
             </select>
             <button
               className="flex items-center whitespace-nowrap border border-black bg-black px-3 py-1 tracking-wide text-white duration-200 hover:border hover:bg-white hover:text-black"
-              disabled={!selectedPrompt}
-              onClick={() => setShowGenerateModal(true)}
+              onClick={() => handleGenerateButton(true)}
             >
               Generate
             </button>
@@ -203,68 +226,64 @@ const TextEditor = ({ content, setContent, dataId }) => {
             event.preventDefault();
             handleGenerate();
           }}
-          className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
+          className="inline-block w-full max-w-2xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
         >
           <div className="px-8">
             <h2 className="mb-6 text-2xl">Use Prompt</h2>
             <div className="flex-start flex flex-col items-center space-y-4">
               <div className="flex w-full flex-col">
                 <label className="mb-1 text-start" htmlFor="name">
-                  Prompt Name
-                </label>
-                <input
-                  id="name"
-                  className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
-                  name="name"
-                  required
-                  value={
-                    prompts?.find((prompt) => prompt.id === selectedPrompt)
-                      ?.name || ""
-                  }
-                  readOnly
-                  type="text"
-                />
-              </div>
-              <div className="flex w-full flex-col">
-                <label className="mb-1 text-start" htmlFor="name">
                   Prompt Command
                 </label>
-                <textarea
-                  className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
-                  name="command"
-                  required
-                  value={
-                    prompts?.find((prompt) => prompt.id === selectedPrompt)
-                      ?.command || ""
-                  }
-                  readOnly
-                  rows={8}
-                />
+                {!previewingPrompt ? (
+                  <textarea
+                    className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
+                    name="command"
+                    onChange={(e) => setPromptCommand(e.target.value)}
+                    value={promptCommand}
+                    required
+                    rows={12}
+                  />
+                ) : (
+                  <textarea
+                    className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
+                    name="command"
+                    value={modifiedPromptCommand}
+                    required
+                    readOnly
+                    rows={16}
+                  />
+                )}
               </div>
-              <div className="flex w-full flex-col">
-                <label className="mb-1 text-start" htmlFor="name">
-                  Your Input
-                </label>
-                <input
-                  className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
-                  name="hint"
-                  required
-                  placeholder={
-                    prompts?.find((prompt) => prompt.id === selectedPrompt)
-                      ?.hint || ""
-                  }
-                  onChange={(e) => setPromptVariable(e.target.value)}
-                  type="text"
-                />
+              {!previewingPrompt && (
+                <div className="flex w-full flex-col items-start">
+                  <div className="flex w-full justify-between">
+                    <label className="mb-1 text-start" htmlFor="name">
+                      Prompt Variables
+                    </label>
+                  </div>
+                  <div className="flex flex-wrap">
+                    {promptVariables?.map((variable, i) => (
+                      <div className="flex flex-col" key={`${variable.name}--${i}`}>
+                        <label className="text-xs">{variable.name}</label>
+                        <textarea
+                          className="my-1 mx-1 w-full rounded bg-white px-2 py-1 text-sm text-gray-700 placeholder-gray-400"
+                          name="hint"
+                          placeholder={variable.name}
+                          onChange={(e) => handleChangeVariableValue(variable, e.target.value)}
+                          type="text"
+                          rows={1}
+                          required
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="mt-auto pt-4 text-sm italic">
+                The cost of generating content is{" "}
+                <b>1 credit per {PER_GENERATE} words</b>
               </div>
-            </div>
-            <div className="mt-auto pt-4 text-sm italic">
-              The cost of generating content is{" "}
-              <b>1 credit per {PER_GENERATE} words</b>
-            </div>
-            <div className="w-full mt-4 flex items-center">
-              <label className="font-semibold mr-2 hover:cursor-pointer" htmlFor="internalLink">Use Internal Linking</label>
-              <input className="hover:cursor-pointer rounded" id="internalLink" type="checkbox" />
             </div>
           </div>
           <div className="mt-4 flex w-full items-center justify-between">
@@ -278,16 +297,24 @@ const TextEditor = ({ content, setContent, dataId }) => {
               CANCEL
             </button>
 
-            <button
-              type="submit"
-              disabled={generatingResponse}
-              className={`${generatingResponse
-                ? "cursor-not-allowed bg-gray-50 text-gray-400"
-                : "bg-white text-gray-600 hover:text-black"
-                } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-0`}
-            >
-              {generatingResponse ? <LoadingDots /> : "GENERATE RESPONSE"}
-            </button>
+            {previewingPrompt && (
+              <button
+                type="submit"
+                disabled={generatingResponse}
+                className={`${generatingResponse
+                  ? "cursor-not-allowed bg-gray-50 text-gray-400"
+                  : "bg-white text-gray-600 hover:text-black"
+                  } w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-0`}
+              >
+                {generatingResponse ? <LoadingDots /> : "GENERATE RESPONSE"}
+              </button>
+            )}
+            {!previewingPrompt && (<button
+              type="button"
+              onClick={() => setPreviewingPrompt(true)}
+              className="bg-white text-gray-600 hover:text-black w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-0">
+              PREVIEW PROMPT
+            </button>)}
           </div>
         </form>
       </Modal>
