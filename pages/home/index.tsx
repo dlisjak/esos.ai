@@ -19,6 +19,8 @@ import AD_ICON from "../../public/icons/icons8-ads-64.png";
 import SITEMAP_ICON from "../../public/icons/icons8-map-64.png";
 
 import "../../styles/home.css";
+import PricingTable from "@/components/app/PricingTable";
+import Link from "next/link";
 
 const Home = () => {
   return (
@@ -31,11 +33,17 @@ const Home = () => {
         <div className="container mx-auto flex justify-between px-4 font-bold">
           <Image src={LOGO} alt="Logo" width={60} height={60} />
           <ul className="ml-auto hidden items-center space-x-4 md:flex">
-            <li>Why us</li>
-            <li>Features</li>
-            <li>Reviews</li>
-            <li>Pricing</li>
-            <li>Support</li>
+            <li className="hover:underline">
+              <Link href="https://app.aiautoblogs.com" target="_blank">
+                Free 7 Day Trial
+              </Link>
+            </li>
+            <li className="hover:underline">
+              <Link href="#Why-Us">Why us</Link>
+            </li>
+            <li className="hover:underline">
+              <Link href="#Features">Features</Link>
+            </li>
           </ul>
         </div>
       </div>
@@ -59,8 +67,16 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div className="bg-white py-8 px-4">
-        <div className="container mx-auto">
+      <div className="flex flex-col bg-white py-8 px-4">
+        <Link
+          className="mx-auto my-4 text-center underline md:text-2xl"
+          href="https://app.aiautoblogs.com"
+          target="_blank"
+        >
+          Click here & Claim a free 7 day trial for the Beginner Package. No
+          risk!
+        </Link>
+        <div id="Why-Us" className="container mx-auto">
           <div className="mx-auto flex items-center">
             <div className="hidden min-w-[450px] md:block">
               <Image
@@ -78,9 +94,8 @@ const Home = () => {
                   <b>high-quality blog content</b> can be{" "}
                   <b>time-consuming and challenging</b>. That’s why we’ve
                   developed an innovative platform that uses{" "}
-                  <b>AI technology</b>
-                  to generate <b>unique and engaging</b> blog content in a{" "}
-                  <b>matter of seconds</b>.
+                  <b>AI technology</b> to generate <b>unique and engaging</b>{" "}
+                  blog content in a <b>matter of seconds</b>.
                 </p>
                 <p className="mb-4 md:text-xl">
                   With <b>AI Auto Blogs</b>, you can streamline your content
@@ -95,7 +110,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="container mx-auto mt-8 w-full">
+        <div id="Features" className="container mx-auto mt-8 w-full">
           <div className="mx-auto flex items-center">
             <div className="flex flex-col items-center md:ml-8">
               <h2 className="text-4xl underline">Features</h2>
@@ -299,6 +314,16 @@ const Home = () => {
               </p>
             </div>
           </div>
+        </div>
+        <div className="container mx-auto mt-8 flex w-full">
+          <Link
+            className="mx-auto mt-4 text-center underline md:text-2xl"
+            href="https://app.aiautoblogs.com"
+            target="_blank"
+          >
+            Click here & Claim a free 7 day trial for the Beginner Package. No
+            risk!
+          </Link>
         </div>
       </div>
     </>
