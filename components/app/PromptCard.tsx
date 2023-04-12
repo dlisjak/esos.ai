@@ -29,15 +29,6 @@ const PromptCard = ({ prompt, testOnClick, testingPrompt }: any) => {
               >
                 Edit
               </Link>
-              {!tested && (
-                <button
-                  className="flex h-full items-center whitespace-nowrap rounded border bg-white px-3 py-1 tracking-wide text-black duration-200 hover:border-black"
-                  onClick={() => testOnClick(prompt.id, prompt.command)}
-                  disabled={testingPrompt}
-                >
-                  {testingPrompt ? <LoadingDots /> : "Test"}
-                </button>
-              )}
             </div>
           </div>
         </div>

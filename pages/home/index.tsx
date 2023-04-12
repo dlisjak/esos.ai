@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 
 import LOGO from "../../public/logo_icon.svg";
 import HEADER from "../../public/ABSTRACT_22.jpeg";
@@ -19,14 +20,12 @@ import AD_ICON from "../../public/icons/icons8-ads-64.png";
 import SITEMAP_ICON from "../../public/icons/icons8-map-64.png";
 
 import "../../styles/home.css";
-import PricingTable from "@/components/app/PricingTable";
-import Link from "next/link";
 
 const Home = () => {
   return (
     <>
       <Head>
-        <title>Platforms on Vercel</title>
+        <title>AI Auto Blogs</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="relative top-0 left-0 right-0 z-50 flex bg-black py-2 text-white">
