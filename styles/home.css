@@ -1,0 +1,12 @@
+@font-face {
+  font-family: "CopperPlate";
+  src: url("/fonts/Copperplate.ttf");
+}
+
+.Copperplate {
+  font-family: "CopperPlate";
+}
+
+h1 {
+  font-family: "CopperPlate";
+}
