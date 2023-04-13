@@ -169,10 +169,10 @@ const TextEditor = ({ content, setContent, dataId }) => {
               rehypePlugins: [[rehypeSanitize]],
             }}
             onPaste={async (event) => {
-              await onImagePasted(event.clipboardData, sessionUser, subdomain, dataId, uploadToS3, setValue);
+              await onImagePasted(event.clipboardData, sessionUser, subdomain, dataId, uploadToS3, setContent);
             }}
             onDrop={async (event) => {
-              await onImagePasted(event.dataTransfer, sessionUser, subdomain, dataId, uploadToS3, setValue);
+              await onImagePasted(event.dataTransfer, sessionUser, subdomain, dataId, uploadToS3, setContent);
             }}
           />
         </GrammarlyEditorPlugin>
