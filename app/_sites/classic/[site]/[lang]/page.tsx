@@ -174,6 +174,32 @@ const getData = async (site: string, lang: string) => {
           parent: {
             select: {
               slug: true,
+              parent: {
+                select: {
+                  slug: true,
+                  parent: {
+                    select: {
+                      slug: true,
+                      parent: {
+                        select: {
+                          slug: true,
+                          parent: {
+                            select: {
+                              slug: true,
+                              parent: {
+                                select: {
+                                  slug: true,
+                                  parent: true,
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         },

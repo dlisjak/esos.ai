@@ -289,13 +289,13 @@ export async function updateSite(
 
   if (!session?.user.id) return res.status(401).end("Unauthorized");
 
-  if (!subdomain || typeof subdomain !== "string") {
+  if (!currentSubdomain || typeof currentSubdomain !== "string") {
     return res.status(400).json({ error: "Missing or misconfigured site ID" });
   }
 
   const site = await prisma.site.findFirst({
     where: {
-      subdomain,
+      subdomain: currentSubdomain,
       user: {
         id: session.user.id,
       },
@@ -303,7 +303,7 @@ export async function updateSite(
   });
   if (!site) return res.status(404).end("Site not found");
 
-  const sub = req.body.subdomain.replace(/[^a-zA-Z0-9/-]+/g, "");
+  const sub = subdomain.replace(/[^a-zA-Z0-9/-]+/g, "");
   const subdomainName = sub.length > 0 ? sub : currentSubdomain;
 
   try {
@@ -334,7 +334,7 @@ export async function updateSite(
 
     const response = await prisma.site.update({
       where: {
-        subdomain: subdomain,
+        subdomain: currentSubdomain,
       },
       data,
     });

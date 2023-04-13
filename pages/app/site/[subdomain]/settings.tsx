@@ -99,7 +99,7 @@ export default function SiteSettings() {
         body: JSON.stringify({
           ...data,
           currentSubdomain: site?.subdomain ?? undefined,
-          subdomain: site.subdomain,
+          subdomain: data.subdomain,
           image,
         }),
       });
@@ -107,6 +107,8 @@ export default function SiteSettings() {
       if (res.ok) {
         mutateSite();
         toast.success(`Changes Saved`);
+        const body = await res.json();
+        router.push(`/site/${body.subdomain}/settings`);
       }
     } catch (error) {
       toast.error("Failed to save site");

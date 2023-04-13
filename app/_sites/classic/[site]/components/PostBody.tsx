@@ -6,6 +6,7 @@ import Breadcrumbs from "./Breadcrumbs";
 
 import { toDateString } from "@/lib/utils";
 import { md } from "@/lib/md";
+import { getCategorySlug, getPostSlug } from "@/lib/getPostSlug";
 
 interface PostBodyProps {
   post: any;
@@ -42,11 +43,7 @@ const PostBody = ({ post, lang }: PostBodyProps) => {
         <div className="col-span-1 sm:order-3 sm:col-span-2 lg:order-2 lg:row-span-3">
           <div className="mb-4 flex justify-start">
             <CategoryBubble
-              href={`${
-                post.category?.parent?.slug
-                  ? "/" + post.category?.parent?.slug
-                  : ""
-              }/${post.category?.slug}`}
+              href={getCategorySlug(post.category)}
               lang={lang}
               title={post.category.title}
             />

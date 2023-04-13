@@ -5,6 +5,7 @@ import CategoryBubble from "./CategoryBubble";
 import { toDateString } from "@/lib/utils";
 import Link from "./Link";
 import { Dict } from "app/dictionaries";
+import { getCategorySlug, getPostSlug } from "@/lib/getPostSlug";
 
 interface LatestPostsProps {
   posts: any;
@@ -27,11 +28,7 @@ const LatestPosts = ({ posts, user, lang, dict }: LatestPostsProps) => {
             <Link
               lang={lang}
               className="relative flex aspect-square"
-              href={`${
-                post.category?.parent?.slug
-                  ? "/" + post.category?.parent?.slug
-                  : ""
-              }/${post.category?.slug}/${post.slug}`}
+              href={getPostSlug(post, post.category)}
             >
               <Image
                 alt={post.image?.alt ?? ""}
@@ -44,11 +41,7 @@ const LatestPosts = ({ posts, user, lang, dict }: LatestPostsProps) => {
             <div className="mx-auto mt-4 flex w-full flex-col items-start px-4 xl:px-0">
               <div className="flex">
                 <CategoryBubble
-                  href={`${
-                    post.category?.parent?.slug
-                      ? "/" + post.category?.parent?.slug
-                      : ""
-                  }/${post.category?.slug}`}
+                  href={getCategorySlug(post.category)}
                   lang={lang}
                   title={post.category?.title}
                 />
@@ -73,14 +66,7 @@ const LatestPosts = ({ posts, user, lang, dict }: LatestPostsProps) => {
                   </p>
                 </div>
               </div>
-              <Link
-                lang={lang}
-                href={`${
-                  post.category?.parent?.slug
-                    ? "/" + post.category?.parent?.slug
-                    : ""
-                }/${post.category?.slug}/${post.slug}`}
-              >
+              <Link lang={lang} href={getPostSlug(post, post.category)}>
                 <h3 className="my-2 text-2xl font-bold hover:underline md:text-3xl">
                   {post.title}
                 </h3>

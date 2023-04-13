@@ -1,3 +1,4 @@
+import { getCategorySlug } from "@/lib/getPostSlug";
 import Image from "next/image";
 import Link from "./Link";
 
@@ -11,7 +12,7 @@ const Categories = ({ category, posts, lang }: CategoriesProps) => {
   return (
     <div className="my-8 flex w-full flex-col">
       <h2 className="my-2 text-3xl font-bold hover:underline md:text-4xl">
-        <Link href={`/${category.slug}`} lang={lang}>
+        <Link href={getCategorySlug(category)} lang={lang}>
           {category.title}
         </Link>
       </h2>
