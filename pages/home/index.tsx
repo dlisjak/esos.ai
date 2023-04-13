@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import LOGO from "../../public/logo_icon.svg";
-import HEADER from "../../public/ABSTRACT_22.jpeg";
+import LION from "../../public/LION.jpeg";
 import CITY from "../../public/CITY_AERIAL_OFFICE.jpeg";
 
 import HOSTING_ICON from "../../public/icons/icons8-hosting-64.png";
@@ -20,61 +20,54 @@ import AD_ICON from "../../public/icons/icons8-ads-64.png";
 import SITEMAP_ICON from "../../public/icons/icons8-map-64.png";
 
 import "../../styles/home.css";
+import HeaderSection from "@/components/HeaderSection";
 
 const Home = () => {
   return (
-    <>
+    <div className="landing">
       <Head>
         <title>AI Auto Blogs</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="relative top-0 left-0 right-0 z-50 flex bg-black py-2 text-white">
-        <div className="container mx-auto flex justify-between px-4 font-bold">
-          <Image src={LOGO} alt="Logo" width={60} height={60} />
-          <ul className="ml-auto hidden items-center space-x-4 md:flex">
-            <li className="hover:underline">
-              <Link href="https://app.aiautoblogs.com" target="_blank">
-                Free 7 Day Trial
-              </Link>
-            </li>
-            <li className="hover:underline">
-              <Link href="#Why-Us">Why us</Link>
-            </li>
-            <li className="hover:underline">
-              <Link href="#Features">Features</Link>
-            </li>
-          </ul>
+        <div className="container mx-auto flex items-center justify-center px-4 font-bold">
+          <Image src={LOGO} alt="Logo" width={40} height={40} />
         </div>
       </div>
-      <div className="relative flex h-auto max-h-screen flex-col bg-white">
-        <div className="relative h-full overflow-hidden">
-          <Image
-            src={HEADER}
-            alt="Atlas holding up the world"
-            width={3840}
-            height={2160}
-          />
-          <div className="container absolute top-0 bottom-0 left-0 right-0 m-auto flex flex-col justify-center px-4 text-white">
-            <p className="Copperplate underline md:text-2xl">
-              Create highest-quality blogs in minutes
-            </p>
-            <h1 className="text-xl md:text-5xl">
-              BLOG SMARTER, NOT HARDER,
+      <div className="section bg-black">
+        <HeaderSection
+          id="Header"
+          image={LION}
+          alt="Majest calm lion looking towards you"
+          title={
+            <h2 className="text-gradient -lion mb-4 mt-2 px-2 text-3xl sm:text-3xl md:text-5xl lg:px-0">
+              Become the King
               <br />
-              with <span className="underline">AI AUTO BLOGS</span>
+              Of The Web
+            </h2>
+          }
+          subtitle={
+            <h1 className="text-gradient -lion relative left-0.5 text-base underline underline-offset-1 sm:text-xl 2xl:mb-2">
+              AI Powered Blogs
             </h1>
-          </div>
-        </div>
+          }
+          buttons={
+            <>
+              <Link
+                className="button mr-4"
+                href="/storitve/izdelava-optimizacija-spletnih-strani-trgovin"
+              >
+                Try For Free
+              </Link>
+              <Link className="button" href="#Features">
+                Features
+              </Link>
+            </>
+          }
+          priority
+        />
       </div>
       <div className="flex flex-col bg-white py-8 px-4">
-        <Link
-          className="mx-auto my-4 text-center underline md:text-2xl"
-          href="https://app.aiautoblogs.com"
-          target="_blank"
-        >
-          Click here & Claim a free 7 day trial for the Beginner Package. No
-          risk!
-        </Link>
         <div id="Why-Us" className="container mx-auto">
           <div className="mx-auto flex items-center">
             <div className="hidden min-w-[450px] md:block">
@@ -86,7 +79,9 @@ const Home = () => {
               />
             </div>
             <div className="md:ml-8">
-              <h2 className="text-4xl underline">Why Us?</h2>
+              <h2 className="text-center text-4xl underline md:text-start">
+                Why Us?
+              </h2>
               <div className="py-4 font-light">
                 <p className="mb-4 md:text-xl">
                   At <b>AI Auto Blogs</b>, we understand that creating{" "}
@@ -113,7 +108,7 @@ const Home = () => {
           <div className="mx-auto flex items-center">
             <div className="flex flex-col items-center md:ml-8">
               <h2 className="text-4xl underline">Features</h2>
-              <p className="mt-4 text-center md:text-2xl">
+              <p className="mt-4 text-center">
                 <b>AI Auto Blogs</b> offers a <b>variety of features</b> to help
                 you <b>create high-quality blog content quickly and easily</b>:
               </p>
@@ -305,7 +300,7 @@ const Home = () => {
                   </p>
                 </div>
               </div>
-              <p className="mt-4 text-center md:text-2xl">
+              <p className="mt-4 text-center">
                 With these features, <b>AI Auto Blogs</b> offers a{" "}
                 <b>complete solution</b> for creating <b>high-quality</b> blog
                 content <b>quickly and easily</b>. <br />
@@ -314,18 +309,8 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="container mx-auto mt-8 flex w-full">
-          <Link
-            className="mx-auto mt-4 text-center underline md:text-2xl"
-            href="https://app.aiautoblogs.com"
-            target="_blank"
-          >
-            Click here & Claim a free 7 day trial for the Beginner Package. No
-            risk!
-          </Link>
-        </div>
       </div>
-    </>
+    </div>
   );
 };
 
