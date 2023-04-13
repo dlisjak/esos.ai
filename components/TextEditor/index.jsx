@@ -41,7 +41,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
   const { user } = useUser();
 
   useEffect(() => {
-    const match = promptCommand.match(regex);
+    const match = promptCommand?.match(regex);
     if (!match || !match.length) return setPromptVariables(null);
 
     setPromptVariables(
@@ -65,22 +65,6 @@ const TextEditor = ({ content, setContent, dataId }) => {
     setContent("");
 
     try {
-      let prompt;
-      const promptResponse = await fetch(`/api/prompt?promptId=${selectedPrompt}`, {
-        method: HttpMethod.GET,
-      })
-
-      if (promptResponse.ok) {
-        prompt = await promptResponse.json()
-      }
-
-      if (!prompt) {
-        return toast.error("Prompt does not exist");
-      }
-      if (!modifiedPromptCommand) {
-        return toast.error("Prompt has no command");
-      }
-
       const response = await fetch(`/api/stream`, {
         method: HttpMethod.POST,
         headers: {
@@ -162,10 +146,8 @@ const TextEditor = ({ content, setContent, dataId }) => {
   //   setRemovingBrokenLinks(false)
   // }
 
-
   const handleChangeVariableValue = (variable, value) => {
-    // setSuccessfulVariables([...successfulVariables, { name: variable.name, value: value }]);
-    const newCommand = modifiedPromptCommand.replaceAll(variable.value, value)
+    const newCommand = promptCommand.replaceAll(variable.value, value)
 
     setModifiedPromptCommand(newCommand);
   }
