@@ -34,7 +34,7 @@ const Home = () => {
           <Image src={LOGO} alt="Logo" width={40} height={40} />
         </div>
       </div>
-      <div className="section bg-black">
+      <div className="section bg-black pb-8">
         <HeaderSection
           id="Header"
           image={LION}

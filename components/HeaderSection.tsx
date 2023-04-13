@@ -12,7 +12,7 @@ const HeaderSection = ({
 }: any) => (
   <div
     id={id}
-    className={`container relative mx-auto flex h-screen w-full bg-black ${
+    className={`container relative mx-auto flex h-auto w-full bg-black ${
       left ? "-left" : ""
     }`}
   >
