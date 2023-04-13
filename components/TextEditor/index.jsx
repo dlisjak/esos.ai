@@ -4,19 +4,19 @@ import { toast } from "react-hot-toast";
 import rehypeSanitize from "rehype-sanitize";
 import { useS3Upload } from "next-s3-upload";
 import { GrammarlyEditorPlugin } from '@grammarly/editor-sdk-react'
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 import Modal from "../Modal";
 import LoadingDots from "../app/loading-dots";
 
 import { useCredits, usePrompts, useUser } from "@/lib/queries";
-import { HttpMethod } from "@/types";
+import { PER_GENERATE } from "@/lib/consts/credits";
 import onImagePasted from './onImagePasted';
+import { HttpMethod } from "@/types";
 
 import "../../node_modules/@uiw/react-md-editor/markdown-editor.css";
 import "../../node_modules/@uiw/react-markdown-preview/markdown.css";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { PER_GENERATE } from "@/lib/consts/credits";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
@@ -26,7 +26,6 @@ const TextEditor = ({ content, setContent, dataId }) => {
   const router = useRouter();
   const [selectedPrompt, setSelectedPrompt] = useState("");
   const [promptCommand, setPromptCommand] = useState("");
-  const [modifiedPromptCommand, setModifiedPromptCommand] = useState("");
   const [promptVariables, setPromptVariables] = useState(null)
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [generatingResponse, setGeneratingResponse] = useState(false);
@@ -47,7 +46,6 @@ const TextEditor = ({ content, setContent, dataId }) => {
     setPromptVariables(
       match?.map((variable) => ({ name: variable, value: variable }))
     );
-    setModifiedPromptCommand(promptCommand)
   }, [promptCommand]);
 
   const handleGenerateButton = () => {
@@ -60,7 +58,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
   }
 
   const handleGenerate = async () => {
-    if (!modifiedPromptCommand) return;
+    if (!promptCommand) return;
     setGeneratingResponse(true);
     setContent("");
 
@@ -71,7 +69,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          prompt: modifiedPromptCommand,
+          prompt: promptCommand,
           useGPT_4: user.isSubscribed ? true : false,
         }),
       });
@@ -147,9 +145,14 @@ const TextEditor = ({ content, setContent, dataId }) => {
   // }
 
   const handleChangeVariableValue = (variable, value) => {
-    const newCommand = promptCommand.replaceAll(variable.value, value)
+    if (!value.length) return;
 
-    setModifiedPromptCommand(newCommand);
+    const newCommand = promptCommand.replaceAll(variable.value, value)
+    setPromptCommand(newCommand);
+  }
+
+  const handlePreviewPrompt = () => {
+    setPreviewingPrompt(true);
   }
 
   return (
@@ -230,7 +233,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
                   <textarea
                     className="w-full rounded bg-white px-5 py-3 text-gray-700 placeholder-gray-400"
                     name="command"
-                    value={modifiedPromptCommand}
+                    value={promptCommand}
                     required
                     readOnly
                     rows={16}
@@ -252,7 +255,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
                           className="my-1 mx-1 w-full rounded bg-white px-2 py-1 text-sm text-gray-700 placeholder-gray-400"
                           name="hint"
                           placeholder={variable.name}
-                          onChange={(e) => handleChangeVariableValue(variable, e.target.value)}
+                          onBlur={(e) => handleChangeVariableValue(variable, e.target.value)}
                           type="text"
                           rows={1}
                           required
@@ -293,7 +296,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
             )}
             {!previewingPrompt && (<button
               type="button"
-              onClick={() => setPreviewingPrompt(true)}
+              onClick={handlePreviewPrompt}
               className="bg-white text-gray-600 hover:text-black w-full rounded-br border-t border-l border-gray-300 px-5 py-5 text-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-0">
               PREVIEW PROMPT
             </button>)}
