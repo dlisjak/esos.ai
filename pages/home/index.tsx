@@ -55,7 +55,8 @@ const Home = () => {
             <>
               <Link
                 className="button mr-4"
-                href="/storitve/izdelava-optimizacija-spletnih-strani-trgovin"
+                href="https://app.aiautoblogs.com"
+                target="_blank"
               >
                 Try For Free
               </Link>

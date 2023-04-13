@@ -2,7 +2,6 @@ import type { AppProps } from "next/app";
 import { Toaster } from "react-hot-toast";
 import { SessionProvider } from "next-auth/react";
 import type { Session } from "next-auth";
-import { cal, inter } from "@/styles/fonts";
 import Script from "next/script";
 
 import "@/styles/globals.css";
@@ -26,7 +25,7 @@ export default function App({
               gtag('config', 'G-0VCBCMGGN2-1');
             `}
       </Script>
-      <main className={`${cal.variable} ${inter.variable})`}>
+      <main>
         <Component {...pageProps} />
         <Toaster position="bottom-center" />
       </main>

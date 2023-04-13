@@ -5,6 +5,16 @@ export default function Document() {
     <Html lang="en">
       <Head>
         <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+          rel="stylesheet"
+        />
       </Head>
       <body>
         <Main />

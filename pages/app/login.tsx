@@ -7,7 +7,7 @@ import LoadingDots from "@/components/app/loading-dots";
 import toast, { Toaster } from "react-hot-toast";
 
 const pageTitle = "Login";
-const logo = "/favicon.ico";
+const logo = "/logo_icon.svg";
 const description =
   "Platforms Starter Kit is a comprehensive template for building multi-tenant applications with custom domains.";
 
@@ -24,7 +24,7 @@ export default function Login() {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col justify-center bg-gray-100 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen flex-col justify-center bg-black py-12 sm:px-6 lg:px-8">
       <Head>
         <title>{pageTitle}</title>
         <link rel="icon" href={logo} />
@@ -56,11 +56,11 @@ export default function Login() {
           alt="Platforms Starter Kit"
           width={100}
           height={100}
-          className="relative mx-auto h-12 w-auto"
-          src="/logo.png"
+          className="relative mx-auto h-20 w-auto p-2"
+          src="/logo_icon.svg"
         />
-        <h2 className="mt-6 text-center text-2xl font-extrabold text-gray-900">
-          ESOS AI
+        <h2 className="mt-6 text-center text-2xl font-semibold text-white">
+          AI Auto Blogs
         </h2>
       </div>
 
