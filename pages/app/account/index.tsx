@@ -13,13 +13,15 @@ import { useUser } from "@/lib/queries";
 export default function Account() {
   const { user, isLoading } = useUser();
 
+  const handleAddCredits = () => {};
+
   return (
     <Layout>
       <Header>
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Account</h1>
           <div className="flex space-x-4">
-            <AddNewButton onClick={() => null}>
+            <AddNewButton onClick={handleAddCredits}>
               Add Credits <span className="ml-2">＋</span>
             </AddNewButton>
           </div>
