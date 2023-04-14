@@ -63,6 +63,15 @@ const TextEditor = ({ content, setContent, dataId }) => {
     setContent("");
 
     try {
+      const userResponse = await fetch("/api/user", {
+        method: HttpMethod.GET,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      const user = await userResponse.json();
+
       const response = await fetch(`/api/stream`, {
         method: HttpMethod.POST,
         headers: {
@@ -71,6 +80,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
         body: JSON.stringify({
           prompt: promptCommand,
           useGPT_4: user.isSubscribed ? true : false,
+          openAIKey: user.openAIKey,
         }),
       });
 
@@ -99,6 +109,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
     } catch (e) {
       console.error(e);
     } finally {
+      console.log(content.length)
       mutateCredits();
       setGeneratingResponse(false);
     }

@@ -1,4 +1,4 @@
-import { getUser } from "@/lib/api/user";
+import { getUser, updateUser } from "@/lib/api/user";
 import { getServerSession } from "next-auth/next";
 
 import { authOptions } from "./auth/[...nextauth]";
@@ -13,8 +13,10 @@ export default async function theme(req: NextApiRequest, res: NextApiResponse) {
   switch (req.method) {
     case HttpMethod.GET:
       return getUser(req, res, session);
+    case HttpMethod.PUT:
+      return updateUser(req, res, session);
     default:
-      res.setHeader("Allow", [HttpMethod.GET]);
+      res.setHeader("Allow", [HttpMethod.GET, HttpMethod.PUT]);
       return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

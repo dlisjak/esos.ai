@@ -8,8 +8,8 @@ import toast, { Toaster } from "react-hot-toast";
 
 const pageTitle = "Login";
 const logo = "/logo_icon.svg";
-const description =
-  "Platforms Starter Kit is a comprehensive template for building multi-tenant applications with custom domains.";
+
+import "../../styles/home.css";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -36,11 +36,8 @@ export default function Login() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         <meta itemProp="name" content={pageTitle} />
-        <meta itemProp="description" content={description} />
         <meta itemProp="image" content={logo} />
-        <meta name="description" content={description} />
         <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={description} />
         <meta property="og:image" content={logo} />
         <meta property="og:type" content="website" />
 
@@ -48,7 +45,6 @@ export default function Login() {
         <meta name="twitter:site" content="@Elegance" />
         <meta name="twitter:creator" content="@StevenTey" />
         <meta name="twitter:title" content={pageTitle} />
-        <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={logo} />
       </Head>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -59,13 +55,14 @@ export default function Login() {
           className="relative mx-auto h-20 w-auto p-2"
           src="/logo_icon.svg"
         />
-        <h2 className="mt-6 text-center text-2xl font-semibold text-white">
+        <h1 className="mt-6 text-center text-3xl font-semibold text-white">
           AI Auto Blogs
-        </h2>
+        </h1>
       </div>
 
       <div className="mx-auto mt-8 w-11/12 sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-md sm:rounded sm:px-10">
+          <h2 className="mb-6 text-center text-2xl">Login/Signup</h2>
           <button
             disabled={loading}
             onClick={() => {

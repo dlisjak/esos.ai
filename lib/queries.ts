@@ -289,7 +289,7 @@ export const useUser = () => {
     user: user,
     isLoading: !error && !user,
     isError: error,
-    mutateCredits: mutate,
+    mutateUser: mutate,
   };
 };
 

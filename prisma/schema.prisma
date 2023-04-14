@@ -29,6 +29,7 @@ model User {
   images        Image[]
   subscription  String?
   isSubscribed  Boolean   @default(false)
+  openAIKey     String?   @db.LongText
 }
 
 model Account {
