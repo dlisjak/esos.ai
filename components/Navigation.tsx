@@ -12,10 +12,7 @@ const Navigation = () => {
         </Link>
         <ul className="ml-auto flex space-x-4">
           <li className="hover:underline">
-            <Link
-              href="https://www.youtube.com/channel/UCHeJKJZ1U3cvzbP8d6ax6Uw"
-              target="_blank"
-            >
+            <Link href="https://www.youtube.com/@aiautoblogs" target="_blank">
               How To
             </Link>
           </li>
