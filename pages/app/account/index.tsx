@@ -70,11 +70,19 @@ export default function Account() {
       <Header>
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Account</h1>
-          <div className="flex space-x-4">
-            <AddNewButton onClick={handleAddCredits}>
-              Add Credits <span className="ml-2">＋</span>
-            </AddNewButton>
-          </div>
+          {user?.isSubscribed && (
+            <div className="flex space-x-4">
+              <Link
+                href="https://billing.stripe.com/p/login/cN228T32V7nEdS8eUU"
+                target="_blank"
+              >
+                <AddNewButton light>View Customer Portal</AddNewButton>
+              </Link>
+              <AddNewButton onClick={handleAddCredits}>
+                Add Credits <span className="ml-2">＋</span>
+              </AddNewButton>
+            </div>
+          )}
         </div>
       </Header>
       <Container dark>

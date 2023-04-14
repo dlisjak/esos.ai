@@ -2,7 +2,6 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 
-import LOGO from "../../public/logo_icon.svg";
 import LION from "../../public/LION.jpeg";
 import CITY from "../../public/CITY_AERIAL_OFFICE.jpeg";
 
@@ -21,6 +20,7 @@ import SITEMAP_ICON from "../../public/icons/icons8-map-64.png";
 
 import "../../styles/home.css";
 import HeaderSection from "@/components/HeaderSection";
+import Navigation from "@/components/Navigation";
 
 const Home = () => {
   return (
@@ -29,11 +29,7 @@ const Home = () => {
         <title>AI Auto Blogs</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="relative top-0 left-0 right-0 z-50 flex bg-black py-2 text-white">
-        <div className="container mx-auto flex items-center justify-center px-4 font-bold">
-          <Image src={LOGO} alt="Logo" width={40} height={40} />
-        </div>
-      </div>
+      <Navigation />
       <div className="section bg-black pb-8">
         <HeaderSection
           id="Header"

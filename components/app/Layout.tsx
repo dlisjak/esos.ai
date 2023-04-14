@@ -90,7 +90,7 @@ export default function Layout({ children }: any) {
               {session.user && session.user.image && (
                 <div className="inline-block h-8 w-8 overflow-hidden rounded-full align-middle">
                   <Image
-                    src={session.user.image}
+                    src={session.user.image || "/placeholder.png"}
                     width={40}
                     height={40}
                     alt={session.user.name ?? "User avatar"}
