@@ -125,6 +125,7 @@ export default function Post() {
       translationId: selectedTranslation.id,
       title: data.title,
       content: content,
+      chargeForTranslation: selectedTranslation?.lang !== "EN",
     };
 
     try {
@@ -615,6 +616,9 @@ export default function Post() {
                     ))}
                   </select>
                 </div>
+                <p>
+                  Translating a post costs <b>1 Credit</b>
+                </p>
               </div>
               <div className="mt-auto pt-4 text-sm italic">
                 The cost of translating this article is{" "}

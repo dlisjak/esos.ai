@@ -445,7 +445,13 @@ export async function translateCategory(
   session: Session
 ): Promise<void | NextApiResponse<CategoryTranslation | null>> {
   const { categoryId } = req.query;
-  const { translationId, lang, title = "", content = "" } = req.body;
+  const {
+    translationId,
+    lang,
+    title = "",
+    content = "",
+    chargeForTranslation,
+  } = req.body;
 
   if (!session.user.id || !translationId)
     return res.status(400).end("Bad request. User not validated.");
@@ -458,13 +464,17 @@ export async function translateCategory(
     },
     select: {
       credits: true,
+      openAIKey: true,
     },
   });
-  if (!user || !user.credits) return res.status(400).end("User not found.");
-  if (user.credits < creditsUsage)
-    return res.status(400).end("Insufficient credits.");
 
-  try {
+  if (!user) return res.status(400).end("User not found.");
+
+  if (chargeForTranslation) {
+    if (!user.credits) return res.status(400).end("Insufficient credits.");
+    if (user.credits < creditsUsage)
+      return res.status(400).end("Insufficient credits.");
+
     await prisma.user.update({
       where: {
         id: session.user.id,
@@ -475,7 +485,9 @@ export async function translateCategory(
         },
       },
     });
+  }
 
+  try {
     if (!categoryId) {
       const translation = await prisma.categoryTranslation.update({
         where: {

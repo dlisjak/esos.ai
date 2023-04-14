@@ -109,8 +109,22 @@ const TextEditor = ({ content, setContent, dataId }) => {
     } catch (e) {
       console.error(e);
     } finally {
-      console.log(content.length)
-      mutateCredits();
+      console.log(!user.openAIKey || !user.openAIKey.length);
+      if (!user.openAIKey || !user.openAIKey.length) {
+        const decrementResponse = await fetch(`/api/decrement`, {
+          method: HttpMethod.PUT,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contenteLength: content.length
+          }),
+        });
+
+        if (decrementResponse.ok) {
+          mutateCredits();
+        }
+      }
       setGeneratingResponse(false);
     }
   };

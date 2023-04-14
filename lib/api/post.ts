@@ -465,7 +465,13 @@ export async function translatePost(
   session: Session
 ): Promise<void | NextApiResponse<PostTranslation | null>> {
   const { postId } = req.query;
-  const { translationId, lang, title = "", content = "" } = req.body;
+  const {
+    translationId,
+    lang,
+    title = "",
+    content = "",
+    chargeForTranslation,
+  } = req.body;
 
   if (!session.user.id || !translationId)
     return res.status(400).end("Bad request. User not validated.");
@@ -480,11 +486,13 @@ export async function translatePost(
       credits: true,
     },
   });
-  if (!user || !user.credits) return res.status(400).end("User not found.");
-  if (user.credits < creditsUsage)
-    return res.status(400).end("Insufficient credits.");
+  if (!user) return res.status(400).end("User not found.");
 
-  try {
+  if (chargeForTranslation) {
+    if (!user.credits) return res.status(400).end("Insufficient credits.");
+    if (user.credits < creditsUsage)
+      return res.status(400).end("Insufficient credits.");
+
     await prisma.user.update({
       where: {
         id: session.user.id,
@@ -495,7 +503,9 @@ export async function translatePost(
         },
       },
     });
+  }
 
+  try {
     if (!postId) {
       const translation = await prisma.postTranslation.update({
         where: {

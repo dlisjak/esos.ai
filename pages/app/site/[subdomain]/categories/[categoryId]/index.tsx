@@ -122,6 +122,7 @@ export default function CategoryPage() {
       translationId: selectedTranslation.id,
       title: data.title,
       content: content,
+      chargeForTranslation: selectedTranslation?.lang !== "EN",
     };
 
     try {
