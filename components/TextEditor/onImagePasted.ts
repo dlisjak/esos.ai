@@ -32,10 +32,7 @@ const onImagePasted = async (
         },
       });
 
-      const res = await fetch(`/api/imageAlt?imageUrl=${url}`);
-      const alt = await res.json();
-
-      const insertedMarkdown = insertToTextArea(`![${alt}](${url})`);
+      const insertedMarkdown = insertToTextArea(`![ALT](${url})`);
       if (!insertedMarkdown) {
         return;
       }

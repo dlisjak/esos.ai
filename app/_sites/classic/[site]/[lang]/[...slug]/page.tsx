@@ -400,7 +400,17 @@ const getData = async (site: string, slugObj: string, lang: string) => {
                         slug: true,
                         title: true,
                         content: true,
-                        posts: true,
+                        posts: {
+                          select: {
+                            id: true,
+                            title: true,
+                            slug: true,
+                            image: true,
+                            published: true,
+                            createdAt: true,
+                            updatedAt: true,
+                          },
+                        },
                         image: true,
                         translations: { where: { lang } },
                         children: {
@@ -583,7 +593,17 @@ const getData = async (site: string, slugObj: string, lang: string) => {
                     slug: true,
                     title: true,
                     content: true,
-                    posts: true,
+                    posts: {
+                      select: {
+                        id: true,
+                        title: true,
+                        slug: true,
+                        image: true,
+                        published: true,
+                        createdAt: true,
+                        updatedAt: true,
+                      },
+                    },
                     image: true,
                     translations: { where: { lang } },
                     children: {
@@ -735,7 +755,17 @@ const getData = async (site: string, slugObj: string, lang: string) => {
                 slug: true,
                 title: true,
                 content: true,
-                posts: true,
+                posts: {
+                  select: {
+                    id: true,
+                    title: true,
+                    slug: true,
+                    image: true,
+                    published: true,
+                    createdAt: true,
+                    updatedAt: true,
+                  },
+                },
                 image: true,
                 translations: { where: { lang } },
                 children: {
@@ -863,7 +893,17 @@ const getData = async (site: string, slugObj: string, lang: string) => {
             slug: true,
             title: true,
             content: true,
-            posts: true,
+            posts: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+                image: true,
+                published: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
             image: true,
             translations: { where: { lang } },
             parent: {
@@ -966,7 +1006,17 @@ const getData = async (site: string, slugObj: string, lang: string) => {
         slug: true,
         title: true,
         content: true,
-        posts: true,
+        posts: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            image: true,
+            published: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
         image: true,
         translations: { where: { lang } },
         children: {
