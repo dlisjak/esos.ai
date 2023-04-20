@@ -109,7 +109,6 @@ const TextEditor = ({ content, setContent, dataId }) => {
     } catch (e) {
       console.error(e);
     } finally {
-      console.log(!user.openAIKey || !user.openAIKey.length);
       if (!user.openAIKey || !user.openAIKey.length) {
         const decrementResponse = await fetch(`/api/decrement`, {
           method: HttpMethod.PUT,
