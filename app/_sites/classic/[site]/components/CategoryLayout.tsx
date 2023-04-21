@@ -33,21 +33,19 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
             priority
           />
         </div>
-        <Toc
-          className="table-of-contents lg:font-xl col-span-1 flex flex-col items-start divide-x-2 bg-slate-100 py-2 lg:order-3"
-          markdownText={category.content}
-        />
-        {category.navigation && category.navigation.length > 0 && (
-          <CategoryNavigation
-            className="flex flex-wrap lg:order-2 lg:col-span-3"
-            navigation={category.navigation}
-            lang={lang}
-            dict={dict}
-          />
-        )}
+        <div className="lg:font-xl col-span-1 flex flex-col items-start divide-x-2 bg-slate-100 py-2 lg:order-3">
+          {category.navigation && category.navigation.length > 0 && (
+            <CategoryNavigation
+              className="flex flex-wrap"
+              navigation={category.navigation}
+              lang={lang}
+              dict={dict}
+            />
+          )}
+        </div>
         <div className="col-span-1 sm:order-3 sm:col-span-2 lg:order-2 lg:row-span-3">
           <div
-            className="prose pt-4 lg:prose-lg"
+            className="prose pt-4 lg:prose-lg prose-a:text-blue-600 hover:prose-a:text-blue-500"
             dangerouslySetInnerHTML={{ __html: md.render(category.content) }}
           />
         </div>

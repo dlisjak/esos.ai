@@ -941,11 +941,18 @@ const getData = async (site: string, slugObj: string, lang: string) => {
         slug: `/${cat?.parent?.slug}/${cat?.slug}`,
       },
     ];
-    const navigation = cat?.children?.map((child) => ({
-      id: child.id,
-      title: child.title,
-      href: `/${cat?.parent?.slug}/${cat.slug}/${child.slug}`,
-    }));
+    const navigation = cat?.children.length
+      ? cat?.children?.map((child) => ({
+          id: child.id,
+          title: child.title,
+          href: `/${cat?.parent?.slug}/${cat.slug}/${child.slug}`,
+        }))
+      : cat?.posts.map((post) => ({
+          id: post.id,
+          title: post.title,
+          href: `/${cat?.parent?.slug}/${cat.slug}/${post.slug}`,
+        }));
+
     const posts = cat?.posts.map((post) => ({
       ...post,
       slug: `/${cat?.parent?.slug}/${cat.slug}/${post.slug}`,
@@ -1035,11 +1042,17 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       { id: 0, title: "Home", slug: "/" },
       { id: 0, title: cat?.title, slug: `/${cat?.slug}` },
     ];
-    const navigation = cat?.children?.map((child) => ({
-      id: child.id,
-      title: child.title,
-      href: `/${cat.slug}/${child.slug}`,
-    }));
+    const navigation = cat?.children.length
+      ? cat?.children?.map((child) => ({
+          id: child.id,
+          title: child.title,
+          href: `/${cat.slug}/${child.slug}`,
+        }))
+      : cat?.posts.map((post) => ({
+          id: post.id,
+          title: post.title,
+          slug: `/${cat.slug}/${post.slug}`,
+        }));
     const posts = cat?.posts.map((post) => ({
       ...post,
       slug: `/${cat.slug}/${post.slug}`,

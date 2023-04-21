@@ -52,7 +52,7 @@ const TermsOfService = () => {
       <div className="flex w-full bg-white py-8">
         <div className="container mx-auto bg-white p-4">
           <div
-            className="prose mx-auto pt-4 lg:prose-lg"
+            className="prose mx-auto pt-4 lg:prose-lg prose-a:text-blue-600 hover:prose-a:text-blue-500"
             dangerouslySetInnerHTML={{ __html: md.render(TERMS_OF_SERVICE) }}
           />
         </div>

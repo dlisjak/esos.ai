@@ -192,7 +192,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
               placeholder: "Please enter Markdown text",
             }}
             previewOptions={{
-              className: "prose lg:prose-lg mx-auto max-w-screen-xl",
+              className: "prose lg:prose-lg mx-auto max-w-screen-xl prose-a:text-blue-600 hover:prose-a:text-blue-500",
               rehypePlugins: [[rehypeSanitize]],
             }}
             onPaste={async (event) => {

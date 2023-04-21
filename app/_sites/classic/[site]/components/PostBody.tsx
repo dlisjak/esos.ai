@@ -17,7 +17,7 @@ interface PostBodyProps {
 const PostBody = ({ post, lang }: PostBodyProps) => {
   if (!post.content || !post.title)
     return (
-      <div className="prose lg:prose-lg">
+      <div className="prose lg:prose-lg prose-a:text-blue-600 hover:prose-a:text-blue-500">
         <h1>Content Not Found</h1>
       </div>
     );
@@ -52,7 +52,7 @@ const PostBody = ({ post, lang }: PostBodyProps) => {
             </p>
           </div>
           <div
-            className="prose lg:prose-lg"
+            className="prose lg:prose-lg prose-a:text-blue-600 hover:prose-a:text-blue-500"
             dangerouslySetInnerHTML={{ __html: md.render(post.content) }}
           />
         </div>
