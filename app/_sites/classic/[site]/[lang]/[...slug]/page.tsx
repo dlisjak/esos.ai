@@ -593,6 +593,7 @@ const getData = async (site: string, slugObj: string, lang: string) => {
                     slug: true,
                     title: true,
                     content: true,
+                    createdAt: true,
                     posts: {
                       select: {
                         id: true,
@@ -755,6 +756,7 @@ const getData = async (site: string, slugObj: string, lang: string) => {
                 slug: true,
                 title: true,
                 content: true,
+                createdAt: true,
                 posts: {
                   select: {
                     id: true,
@@ -893,6 +895,7 @@ const getData = async (site: string, slugObj: string, lang: string) => {
             slug: true,
             title: true,
             content: true,
+            createdAt: true,
             posts: {
               select: {
                 id: true,
@@ -1013,6 +1016,7 @@ const getData = async (site: string, slugObj: string, lang: string) => {
         slug: true,
         title: true,
         content: true,
+        createdAt: true,
         posts: {
           select: {
             id: true,

@@ -7,6 +7,7 @@ interface CategoryBubbleProps {
 }
 
 const CategoryBubble = ({ href, title, lang }: CategoryBubbleProps) => {
+  if (!title) return <div />;
   return (
     <Link
       href={href}

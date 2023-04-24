@@ -329,7 +329,18 @@ export async function updateCategory(
         id: id,
       },
       data,
+      include: {
+        translations: true,
+      },
     });
+
+    if (category) {
+      await Promise.all(
+        category.translations.map((translation) =>
+          revalidate(site, translation.lang.toLowerCase(), category, null)
+        )
+      );
+    }
 
     return res.status(200).json(category);
   } catch (error) {

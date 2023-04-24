@@ -9,6 +9,9 @@ import Breadcrumbs from "./Breadcrumbs";
 import CategoryNavigation from "./CategoryNavigation";
 import { Dict } from "app/dictionaries";
 import Toc from "react-toc";
+import CategoryBubble from "./CategoryBubble";
+import { getCategorySlug } from "@/lib/getPostSlug";
+import { toDateString } from "@/lib/utils";
 
 interface CategoryLayoutProps {
   category: any;
@@ -44,6 +47,16 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
           )}
         </div>
         <div className="col-span-1 sm:order-3 sm:col-span-2 lg:order-2 lg:row-span-3">
+          <div className="mb-4 flex justify-start">
+            <CategoryBubble
+              href={getCategorySlug(category.parent)}
+              lang={lang}
+              title={category.parent?.title}
+            />
+            <p className="my-2 whitespace-nowrap text-sm font-light text-gray-500 md:text-base">
+              {toDateString(category.createdAt)}
+            </p>
+          </div>
           <div
             className="prose pt-4 lg:prose-lg prose-a:text-blue-600 hover:prose-a:text-blue-500"
             dangerouslySetInnerHTML={{ __html: md.render(category.content) }}
