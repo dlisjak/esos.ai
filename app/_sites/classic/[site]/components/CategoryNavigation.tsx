@@ -29,7 +29,7 @@ const CategoryNavigation = ({
       <h2 className="px-4 pt-2 font-semibold lg:text-xl">{dict.navigation}:</h2>
       {navigation?.map((nav: CategoryNavigation) => (
         <Link
-          className="px-4 py-2 text-blue-700 hover:underline lg:text-lg xl:whitespace-nowrap"
+          className="px-4 py-2 text-blue-700 hover:underline lg:text-lg"
           href={nav.href}
           lang={lang}
           key={nav.id}

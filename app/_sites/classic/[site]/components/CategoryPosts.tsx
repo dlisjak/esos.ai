@@ -28,7 +28,7 @@ const CategoryPosts = ({ category, lang }: CategoryPostsProps) => {
         />
       </Link>
       <div className="mx-auto mt-2 flex w-full flex-col items-start">
-        <p className="m-auto whitespace-nowrap text-sm font-light text-gray-500 md:text-base">
+        <p className="m-auto text-sm font-light text-gray-500 md:text-base">
           {toDateString(post.updatedAt)}
         </p>
         <Link href={`/${post.slug}`} lang={lang}>
