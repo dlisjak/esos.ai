@@ -329,8 +329,29 @@ export async function updateCategory(
         id: id,
       },
       data,
-      include: {
+      select: {
+        slug: true,
         translations: true,
+        parent: {
+          select: {
+            slug: true,
+            parent: {
+              select: {
+                slug: true,
+                parent: {
+                  select: {
+                    slug: true,
+                    parent: {
+                      select: {
+                        slug: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 

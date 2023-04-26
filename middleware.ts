@@ -72,13 +72,18 @@ export default async function middleware(req: NextRequest) {
 
     return NextResponse.rewrite(url);
   }
-
   // rewrite root application to `/home` folder
   if (
     hostname === "localhost:3000" ||
     hostname === `${process.env.NEXT_PUBLIC_DOMAIN_URL}`
   ) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
+  }
+
+  if (path === "/sitemap.xml") {
+    return NextResponse.rewrite(
+      new URL(`/_sites/classic/${currentHost}/api/sitemap`, req.url)
+    );
   }
 
   const pathnameIsMissingLocale = locales.every(
