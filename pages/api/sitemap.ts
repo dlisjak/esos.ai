@@ -12,7 +12,14 @@ export default async function handler(req: any, res: any) {
 
   const site = await prisma.site.findFirst({
     where: {
-      subdomain,
+      OR: [
+        {
+          subdomain,
+        },
+        {
+          customDomain: subdomain,
+        },
+      ],
     },
   });
 
