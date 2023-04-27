@@ -1,8 +1,8 @@
 import prisma from "@/lib/prisma";
 
 export default async function handler(req: any, res: any) {
-  const { subdomain } = req.query;
-  console.log(subdomain);
+  const { currentHost } = req.query;
+  console.log(currentHost);
 
   res.statusCode = 200;
   res.setHeader("Content-Type", "text/xml");
@@ -14,19 +14,23 @@ export default async function handler(req: any, res: any) {
     where: {
       OR: [
         {
-          subdomain,
+          subdomain: currentHost,
         },
         {
-          customDomain: subdomain,
+          customDomain: currentHost,
         },
       ],
     },
   });
 
+  console.log(site);
+
+  if (!site || !site?.id) res.end("Sitemap not available");
+
   const categories = await prisma.category.findMany({
     where: {
       site: {
-        subdomain,
+        id: site?.id,
       },
       parentId: null,
     },

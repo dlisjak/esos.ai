@@ -82,7 +82,7 @@ export default async function middleware(req: NextRequest) {
 
   if (path === "/en/sitemap.xml") {
     return NextResponse.rewrite(
-      new URL(`/api/sitemap?subdomain=${currentHost}`, req.url)
+      new URL(`/api/sitemap?currentHost=${currentHost}`, req.url)
     );
   }
 
