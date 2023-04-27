@@ -146,7 +146,6 @@ export default async function handler(req: any, res: any) {
     <loc>${url}</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
-    <lastmod>${new Date().toISOString()}</lastmod>
     </url>`;
   });
 
