@@ -25,29 +25,13 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
   return (
     <div className="w-full pt-4">
       <Breadcrumbs breadcrumbs={category.breadcrumbs} lang={lang} />
-      <div className="lg:grid-rows-max grid grid-flow-row grid-cols-1 gap-4 pb-4 sm:grid-cols-2 md:grid-cols-3">
-        <div className="relative col-span-1 row-span-1 w-full sm:order-2 md:col-span-2 lg:order-2 lg:col-span-1">
-          <Image
-            className="h-full w-full object-cover object-cover"
-            src={category?.image?.src ?? "/placeholder.png"}
-            alt={category?.image?.alt || ""}
-            width={767}
-            height={767}
-            priority
+      <div className="lg:grid-rows-max grid grid-flow-row grid-cols-1 gap-4 pb-4">
+        <div className="heading">
+          <div
+            className="prose w-full py-4 lg:prose-lg"
+            dangerouslySetInnerHTML={{ __html: md.render(category.heading) }}
           />
-        </div>
-        <div className="lg:font-xl col-span-1 flex flex-col items-start divide-x-2 bg-slate-100 py-2 lg:order-3">
-          {category.navigation && category.navigation.length > 0 && (
-            <CategoryNavigation
-              className="flex flex-wrap"
-              navigation={category.navigation}
-              lang={lang}
-              dict={dict}
-            />
-          )}
-        </div>
-        <div className="col-span-1 sm:order-3 sm:col-span-2 lg:order-2 lg:row-span-3">
-          <div className="mb-4 flex justify-start">
+          <div className="flex justify-start">
             <CategoryBubble
               href={getCategorySlug(category.parent)}
               lang={lang}
@@ -57,10 +41,39 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
               {toDateString(category.createdAt)}
             </p>
           </div>
-          <div
-            className="prose pt-4 lg:prose-lg prose-a:text-blue-600 hover:prose-a:text-blue-500"
-            dangerouslySetInnerHTML={{ __html: md.render(category.content) }}
+        </div>
+        <div className="relative col-span-1 row-span-1 w-full">
+          <Image
+            className="h-full w-full object-cover object-cover"
+            src={category?.image?.src ?? "/placeholder.png"}
+            alt={category?.image?.alt || ""}
+            width={1280}
+            height={980}
+            priority
           />
+        </div>
+        <div className="lg:font-xl col-span-1 flex flex-col items-start divide-x-2 bg-slate-100">
+          {category.navigation && category.navigation.length > 0 && (
+            <CategoryNavigation
+              className="flex flex-wrap"
+              navigation={category.navigation}
+              lang={lang}
+              dict={dict}
+            />
+          )}
+        </div>
+        <div className="col-span-1 grid grid-cols-3 gap-4 lg:grid-cols-4">
+          <div
+            className="prose col-span-3 mx-auto w-full pt-4 text-justify lg:prose-lg prose-a:text-blue-600 hover:prose-a:text-blue-500"
+            dangerouslySetInnerHTML={{ __html: md.render(category.bodyText) }}
+          />
+          <div className="static col-span-1 flex hidden flex-col lg:flex">
+            <Toc
+              className="table-of-contents lg:font-xl sticky top-4 flex flex-col items-start divide-x-2 bg-slate-100 py-2"
+              markdownText={category.content}
+              lowestHeadingLevel={2}
+            />
+          </div>
         </div>
       </div>
       {category.posts && category.posts.length > 0 && (

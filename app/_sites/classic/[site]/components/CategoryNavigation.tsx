@@ -24,7 +24,7 @@ const CategoryNavigation = ({
 
   return (
     <div
-      className={`${className} flex flex-col items-start divide-x-2 bg-slate-100 py-2 lg:flex-row`}
+      className={`${className} flex items-start divide-x-2 bg-slate-100 py-2`}
     >
       <h2 className="px-4 pt-2 font-semibold lg:text-xl">{dict.navigation}:</h2>
       {navigation?.map((nav: CategoryNavigation) => (

@@ -507,14 +507,25 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       slug: `/${cat?.parent?.parent?.parent?.parent?.slug}/${cat?.parent?.parent?.parent?.slug}/${cat?.parent?.parent?.slug}/${cat?.parent?.slug}/${cat.slug}/${post.slug}`,
     }));
 
+    const content = cat?.translations[0].content || cat?.content;
+    const title = cat?.translations[0].title || cat?.title;
+
+    const headingRegex = /#{1}.+(?=\n)/g;
+    const headings = content?.match(headingRegex) || [];
+    const heading = headings[0] || title || "";
+
+    const bodyText = content?.replace(heading, "");
+
     if (cat) {
       const categoryData = {
         ...cat,
         posts,
         breadcrumbs,
         navigation,
-        title: cat?.translations[0].title || cat?.title,
-        content: cat?.translations[0].content || cat?.content,
+        content,
+        bodyText,
+        heading,
+        title,
       };
 
       return {
@@ -680,14 +691,25 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       slug: `/${cat?.parent?.parent?.parent?.slug}/${cat?.parent?.parent?.slug}/${cat?.parent?.slug}/${cat.slug}/${post.slug}`,
     }));
 
+    const content = cat?.translations[0].content || cat?.content;
+    const title = cat?.translations[0].title || cat?.title;
+
+    const headingRegex = /#{1}.+(?=\n)/g;
+    const headings = content?.match(headingRegex) || [];
+    const heading = headings[0] || title || "";
+
+    const bodyText = content?.replace(heading, "");
+
     if (cat) {
       const categoryData = {
         ...cat,
         posts,
         breadcrumbs,
         navigation,
-        title: cat?.translations[0].title || cat?.title,
-        content: cat?.translations[0].content || cat?.content,
+        content,
+        bodyText,
+        heading,
+        title,
       };
 
       return {
@@ -829,14 +851,25 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       slug: `/${cat?.parent?.parent?.slug}/${cat?.parent?.slug}/${cat.slug}/${post.slug}`,
     }));
 
+    const content = cat?.translations[0].content || cat?.content;
+    const title = cat?.translations[0].title || cat?.title;
+
+    const headingRegex = /#{1}.+(?=\n)/g;
+    const headings = content?.match(headingRegex) || [];
+    const heading = headings[0] || title || "";
+
+    const bodyText = content?.replace(heading, "");
+
     if (cat) {
       const categoryData = {
         ...cat,
         posts,
         breadcrumbs,
         navigation,
-        title: cat?.translations[0].title || cat?.title,
-        content: cat?.translations[0].content || cat?.content,
+        content,
+        bodyText,
+        heading,
+        title,
       };
 
       return {
@@ -961,14 +994,25 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       slug: `/${cat?.parent?.slug}/${cat.slug}/${post.slug}`,
     }));
 
+    const content = cat?.translations[0].content || cat?.content;
+    const title = cat?.translations[0].title || cat?.title;
+
+    const headingRegex = /#{1}.+(?=\n)/g;
+    const headings = content?.match(headingRegex) || [];
+    const heading = headings[0] || title || "";
+
+    const bodyText = content?.replace(heading, "");
+
     if (cat) {
       const categoryData = {
         ...cat,
         posts,
         breadcrumbs,
         navigation,
-        title: cat?.translations[0].title || cat?.title,
-        content: cat?.translations[0].content || cat?.content,
+        content,
+        bodyText,
+        heading,
+        title,
       };
 
       return {
@@ -1062,14 +1106,25 @@ const getData = async (site: string, slugObj: string, lang: string) => {
       slug: `/${cat.slug}/${post.slug}`,
     }));
 
+    const content = cat?.translations[0].content || cat?.content;
+    const title = cat?.translations[0].title || cat?.title;
+
+    const headingRegex = /#{1}.+(?=\n)/g;
+    const headings = content?.match(headingRegex) || [];
+    const heading = headings[0] || title || "";
+
+    const bodyText = content?.replace(heading, "");
+
     if (cat) {
       const categoryData = {
         ...cat,
         posts,
         breadcrumbs,
         navigation,
-        title: cat?.translations[0].title || cat?.title,
-        content: cat?.translations[0].content || cat?.content,
+        content,
+        bodyText,
+        heading,
+        title,
       };
 
       return {
