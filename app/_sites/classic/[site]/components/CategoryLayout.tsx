@@ -48,7 +48,7 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
             src={category?.image?.src ?? "/placeholder.png"}
             alt={category?.image?.alt || ""}
             width={1280}
-            height={980}
+            height={720}
             priority
           />
         </div>
