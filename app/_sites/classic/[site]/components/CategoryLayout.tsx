@@ -25,7 +25,7 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
   return (
     <div className="w-full pt-4">
       <Breadcrumbs breadcrumbs={category.breadcrumbs} lang={lang} />
-      <div className="lg:grid-rows-max grid grid-flow-row grid-cols-1 gap-4 pb-4">
+      <div className="lg:grid-rows-max grid grid-flow-row grid-cols-1 gap-4 pb-8">
         <div className="heading">
           <div
             className="prose w-full py-4 lg:prose-lg"
