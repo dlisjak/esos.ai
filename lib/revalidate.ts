@@ -35,6 +35,42 @@ export async function revalidate(
           category.parent.slug + "/" + category.slug
         }`
       );
+
+      if (category.parent.parent) {
+        urlPaths.push(
+          `/_sites/classic/${site.subdomain}/${lang}/${
+            category.parent.parent.slug +
+            category.parent.slug +
+            "/" +
+            category.slug
+          }`
+        );
+
+        if (category.parent.parent.parent) {
+          urlPaths.push(
+            `/_sites/classic/${site.subdomain}/${lang}/${
+              category.parent.parent.parent.slug +
+              category.parent.parent.slug +
+              category.parent.slug +
+              "/" +
+              category.slug
+            }`
+          );
+
+          if (category.parent.parent.parent.parent) {
+            urlPaths.push(
+              `/_sites/classic/${site.subdomain}/${lang}/${
+                category.parent.parent.parent.parent.slug +
+                category.parent.parent.parent.slug +
+                category.parent.parent.slug +
+                category.parent.slug +
+                "/" +
+                category.slug
+              }`
+            );
+          }
+        }
+      }
     }
   }
 

@@ -344,6 +344,11 @@ export async function updateCategory(
                     parent: {
                       select: {
                         slug: true,
+                        parent: {
+                          select: {
+                            slug: true,
+                          },
+                        },
                       },
                     },
                   },
