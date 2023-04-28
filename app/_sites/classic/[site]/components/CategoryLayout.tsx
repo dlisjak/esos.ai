@@ -42,9 +42,9 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
             </p>
           </div>
         </div>
-        <div className="relative col-span-1 row-span-1 w-full">
+        <div className="relative col-span-1 row-span-1 max-h-[720px] w-full overflow-hidden rounded-2xl bg-slate-100">
           <Image
-            className="h-full w-full object-cover object-cover"
+            className="h-full w-full object-contain"
             src={category?.image?.src ?? "/placeholder.png"}
             alt={category?.image?.alt || ""}
             width={1280}
@@ -69,7 +69,7 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
           />
           <div className="static col-span-1 flex hidden flex-col lg:flex">
             <Toc
-              className="table-of-contents lg:font-xl sticky top-4 flex flex-col items-start divide-x-2 bg-slate-100 py-2"
+              className="table-of-contents lg:font-xl sticky top-4 flex flex-col items-start divide-x-2 rounded-2xl bg-slate-100 py-2"
               markdownText={category.content}
               lowestHeadingLevel={2}
             />
