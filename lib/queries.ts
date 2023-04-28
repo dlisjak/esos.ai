@@ -179,7 +179,7 @@ export const useCategories = (subdomain: any) => {
     data: categories,
     error,
     mutate,
-  } = useSWR<WithImageCategory[]>(
+  } = useSWR<WithAllCategory[]>(
     `/api/category?subdomain=${subdomain}`,
     fetcher,
     {

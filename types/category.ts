@@ -7,7 +7,7 @@ export interface WithImageCategory extends Category {
 
 export interface WithAllCategory extends WithImageCategory {
   parent: Category[];
-  children: Category[];
+  children: WithAllCategory[];
   posts: WithImagePost[];
   translations: CategoryTranslation[];
 }

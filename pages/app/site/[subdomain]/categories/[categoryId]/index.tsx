@@ -52,6 +52,8 @@ export default function CategoryPage() {
   const { categories } = useCategories(subdomain);
   const { category, isLoading, mutateCategory } = useCategory(categoryId);
 
+  console.log(categories);
+
   const { languages } = useSupportedLanguages();
   const { translations, mutateTranslations } =
     useCategoryTranslations(categoryId);
@@ -376,16 +378,61 @@ export default function CategoryPage() {
                       }))
                     }
                     value={data?.parentId || ""}
-                    className="w-full rounded-none border-none  bg-white px-5 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
+                    className="w-full rounded-none border-none bg-white px-5 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
                   >
                     <option value="">None</option>
                     {categories &&
                       categories?.map((category) => {
                         if (category.id === categoryId) return;
+                        if (!!category.parentId) return;
+
                         return (
-                          <option value={category.id} key={category.id}>
-                            {category.title}
-                          </option>
+                          <>
+                            <option value={category.id} key={category.id}>
+                              {category.title}
+                            </option>
+                            {category.children.map((child) => {
+                              return (
+                                <>
+                                  <option
+                                    className="pl-4"
+                                    value={child.id}
+                                    key={child.id}
+                                  >
+                                    - {child.title}
+                                  </option>
+                                  {child.children.map((subchild) => {
+                                    return (
+                                      <>
+                                        <option
+                                          className="pl-4"
+                                          value={subchild.id}
+                                          key={subchild.id}
+                                        >
+                                          -- {subchild.title}
+                                        </option>
+                                        {subchild.children.map(
+                                          (subsubchild) => {
+                                            return (
+                                              <>
+                                                <option
+                                                  className="pl-4"
+                                                  value={subsubchild.id}
+                                                  key={subsubchild.id}
+                                                >
+                                                  --- {subsubchild.title}
+                                                </option>
+                                              </>
+                                            );
+                                          }
+                                        )}
+                                      </>
+                                    );
+                                  })}
+                                </>
+                              );
+                            })}
+                          </>
                         );
                       })}
                   </select>
