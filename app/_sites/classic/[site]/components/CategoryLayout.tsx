@@ -52,7 +52,7 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
             priority
           />
         </div>
-        <div className="lg:font-xl col-span-1 flex flex-col items-start divide-x-2 bg-slate-100">
+        <div className="lg:font-xl col-span-1 flex flex-col items-start divide-x-2 overflow-hidden rounded-2xl bg-slate-100">
           {category.navigation && category.navigation.length > 0 && (
             <CategoryNavigation
               className="flex flex-wrap"
