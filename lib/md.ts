@@ -11,6 +11,7 @@ export const md = new MarkdownIt({
   .use(require("markdown-it-deflist"))
   .use(require("markdown-it-abbr"))
   .use(require("markdown-it-anchor"))
+  .use(require("markdown-it-iframe"))
   .use(require("markdown-it-table-of-contents"), {
     slugify: true,
     containerClass:
