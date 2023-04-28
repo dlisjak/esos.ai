@@ -7,12 +7,20 @@ export async function revalidate(
   category: any,
   post: any = null
 ) {
-  const urlPaths = [`/_sites/classic/${site.subdomain}/${lang}`];
+  const urlPaths = [
+    `/_sites/classic/${site.subdomain}/${lang}`,
+    `/_sites/classic/${site.customDomain}/${lang}`,
+  ];
 
   if (post) {
     if (category) {
       urlPaths.push(
         `/_sites/classic/${site.subdomain}/${lang}/${
+          category.slug + "/" + post.slug
+        }`
+      );
+      urlPaths.push(
+        `/_sites/classic/${site.customDomain}/${lang}/${
           category.slug + "/" + post.slug
         }`
       );
@@ -22,12 +30,20 @@ export async function revalidate(
             category.parent.slug + "/" + category.slug + "/" + post.slug
           }`
         );
+        urlPaths.push(
+          `/_sites/classic/${site.customDomain}/${lang}/${
+            category.parent.slug + "/" + category.slug + "/" + post.slug
+          }`
+        );
       }
     }
   }
 
   if (category) {
     urlPaths.push(`/_sites/classic/${site.subdomain}/${lang}/${category.slug}`);
+    urlPaths.push(
+      `/_sites/classic/${site.customDomain}/${lang}/${category.slug}`
+    );
 
     if (category.parent) {
       urlPaths.push(
@@ -35,10 +51,23 @@ export async function revalidate(
           category.parent.slug + "/" + category.slug
         }`
       );
+      urlPaths.push(
+        `/_sites/classic/${site.customDomain}/${lang}/${
+          category.parent.slug + "/" + category.slug
+        }`
+      );
 
       if (category.parent.parent) {
         urlPaths.push(
           `/_sites/classic/${site.subdomain}/${lang}/${
+            category.parent.parent.slug +
+            category.parent.slug +
+            "/" +
+            category.slug
+          }`
+        );
+        urlPaths.push(
+          `/_sites/classic/${site.customDomain}/${lang}/${
             category.parent.parent.slug +
             category.parent.slug +
             "/" +
@@ -56,10 +85,29 @@ export async function revalidate(
               category.slug
             }`
           );
+          urlPaths.push(
+            `/_sites/classic/${site.customDomain}/${lang}/${
+              category.parent.parent.parent.slug +
+              category.parent.parent.slug +
+              category.parent.slug +
+              "/" +
+              category.slug
+            }`
+          );
 
           if (category.parent.parent.parent.parent) {
             urlPaths.push(
               `/_sites/classic/${site.subdomain}/${lang}/${
+                category.parent.parent.parent.parent.slug +
+                category.parent.parent.parent.slug +
+                category.parent.parent.slug +
+                category.parent.slug +
+                "/" +
+                category.slug
+              }`
+            );
+            urlPaths.push(
+              `/_sites/classic/${site.customDomain}/${lang}/${
                 category.parent.parent.parent.parent.slug +
                 category.parent.parent.parent.slug +
                 category.parent.parent.slug +
