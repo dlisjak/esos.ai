@@ -52,9 +52,15 @@ export async function revalidate(
         }`
       );
       urlPaths.push(
+        `/_sites/classic/${site.subdomain}/${lang}/${category.parent.slug}`
+      );
+      urlPaths.push(
         `/_sites/classic/${site.customDomain}/${lang}/${
           category.parent.slug + "/" + category.slug
         }`
+      );
+      urlPaths.push(
+        `/_sites/classic/${site.customDomain}/${lang}/${category.parent.slug}`
       );
 
       if (category.parent.parent) {
@@ -67,11 +73,21 @@ export async function revalidate(
           }`
         );
         urlPaths.push(
+          `/_sites/classic/${site.subdomain}/${lang}/${
+            category.parent.parent.slug + category.parent.slug
+          }`
+        );
+        urlPaths.push(
           `/_sites/classic/${site.customDomain}/${lang}/${
             category.parent.parent.slug +
             category.parent.slug +
             "/" +
             category.slug
+          }`
+        );
+        urlPaths.push(
+          `/_sites/classic/${site.customDomain}/${lang}/${
+            category.parent.parent.slug + category.parent.slug
           }`
         );
 
@@ -86,12 +102,26 @@ export async function revalidate(
             }`
           );
           urlPaths.push(
+            `/_sites/classic/${site.subdomain}/${lang}/${
+              category.parent.parent.parent.slug +
+              category.parent.parent.slug +
+              category.parent.slug
+            }`
+          );
+          urlPaths.push(
             `/_sites/classic/${site.customDomain}/${lang}/${
               category.parent.parent.parent.slug +
               category.parent.parent.slug +
               category.parent.slug +
               "/" +
               category.slug
+            }`
+          );
+          urlPaths.push(
+            `/_sites/classic/${site.customDomain}/${lang}/${
+              category.parent.parent.parent.slug +
+              category.parent.parent.slug +
+              category.parent.slug
             }`
           );
 
@@ -107,6 +137,14 @@ export async function revalidate(
               }`
             );
             urlPaths.push(
+              `/_sites/classic/${site.subdomain}/${lang}/${
+                category.parent.parent.parent.parent.slug +
+                category.parent.parent.parent.slug +
+                category.parent.parent.slug +
+                category.parent.slug
+              }`
+            );
+            urlPaths.push(
               `/_sites/classic/${site.customDomain}/${lang}/${
                 category.parent.parent.parent.parent.slug +
                 category.parent.parent.parent.slug +
@@ -114,6 +152,14 @@ export async function revalidate(
                 category.parent.slug +
                 "/" +
                 category.slug
+              }`
+            );
+            urlPaths.push(
+              `/_sites/classic/${site.customDomain}/${lang}/${
+                category.parent.parent.parent.parent.slug +
+                category.parent.parent.parent.slug +
+                category.parent.parent.slug +
+                category.parent.slug
               }`
             );
           }
