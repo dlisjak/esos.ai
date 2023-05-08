@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "./Link";
 
 import { toDateString } from "@/lib/utils";
-import { getPostSlug } from "@/lib/getPostSlug";
 
 interface CategoryPostsProps {
   category: any;
@@ -32,7 +31,7 @@ const CategoryPosts = ({ category, lang }: CategoryPostsProps) => {
         <p className="m-auto text-sm font-light text-gray-500 md:text-base">
           {toDateString(post.updatedAt)}
         </p>
-        <Link lang={lang} href={getPostSlug(post, post.category)}>
+        <Link href={post.slug} lang={lang}>
           <h3 className="my-2 text-2xl font-bold hover:underline md:text-3xl">
             {post.title}
           </h3>

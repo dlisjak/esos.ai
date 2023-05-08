@@ -22,12 +22,7 @@ const PostCard = ({
 }: PostCardProps) => {
   return (
     <div className={className}>
-      <Link
-        lang={lang}
-        href={`${
-          post.category?.parent?.slug ? "/" + post.category?.parent?.slug : ""
-        }/${post.category?.slug}/${post.slug}`}
-      >
+      <Link lang={lang} href={getPostSlug(post, post.category)}>
         <div className="group relative mx-auto aspect-[4/3] w-full overflow-hidden">
           <Image
             alt={post.image?.alt ?? ""}

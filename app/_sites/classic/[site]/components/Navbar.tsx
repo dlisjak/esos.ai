@@ -43,7 +43,7 @@ const Navigation = ({ categories, site, logo, lang }: NavigationProps) => {
               <li className="dropdown relative mx-2 sm:mx-4" key={slug}>
                 <Link
                   lang={lang}
-                  href={`/${slug}`}
+                  href={slug}
                   className="flex justify-center rounded p-2 hover:underline"
                 >
                   <span>{title}</span>
