@@ -10,8 +10,7 @@ interface LinkProps {
 }
 
 const Link = ({ className = "", href, lang = "", children }: LinkProps) => {
-  const url = `/${lang}/${href}`;
-  console.log({ url });
+  const url = `/${lang}/${href}`.replace("//", "/");
 
   return (
     <NextLink href={url} className={className}>
