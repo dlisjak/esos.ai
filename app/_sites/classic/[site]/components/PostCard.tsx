@@ -1,3 +1,4 @@
+import { getPostSlug } from "@/lib/getPostSlug";
 import { toDateString } from "@/lib/utils";
 import Image from "next/image";
 import CategoryBubble from "./CategoryBubble";
@@ -69,12 +70,7 @@ const PostCard = ({
             </p>
           </div>
         </div>
-        <Link
-          lang={lang}
-          href={`${
-            post.category?.parent?.slug ? "/" + post.category?.parent?.slug : ""
-          }/${post.category?.slug}/${post.slug}`}
-        >
+        <Link lang={lang} href={getPostSlug(post, post.category)}>
           {h3 ? (
             <h3 className="my-2 text-2xl font-bold hover:underline md:text-3xl">
               {post.title}
