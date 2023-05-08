@@ -9,9 +9,12 @@ interface LinkProps {
   children: any;
 }
 
-const Link = ({ className = "", href, lang = "en", children }: LinkProps) => {
+const Link = ({ className = "", href, lang = "", children }: LinkProps) => {
+  const url = `/${lang}/${href}`;
+  console.log({ url });
+
   return (
-    <NextLink href={`/${lang}${href}`} className={className}>
+    <NextLink href={url} className={className}>
       {children}
     </NextLink>
   );

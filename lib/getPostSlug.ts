@@ -8,7 +8,7 @@ export const getPostSlug = (post: any, category: any): any => {
 
   slugs.push(post.slug);
 
-  return "/" + slugs.join("/");
+  return slugs.join("/");
 };
 
 export const getCategorySlug = (category: any): any => {
@@ -19,5 +19,5 @@ export const getCategorySlug = (category: any): any => {
     category = category.parent;
   }
 
-  return "/" + slugs.join("/");
+  return slugs.join("/");
 };
