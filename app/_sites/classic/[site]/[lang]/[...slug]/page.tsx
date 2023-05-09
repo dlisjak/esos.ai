@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 import PostBody from "../../components/PostBody";
 import CategoryLayout from "../../components/CategoryLayout";
 
 import prisma from "@/lib/prisma";
 import { getDictionary } from "app/dictionaries";
-
 interface PageParams {
   site: string;
   slug: string;
@@ -1139,6 +1139,18 @@ const getData = async (site: string, slugObj: string, lang: string) => {
     category: null,
   };
 };
+
+export async function generateMetadata({ params }: any): Promise<Metadata> {
+  const { post, category } = await getData(
+    params.site,
+    params.slug,
+    params.lang
+  );
+
+  const title = post?.title || category?.title;
+
+  return { title };
+}
 
 export default async function Page({
   params: { site, slug, lang },

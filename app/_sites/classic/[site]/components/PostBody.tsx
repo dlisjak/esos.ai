@@ -6,7 +6,7 @@ import Breadcrumbs from "./Breadcrumbs";
 
 import { toDateString } from "@/lib/utils";
 import { md } from "@/lib/md";
-import { getCategorySlug, getPostSlug } from "@/lib/getPostSlug";
+import { getCategorySlug } from "@/lib/getPostSlug";
 
 interface PostBodyProps {
   post: any;
