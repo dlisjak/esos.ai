@@ -7,6 +7,7 @@ import Breadcrumbs from "./Breadcrumbs";
 import { toDateString } from "@/lib/utils";
 import { md } from "@/lib/md";
 import { getCategorySlug } from "@/lib/getPostSlug";
+import { replaceInternalLinks } from "@/lib/localiseLinks";
 
 interface PostBodyProps {
   post: any;
@@ -53,7 +54,9 @@ const PostBody = ({ post, lang }: PostBodyProps) => {
           </div>
           <div
             className="prose lg:prose-lg prose-a:text-blue-600 hover:prose-a:text-blue-500"
-            dangerouslySetInnerHTML={{ __html: md.render(post.content) }}
+            dangerouslySetInnerHTML={{
+              __html: md.render(replaceInternalLinks(post.content, lang)),
+            }}
           />
         </div>
       </div>

@@ -1,17 +1,18 @@
 import Image from "next/image";
+import Toc from "react-toc";
+import { notFound } from "next/navigation";
 
 import CategoryPosts from "./CategoryPosts";
 
-import { md } from "@/lib/md";
-import SubCategories from "./SubCategories";
-import { notFound } from "next/navigation";
-import Breadcrumbs from "./Breadcrumbs";
-import CategoryNavigation from "./CategoryNavigation";
-import { Dict } from "app/dictionaries";
-import Toc from "react-toc";
-import CategoryBubble from "./CategoryBubble";
 import { getCategorySlug } from "@/lib/getPostSlug";
 import { toDateString } from "@/lib/utils";
+import { md } from "@/lib/md";
+import { Dict } from "app/dictionaries";
+import SubCategories from "./SubCategories";
+import Breadcrumbs from "./Breadcrumbs";
+import CategoryNavigation from "./CategoryNavigation";
+import CategoryBubble from "./CategoryBubble";
+import { replaceInternalLinks } from "@/lib/localiseLinks";
 
 interface CategoryLayoutProps {
   category: any;
@@ -65,7 +66,9 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
         <div className="col-span-1 grid grid-cols-3 gap-4 lg:grid-cols-4">
           <div
             className="prose col-span-3 mx-auto w-full pt-4 text-justify lg:prose-lg prose-a:text-blue-600 hover:prose-a:text-blue-500"
-            dangerouslySetInnerHTML={{ __html: md.render(category.bodyText) }}
+            dangerouslySetInnerHTML={{
+              __html: md.render(replaceInternalLinks(category.bodyText, lang)),
+            }}
           />
           <div className="static col-span-1 flex hidden flex-col lg:flex">
             <Toc
