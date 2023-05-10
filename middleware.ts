@@ -86,6 +86,12 @@ export default async function middleware(req: NextRequest) {
     );
   }
 
+  if (path === "/en/internal-links.json") {
+    return NextResponse.rewrite(
+      new URL(`/api/internal-links?currentHost=${currentHost}`, req.url)
+    );
+  }
+
   const pathnameIsMissingLocale = locales.every(
     (locale) =>
       !path.startsWith(`/${locale.lang}/`) && path !== `/${locale.lang}`
