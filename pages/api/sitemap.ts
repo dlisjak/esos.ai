@@ -147,7 +147,7 @@ export default async function handler(req: any, res: any) {
 
   sitemap.forEach((url: string) => {
     stp += `<url>
-    <loc>${url}</loc>
+    <loc>${url.replace("/home", "")}</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
     </url>`;
