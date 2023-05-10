@@ -113,6 +113,34 @@ const getData = async (site: string, lang: string) => {
     },
   });
 
+  const homepage = await prisma.category.findFirst({
+    where: {
+      site: filter,
+      slug: "home",
+    },
+    select: {
+      title: true,
+      slug: true,
+      children: {
+        where: {
+          translations: {
+            some: {
+              lang,
+            },
+          },
+        },
+        select: {
+          title: true,
+          slug: true,
+        },
+      },
+    },
+  });
+
+  if (homepage) {
+    return { data, categories: homepage.children };
+  }
+
   const categories = await prisma.category.findMany({
     where: {
       site: filter,
