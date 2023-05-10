@@ -17,7 +17,7 @@ const Navigation = ({ categories, site, logo, lang }: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="navigation top-0 left-0 right-0 z-50 bg-white py-2 px-4 drop-shadow">
+    <div className="navigation fixed top-0 left-0 right-0 z-50 bg-white py-2 px-4 drop-shadow">
       <div className="container mx-auto flex max-w-screen-xl items-center justify-between">
         <Link className="flex items-center" href="/" lang={lang}>
           {logo && (

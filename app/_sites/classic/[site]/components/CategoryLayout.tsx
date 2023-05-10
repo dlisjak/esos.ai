@@ -72,7 +72,7 @@ const CategoryLayout = ({ category, lang, dict }: CategoryLayoutProps) => {
           />
           <div className="static col-span-1 flex hidden flex-col lg:flex">
             <Toc
-              className="table-of-contents lg:font-xl sticky top-4 flex flex-col items-start divide-x-2 rounded-2xl bg-slate-100 py-2"
+              className="table-of-contents lg:font-xl sticky top-16 top-4 flex flex-col items-start divide-x-2 rounded-2xl bg-slate-100 py-2"
               markdownText={category.content}
               lowestHeadingLevel={2}
             />

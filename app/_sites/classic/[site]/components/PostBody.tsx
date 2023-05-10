@@ -38,7 +38,7 @@ const PostBody = ({ post, lang }: PostBodyProps) => {
           />
         </div>
         <Toc
-          className="table-of-contents lg:font-xl col-span-1 flex flex-col items-start divide-x-2 bg-slate-100 py-2 lg:order-3"
+          className="table-of-contents lg:font-xl top-16 col-span-1 flex flex-col items-start divide-x-2 bg-slate-100 py-2 lg:order-3"
           markdownText={post.content}
         />
         <div className="col-span-1 sm:order-3 sm:col-span-2 lg:order-2 lg:row-span-3">
