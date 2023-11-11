@@ -51,12 +51,15 @@ const Home = () => {
             <>
               <Link
                 className="button mr-4"
-                href="https://app.aiautoblogs.com"
+                href={
+                  process.env.NEXT_PUBLIC_APP_URL ||
+                  "https://app.aiautoblogs.com"
+                }
                 target="_blank"
               >
                 Try For Free
               </Link>
-              <Link className="button" href="#Features">
+              <Link className="button" href="/#Features">
                 Features
               </Link>
             </>

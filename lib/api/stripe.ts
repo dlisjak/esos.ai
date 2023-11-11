@@ -35,7 +35,9 @@ export async function processSuccess(
     if (!session.client_reference_id)
       return res.status(200).end("Cannot find Client Reference Id");
 
-    const subscription = getSubscriptionFromPrice(session.amount_total);
+    const lineItems = await stripeApi.checkout.sessions.listLineItems(userId);
+
+    const subscription = lineItems?.data?.[0].description;
 
     const user = await prisma?.user.update({
       where: {
@@ -73,4 +75,6 @@ const getSubscriptionFromPrice = (amountTotal: number) => {
   if (amountTotal === 49995) {
     return "advanced";
   }
+
+  // return "trial";
 };

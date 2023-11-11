@@ -25,6 +25,9 @@ const Navigation = () => {
             </Link>
           </li>
           <li className="hover:underline">
+            <Link href="/refund-policy">Refund Policy</Link>
+          </li>
+          <li className="hover:underline">
             <Link href="/terms-of-service">Terms of Service</Link>
           </li>
           <li className="hover:underline">

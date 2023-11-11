@@ -14,7 +14,7 @@ export default function Subscribed({ userId }: any) {
 
   if (user?.subscription) {
     toast.success("Subcription Active!");
-    router.push("/");
+    router.push("/account");
   }
 
   return (
