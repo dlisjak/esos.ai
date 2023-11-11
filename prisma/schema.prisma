@@ -24,7 +24,7 @@ model User {
   sessions      Session[]
   sites         Site[]
   prompts       Prompt[]
-  credits       Int?      @default(20)
+  credits       Int?      @default(0)
   accessToken   String?   @db.LongText
   images        Image[]
   subscription  String?

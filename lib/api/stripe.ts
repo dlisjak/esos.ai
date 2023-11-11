@@ -38,6 +38,7 @@ export async function processSuccess(
     const lineItems = await stripeApi.checkout.sessions.listLineItems(userId);
 
     const subscription = lineItems?.data?.[0].description;
+    const incrementCredits = getCreditsBySubscription(subscription);
 
     const user = await prisma?.user.update({
       where: {
@@ -46,6 +47,9 @@ export async function processSuccess(
       data: {
         subscription,
         isSubscribed: true,
+        credits: {
+          increment: incrementCredits,
+        },
       },
     });
 
@@ -56,25 +60,16 @@ export async function processSuccess(
   }
 }
 
-const getSubscriptionFromPrice = (amountTotal: number) => {
-  if (amountTotal === 1295) {
-    return "beginner";
+const getCreditsBySubscription = (subscription: string) => {
+  if (subscription === "Beginner") {
+    return 10;
   }
-  if (amountTotal === 9995) {
-    return "beginner";
+  if (subscription === "Intermediate") {
+    return 25;
   }
-  if (amountTotal === 2495) {
-    return "intermediate";
-  }
-  if (amountTotal === 24995) {
-    return "intermediate";
-  }
-  if (amountTotal === 4995) {
-    return "advanced";
-  }
-  if (amountTotal === 49995) {
-    return "advanced";
+  if (subscription === "Advanced") {
+    return 50;
   }
 
-  // return "trial";
+  return 10;
 };
