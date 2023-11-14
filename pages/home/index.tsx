@@ -24,7 +24,7 @@ import Navigation from "@/components/Navigation";
 
 const Home = () => {
   return (
-    <div className="landing">
+    <div className="landing mt-12">
       <Head>
         <title>AI Auto Blogs</title>
         <link rel="icon" href="/favicon.ico" />
