@@ -17,7 +17,7 @@ import ContainerLoader from "@/components/app/ContainerLoader";
 import { useFeaturedPosts } from "@/lib/queries";
 
 export default function Posts() {
-  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showModal, setModal] = useState<boolean>(false);
   const [creatingPost, setCreatingPost] = useState(false);
   const postTitleRef = useRef<HTMLInputElement | null>(null);
   const postSlugRef = useRef<HTMLInputElement | null>(null);
@@ -121,7 +121,7 @@ export default function Posts() {
       <Header>
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Featured</h1>
-          <AddNewButton onClick={() => setShowModal(true)}>
+          <AddNewButton onClick={() => setModal(true)}>
             Add Post <span className="ml-2">＋</span>
           </AddNewButton>
         </div>
@@ -153,7 +153,7 @@ export default function Posts() {
         )}
       </Container>
 
-      <Modal showModal={showModal} setShowModal={setShowModal}>
+      <Modal showModal={showModal} setModal={setModal}>
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -188,7 +188,7 @@ export default function Posts() {
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
               onClick={() => {
-                setShowModal(false);
+                setModal(false);
               }}
             >
               CANCEL
@@ -208,7 +208,7 @@ export default function Posts() {
           </div>
         </form>
       </Modal>
-      <Modal showModal={showDeleteModal} setShowModal={setShowDeleteModal}>
+      <Modal showModal={showDeleteModal} setModal={setShowDeleteModal}>
         <form
           onSubmit={async (event) => {
             event.preventDefault();

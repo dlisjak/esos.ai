@@ -166,7 +166,7 @@ export default function Prompts() {
       </Container>
       <Modal
         showModal={showCreatePromptModal}
-        setShowModal={setShowCreatePromptModal}
+        setModal={setShowCreatePromptModal}
       >
         <form
           onSubmit={(event) => {

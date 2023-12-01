@@ -501,7 +501,7 @@ export default function SiteSettings() {
               </div>
             </div>
           </Container>
-          <Modal showModal={showDeleteModal} setShowModal={setShowDeleteModal}>
+          <Modal showModal={showDeleteModal} setModal={setShowDeleteModal}>
             <form
               onSubmit={async (event) => {
                 event.preventDefault();

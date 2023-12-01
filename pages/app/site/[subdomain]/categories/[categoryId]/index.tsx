@@ -536,7 +536,7 @@ export default function CategoryPage() {
               </button>
             </div>
           </footer>
-          <Modal showModal={showDeleteModal} setShowModal={setShowDeleteModal}>
+          <Modal showModal={showDeleteModal} setModal={setShowDeleteModal}>
             <form
               onSubmit={async (event) => {
                 event.preventDefault();
@@ -587,7 +587,7 @@ export default function CategoryPage() {
           </Modal>
           <Modal
             showModal={showTranslateModal}
-            setShowModal={setShowTranslateModal}
+            setModal={setShowTranslateModal}
           >
             <form
               onSubmit={async (event) => {

@@ -17,7 +17,7 @@ import ContainerLoader from "@/components/app/ContainerLoader";
 import { usePosts } from "@/lib/queries";
 
 export default function Drafts() {
-  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showModal, setModal] = useState<boolean>(false);
   const [creatingPost, setCreatingPost] = useState(false);
   const postTitleRef = useRef<HTMLInputElement | null>(null);
   const postSlugRef = useRef<HTMLInputElement | null>(null);
@@ -120,7 +120,7 @@ export default function Drafts() {
       <Header>
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Drafts</h1>
-          <AddNewButton onClick={() => setShowModal(true)}>
+          <AddNewButton onClick={() => setModal(true)}>
             Add Post <span className="ml-2">＋</span>
           </AddNewButton>
         </div>
@@ -152,7 +152,7 @@ export default function Drafts() {
         )}
       </Container>
 
-      <Modal showModal={showModal} setShowModal={setShowModal}>
+      <Modal showModal={showModal} setModal={setModal}>
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -187,7 +187,7 @@ export default function Drafts() {
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
               onClick={() => {
-                setShowModal(false);
+                setModal(false);
               }}
             >
               CANCEL
@@ -207,10 +207,7 @@ export default function Drafts() {
           </div>
         </form>
       </Modal>
-      <Modal
-        showModal={showDeletePostModal}
-        setShowModal={setShowDeletePostModal}
-      >
+      <Modal showModal={showDeletePostModal} setModal={setShowDeletePostModal}>
         <form
           onSubmit={async (event) => {
             event.preventDefault();

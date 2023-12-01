@@ -229,7 +229,7 @@ const TextEditor = ({ content, setContent, dataId }) => {
           </div>
         </div>
       </div>
-      <Modal showModal={showGenerateModal} setShowModal={setShowGenerateModal}>
+      <Modal showModal={showGenerateModal} setModal={setShowGenerateModal}>
         <form
           onSubmit={(event) => {
             event.preventDefault();

@@ -46,7 +46,7 @@ export default function CategoryPosts() {
   const [bulkCreateContent, setBulkCreateContent] = useState<boolean>(false);
   const [creatingPost, setCreatingPost] = useState<boolean>(false);
   const [deletingPost, setDeletingPost] = useState<boolean>(false);
-  const [showModal, setShowModal] = useState<{
+  const [showModal, setModal] = useState<{
     isOpen: boolean;
     isWp?: boolean;
   }>({
@@ -239,7 +239,7 @@ export default function CategoryPosts() {
             </AddNewButton> */}
             <AddNewButton
               onClick={() => {
-                setShowModal({ isOpen: true });
+                setModal({ isOpen: true });
               }}
             >
               Add Post <span className="ml-2">＋</span>
@@ -273,7 +273,7 @@ export default function CategoryPosts() {
           </div>
         )}
       </Container>
-      <Modal showModal={showModal.isOpen} setModal={setShowModal}>
+      <Modal showModal={showModal.isOpen} setModal={setModal}>
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -308,7 +308,7 @@ export default function CategoryPosts() {
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
               onClick={() => {
-                setShowModal({ isOpen: false });
+                setModal({ isOpen: false });
               }}
             >
               CANCEL

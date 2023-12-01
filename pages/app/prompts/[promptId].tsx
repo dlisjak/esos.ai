@@ -263,7 +263,7 @@ export default function Prompt() {
               </button>
             </div>
           </footer>
-          <Modal showModal={showDeleteModal} setShowModal={setShowDeleteModal}>
+          <Modal showModal={showDeleteModal} setModal={setShowDeleteModal}>
             <form
               onSubmit={async (event) => {
                 event.preventDefault();

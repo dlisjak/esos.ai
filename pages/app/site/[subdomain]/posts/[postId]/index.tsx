@@ -584,7 +584,7 @@ export default function Post() {
           </footer>
           <Modal
             showModal={showTranslateModal}
-            setShowModal={setShowTranslateModal}
+            setModal={setShowTranslateModal}
           >
             <form
               onSubmit={async (event) => {
