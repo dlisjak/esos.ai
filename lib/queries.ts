@@ -190,7 +190,7 @@ export const useLatestPosts = (
   };
 };
 
-export const useCategories = (subdomain: any, isWordpress: boolean) => {
+export const useCategories = (subdomain: any, isWordpress: boolean = false) => {
   const {
     data: categories,
     error,
