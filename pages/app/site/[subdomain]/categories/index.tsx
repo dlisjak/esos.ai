@@ -17,57 +17,19 @@ import ContainerLoader from "@/components/app/ContainerLoader";
 import { useCategories, usePrompts, useSite, useUser } from "@/lib/queries";
 import { isJsonString } from "@/lib/json";
 import { Category } from "@prisma/client";
+import { queueAsyncFns } from "@/lib/queryFns";
 
 const JSON_PLACEHOLDER = `{
-	"categories": [{
-		"title": "TITLE",
-		"slug": "SLUG",
-		"imageId": "ID of uploaded image",
-		"children": [{
-			"title": "TITLE",
-			"slug": "SLUG",
-      "imageId": "ID of uploaded image",
-			"children": [{
-					"title": "TITLE",
-					"slug": "SLUG",
-          "imageId": "ID of uploaded image",
-					"children": [{
-						"title": "TITLE",
-						"slug": "SLUG",
-            "imageId": "ID of uploaded image",
-						"children": [{
-								"title": "TITLE",
-								"slug": "SLUG",
-                "imageId": "ID of uploaded image"
-							},
-							{
-								"title": "TITLE",
-								"slug": "SLUG",
-                "imageId": "ID of uploaded image"
-							}
-						]
-					}]
-				},
-				{
-					"title": "TITLE",
-					"slug": "SLUG",
-					"children": [{
-						"title": "TITLE",
-						"slug": "SLUG",
-						"children": [{
-								"title": "TITLE",
-								"slug": "SLUG"
-							},
-							{
-								"title": "TITLE",
-								"slug": "SLUG"
-							}
-						]
-					}]
-				}
-			]
-		}]
-	}]
+  "categories": [
+      {
+        "title": "Category Title (required)",
+        "slug": "Category Slug (optional)",
+      },
+      {
+        "title": "Category Title (required)",
+        "slug": "Category Slug (optional)",
+      }
+  ]
 }`;
 
 export default function SiteCategories() {
@@ -251,7 +213,8 @@ export default function SiteCategories() {
   };
 
   async function bulkCreateCategories(
-    subdomain: string | string[] | undefined
+    subdomain: string | string[] | undefined,
+    isWordpress: boolean = false
   ) {
     if (!subdomain) return;
     if (bulkCreateContent && !importContentPromptId) return;
@@ -262,11 +225,12 @@ export default function SiteCategories() {
     }
     const { categories } = JSON.parse(json);
 
-    const data = {
+    const data: any = {
       userId: user.id,
       subdomain,
       categories,
       bulkCreateContent,
+      isWordpress,
       promptId: importContentPromptId,
     };
 
@@ -276,15 +240,69 @@ export default function SiteCategories() {
 
     try {
       setBulkCreatingContent(true);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/category/import`,
-        {
+
+      console.log({ user });
+      console.log({ prompts });
+
+      const createContent = async (category: any, prompt: any) => {
+        const regex = new RegExp(/\[(.*?)\]/g);
+        const command =
+          prompt?.command?.replaceAll(regex, category.title) ?? null;
+
+        const response = await fetch(`/api/stream`, {
+          method: HttpMethod.POST,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: command,
+            useGPT_4: true,
+            openAIKey: user.openAIKey,
+          }),
+        });
+
+        if (!response.ok) {
+          return toast.error(response.statusText);
+        }
+
+        const resData = response.body;
+        if (!resData) {
+          return;
+        }
+
+        const reader = resData.getReader();
+        const decoder = new TextDecoder();
+        let content = "";
+        let done = false;
+
+        while (!done) {
+          const { value, done: doneReading } = await reader.read();
+          done = doneReading;
+          const chunkValue = decoder.decode(value);
+          content = content += chunkValue;
+          console.log(content);
+        }
+
+        data.description = content;
+        data.title = category.title;
+
+        const created = await fetch(`/api/category?subdomain=${subdomain}`, {
           method: HttpMethod.POST,
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(data),
-        }
+        });
+      };
+
+      const res = await queueAsyncFns(
+        categories.map(
+          (category: any) => () =>
+            createContent(
+              category,
+              prompts.find((prompt) => prompt.id === importContentPromptId)
+            )
+        )
       );
 
       if (res.ok) {
@@ -292,16 +310,16 @@ export default function SiteCategories() {
 
         toast.success(`Categories Imported`);
 
-        await fetch("/api/category/revalidate", {
-          method: HttpMethod.POST,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            subdomain,
-            mainCategories: body.mainCategories,
-          }),
-        });
+        // await fetch("/api/category/revalidate", {
+        //   method: HttpMethod.POST,
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({
+        //     subdomain,
+        //     mainCategories: body.mainCategories,
+        //   }),
+        // });
       }
     } catch (error) {
       console.error(error);
@@ -320,12 +338,14 @@ export default function SiteCategories() {
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Categories</h1>
           <div className="flex space-x-2">
-            {/* <AddNewButton
-              onClick={() => setShowImportCategoriesModal(true)}
-              light
-            >
-              Import <span className="ml-2">＋</span>
-            </AddNewButton> */}
+            {site?.isWordpress && (
+              <AddNewButton
+                onClick={() => setShowImportCategoriesModal(true)}
+                light
+              >
+                Import <span className="ml-2">＋</span>
+              </AddNewButton>
+            )}
             <AddNewButton
               onClick={() => setShowCategoryModal({ isOpen: true })}
             >
@@ -419,7 +439,7 @@ export default function SiteCategories() {
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            bulkCreateCategories(subdomain);
+            bulkCreateCategories(subdomain, site?.isWordpress);
           }}
           className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
         >
@@ -444,7 +464,8 @@ export default function SiteCategories() {
               </div>
               <div className="mt-auto flex items-center justify-between">
                 <label className="text-sm hover:cursor-pointer" htmlFor="check">
-                  Generate Content for Categories
+                  Generate {site?.isWordpress ? "Description" : "Content"} for
+                  Categories
                 </label>
                 <input
                   className="ml-2 hover:cursor-pointer"

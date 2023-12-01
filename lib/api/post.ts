@@ -55,6 +55,10 @@ export async function getPost(
 ): Promise<void | NextApiResponse<WithSitePost[] | (WithSitePost | null)>> {
   const { postId, subdomain, categoryId, published, isWordpress } = req.query;
 
+  console.log({ isWordpress });
+
+  const isWp = isWordpress === "true";
+
   if (
     Array.isArray(postId) ||
     Array.isArray(subdomain) ||
@@ -65,7 +69,7 @@ export async function getPost(
     return res.status(400).end("Bad request. Query parameters are not valid.");
 
   try {
-    if (isWordpress) {
+    if (isWp) {
       const site = await prisma.site.findFirst({
         where: {
           userId: session.user.id,
@@ -176,6 +180,8 @@ export async function createPost(
   const { subdomain, isWordpress } = req.query;
   const { title, slug, categoryId } = req.body;
 
+  const isWp = isWordpress === "true";
+
   if (!subdomain || typeof subdomain !== "string" || !session?.user?.id) {
     return res
       .status(400)
@@ -183,7 +189,7 @@ export async function createPost(
   }
 
   try {
-    if (isWordpress) {
+    if (isWp) {
       const site = await prisma.site.findFirst({
         where: {
           subdomain,
@@ -267,6 +273,8 @@ export async function deletePost(
 ): Promise<void | NextApiResponse> {
   const { postId, subdomain, isWordpress } = req.query;
 
+  const isWp = isWordpress === "true";
+
   if (
     !postId ||
     typeof postId !== "string" ||
@@ -279,7 +287,7 @@ export async function deletePost(
   }
 
   try {
-    if (isWordpress) {
+    if (isWp) {
       const site = await prisma.site.findFirst({
         where: {
           subdomain,
@@ -728,11 +736,13 @@ export async function getLatestPosts(
 ): Promise<void | NextApiResponse<WithSitePost[]>> {
   const { subdomain, limit, isWordpress } = req.query;
 
+  const isWp = isWordpress === "true";
+
   if (Array.isArray(limit) || Array.isArray(subdomain) || !session.user.id)
     return res.status(400).end("Bad request. Query parameters are not valid.");
 
   try {
-    if (isWordpress) {
+    if (isWp) {
       const site = await prisma.site.findFirst({
         where: {
           userId: session.user.id,

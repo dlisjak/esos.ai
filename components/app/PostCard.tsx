@@ -100,7 +100,7 @@ const PostCard = ({
         <div className="flex h-full items-end justify-between space-x-2">
           <button
             className="flex whitespace-nowrap rounded bg-red-600 px-3 py-1 tracking-wide text-white duration-200 hover:bg-red-500"
-            onClick={() => removePostClick(id, title)}
+            onClick={() => removePostClick(post)}
           >
             Delete
           </button>

@@ -14,7 +14,8 @@ import AddNewButton from "@/components/app/AddNewButton";
 import Container from "@/components/Layout/Container";
 import Header from "@/components/Layout/Header";
 import ContainerLoader from "@/components/app/ContainerLoader";
-import { usePosts } from "@/lib/queries";
+import { usePosts, useSite } from "@/lib/queries";
+import { Post } from "@prisma/client";
 
 export default function Posts() {
   const [showDeleteModal, setShowDeleteModal] = useState<{
@@ -34,8 +35,8 @@ export default function Posts() {
 
   const [creatingPost, setCreatingPost] = useState<boolean>(false);
   const [deletingPost, setDeletingPost] = useState<boolean>(false);
-  const [deletingPostTitle, setDeletingPostTitle] = useState();
-  const [deletingPostId, setDeletingPostId] = useState();
+  const [deletingPostTitle, setDeletingPostTitle] = useState<string>();
+  const [deletingPostId, setDeletingPostId] = useState<string>();
 
   const postTitleRef = useRef<HTMLInputElement | null>(null);
   const postSlugRef = useRef<HTMLInputElement | null>(null);
@@ -43,7 +44,13 @@ export default function Posts() {
   const router = useRouter();
   const { subdomain } = router.query;
 
-  const { posts, isLoading, mutateSubdomainPosts } = usePosts(subdomain, true);
+  const { site } = useSite(subdomain && subdomain);
+
+  const { posts, isLoading, mutateSubdomainPosts } = usePosts(
+    subdomain,
+    true,
+    site?.isWordpress
+  );
 
   async function createPost(subdomain: string | string[] | undefined) {
     if (!subdomain) return;
@@ -72,14 +79,17 @@ export default function Posts() {
     }
   }
 
-  async function deletePost(postId: any) {
+  async function deletePost(postId: any, isWordpress: boolean = false) {
     if (!postId) return;
     setDeletingPost(true);
 
     try {
-      const res = await fetch(`/api/post?postId=${postId}`, {
-        method: HttpMethod.DELETE,
-      });
+      const res = await fetch(
+        `/api/post?postId=${postId}&isWordpress=${isWordpress}&subdomain=${subdomain}`,
+        {
+          method: HttpMethod.DELETE,
+        }
+      );
 
       if (res.ok) {
         toast.success(`Post Deleted`);
@@ -101,10 +111,10 @@ export default function Posts() {
     postSlugRef.current.value = slug;
   };
 
-  const handleRemovePostClick = (postId: any, postTitle: any) => {
-    setDeletingPostId(postId);
-    setDeletingPostTitle(postTitle);
-    setShowDeleteModal({ isOpen: true });
+  const handleRemovePostClick = (post: Post & { isWordpress: boolean }) => {
+    setDeletingPostId(post.id);
+    setDeletingPostTitle(post.title as string);
+    setShowDeleteModal({ isOpen: true, isWp: post.isWordpress });
   };
 
   const makeFeatured = async (postId: any, isFeatured: any) => {
@@ -228,7 +238,7 @@ export default function Posts() {
         <form
           onSubmit={async (event) => {
             event.preventDefault();
-            await deletePost(deletingPostId);
+            await deletePost(deletingPostId, showDeleteModal.isWp);
           }}
           className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
         >

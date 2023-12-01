@@ -14,21 +14,34 @@ import AddNewButton from "@/components/app/AddNewButton";
 import Container from "@/components/Layout/Container";
 import Header from "@/components/Layout/Header";
 import ContainerLoader from "@/components/app/ContainerLoader";
-import { usePosts } from "@/lib/queries";
+import { usePosts, useSite } from "@/lib/queries";
+import { Post } from "@prisma/client";
 
 export default function Drafts() {
   const [showModal, setModal] = useState<boolean>(false);
   const [creatingPost, setCreatingPost] = useState(false);
   const postTitleRef = useRef<HTMLInputElement | null>(null);
   const postSlugRef = useRef<HTMLInputElement | null>(null);
-  const [deletingPostId, setDeletingPostId] = useState();
-  const [deletingPostTitle, setDeletingPostTitle] = useState();
-  const [showDeletePostModal, setShowDeletePostModal] = useState(false);
+  const [deletingPostId, setDeletingPostId] = useState<string>();
+  const [deletingPostTitle, setDeletingPostTitle] = useState<string>();
+  const [showDeletePostModal, setShowDeletePostModal] = useState<{
+    isOpen: boolean;
+    isWp?: boolean;
+  }>({
+    isOpen: false,
+    isWp: false,
+  });
   const [deletingPost, setDeletingPost] = useState(false);
   const router = useRouter();
   const { subdomain } = router.query;
 
-  const { posts, isLoading, mutateSubdomainPosts } = usePosts(subdomain, false);
+  const { site } = useSite(subdomain && subdomain);
+
+  const { posts, isLoading, mutateSubdomainPosts } = usePosts(
+    subdomain,
+    false,
+    site?.isWordpress
+  );
 
   async function createPost(subdomain: string | string[] | undefined) {
     if (!subdomain) return;
@@ -57,14 +70,17 @@ export default function Drafts() {
     }
   }
 
-  async function deletePost(postId: any) {
+  async function deletePost(postId: any, isWordpress: boolean = false) {
     if (!postId) return;
     setDeletingPost(true);
 
     try {
-      const res = await fetch(`/api/post?postId=${postId}`, {
-        method: HttpMethod.DELETE,
-      });
+      const res = await fetch(
+        `/api/post?postId=${postId}&isWordpress=${isWordpress}&subdomain=${subdomain}`,
+        {
+          method: HttpMethod.DELETE,
+        }
+      );
 
       if (res.ok) {
         toast.success(`Post Deleted`);
@@ -74,7 +90,7 @@ export default function Drafts() {
       console.error(error);
     } finally {
       setDeletingPost(false);
-      setShowDeletePostModal(false);
+      setShowDeletePostModal({ isOpen: false });
     }
   }
 
@@ -86,10 +102,10 @@ export default function Drafts() {
     postSlugRef.current.value = slug;
   };
 
-  const handleRemovePostClick = (postId: any, postTitle: any) => {
-    setDeletingPostId(postId);
-    setDeletingPostTitle(postTitle);
-    setShowDeletePostModal(true);
+  const handleRemovePostClick = (post: Post & { isWordpress: boolean }) => {
+    setDeletingPostId(post.id);
+    setDeletingPostTitle(post.title as string);
+    setShowDeletePostModal({ isOpen: true, isWp: post.isWordpress });
   };
 
   const makeFeatured = async (postId: any, isFeatured: any) => {
@@ -207,11 +223,14 @@ export default function Drafts() {
           </div>
         </form>
       </Modal>
-      <Modal showModal={showDeletePostModal} setModal={setShowDeletePostModal}>
+      <Modal
+        showModal={showDeletePostModal.isOpen}
+        setModal={setShowDeletePostModal}
+      >
         <form
           onSubmit={async (event) => {
             event.preventDefault();
-            await deletePost(deletingPostId);
+            await deletePost(deletingPostId, showDeletePostModal.isWp);
           }}
           className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
         >
@@ -237,7 +256,7 @@ export default function Drafts() {
             <button
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-400 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
-              onClick={() => setShowDeletePostModal(false)}
+              onClick={() => setShowDeletePostModal({ isOpen: false })}
             >
               CANCEL
             </button>

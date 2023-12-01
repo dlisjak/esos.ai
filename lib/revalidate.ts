@@ -2,7 +2,7 @@ import { HttpMethod } from "@/types";
 import { Site } from "@prisma/client";
 
 export async function revalidate(
-  site: Site,
+  site: Partial<Site>,
   lang: string = "en",
   category: any,
   post: any = null

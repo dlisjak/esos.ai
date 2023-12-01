@@ -184,7 +184,10 @@ export default function CategoryPosts() {
     }
   };
 
-  const bulkCreatePosts = async (subdomain: string | string[] | undefined) => {
+  const bulkCreatePosts = async (
+    subdomain: string | string[] | undefined,
+    isWordpress: boolean = false
+  ) => {
     if (!subdomain) return;
     if (bulkCreateContent && !importContentPromptId) return;
 
@@ -234,12 +237,20 @@ export default function CategoryPosts() {
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Posts for {category?.title}</h1>
           <div className="flex space-x-2">
-            {/* <AddNewButton onClick={() => setShowBulkCreateModal(true)} light>
+            <AddNewButton
+              onClick={() =>
+                setShowBulkCreateModal({
+                  isOpen: true,
+                  isWp: site?.isWordpress,
+                })
+              }
+              light
+            >
               Import <span className="ml-2">＋</span>
-            </AddNewButton> */}
+            </AddNewButton>
             <AddNewButton
               onClick={() => {
-                setModal({ isOpen: true });
+                setModal({ isOpen: true, isWp: site?.isWordpress });
               }}
             >
               Add Post <span className="ml-2">＋</span>
@@ -335,7 +346,7 @@ export default function CategoryPosts() {
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            bulkCreatePosts(subdomain);
+            bulkCreatePosts(subdomain, site?.isWordpress);
           }}
           className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
         >
