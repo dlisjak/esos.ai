@@ -6,6 +6,7 @@ const CategoryList = ({
   subdomain,
   addPostClick,
   removePostClick,
+  site,
   isChild = false,
   isSubChild = false,
   isSubSubChild = false,
@@ -27,6 +28,7 @@ const CategoryList = ({
           <CategoryCard
             category={category}
             slug={categorySlug}
+            site={site}
             subdomain={subdomain}
             addPostClick={addPostClick}
             removePostClick={removePostClick}

@@ -5,21 +5,17 @@ import type { WithChildren } from "@/types";
 
 interface ModalProps extends WithChildren {
   showModal: boolean;
-  setShowModal: (state: boolean) => void;
+  setModal: (any: any) => void;
 }
 
-export default function Modal({
-  children,
-  showModal,
-  setShowModal,
-}: ModalProps) {
+export default function Modal({ children, showModal, setModal }: ModalProps) {
   return (
     <>
       <Transition appear show={showModal} as={Fragment}>
         <Dialog
           as="div"
           className="fixed inset-0 z-40 overflow-y-auto"
-          onClose={() => setShowModal(false)}
+          onClose={() => setModal({ isOpen: false, isWp: null })}
         >
           <div className="min-h-screen px-4 text-center">
             <Transition.Child

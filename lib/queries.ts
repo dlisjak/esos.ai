@@ -38,10 +38,14 @@ export const useSite = (subdomain: any) => {
     data: site,
     error,
     mutate,
-  } = useSWR<WithImageSite>(`/api/site?subdomain=${subdomain}`, fetcher, {
-    dedupingInterval: 1000,
-    revalidateOnFocus: false,
-  });
+  } = useSWR<WithImageSite>(
+    subdomain ? `/api/site?subdomain=${subdomain}` : null,
+    fetcher,
+    {
+      dedupingInterval: 1000,
+      revalidateOnFocus: false,
+    }
+  );
 
   return {
     site,
@@ -111,13 +115,19 @@ export const usePostTranslations = (postId: any) => {
   };
 };
 
-export const usePosts = (subdomain: any, published: any) => {
+export const usePosts = (
+  subdomain: any,
+  published: any,
+  isWordpress: boolean = false
+) => {
   const {
     data: posts,
     error,
     mutate,
   } = useSWR<WithSitePost[]>(
-    `/api/post?subdomain=${subdomain}&published=${published}`,
+    subdomain
+      ? `/api/post?subdomain=${subdomain}&published=${published}&isWordpress=${isWordpress}`
+      : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -138,7 +148,7 @@ export const useFeaturedPosts = (subdomain: any) => {
     error,
     mutate,
   } = useSWR<FeaturedPost[]>(
-    `/api/post/feature?subdomain=${subdomain}`,
+    subdomain ? `/api/post/feature?subdomain=${subdomain}` : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -153,13 +163,19 @@ export const useFeaturedPosts = (subdomain: any) => {
   };
 };
 
-export const useLatestPosts = (subdomain: any, limit: any) => {
+export const useLatestPosts = (
+  subdomain: any,
+  limit: any,
+  isWordpress: boolean
+) => {
   const {
     data: posts,
     error,
     mutate,
   } = useSWR<Post[]>(
-    `/api/post/latest?subdomain=${subdomain}&limit=${limit}`,
+    subdomain
+      ? `/api/post/latest?subdomain=${subdomain}&limit=${limit}&isWordpress=${isWordpress}`
+      : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -174,13 +190,15 @@ export const useLatestPosts = (subdomain: any, limit: any) => {
   };
 };
 
-export const useCategories = (subdomain: any) => {
+export const useCategories = (subdomain: any, isWordpress: boolean) => {
   const {
     data: categories,
     error,
     mutate,
   } = useSWR<WithAllCategory[]>(
-    `/api/category?subdomain=${subdomain}`,
+    subdomain
+      ? `/api/category?subdomain=${subdomain}&isWordpress=${isWordpress}`
+      : null,
     fetcher,
     {
       dedupingInterval: 1000,
@@ -196,13 +214,15 @@ export const useCategories = (subdomain: any) => {
   };
 };
 
-export const useCategory = (categoryId: any) => {
+export const useCategory = (categoryId: any, isWordpress: boolean = false) => {
   const {
     data: category,
     error,
     mutate,
-  } = useSWR<WithAllCategory>(
-    `/api/category?categoryId=${categoryId}`,
+  } = useSWR<any>(
+    categoryId
+      ? `/api/category?categoryId=${categoryId}&isWordpress=${isWordpress}`
+      : null,
     fetcher,
     {
       dedupingInterval: 1000,

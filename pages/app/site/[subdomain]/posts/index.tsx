@@ -17,11 +17,23 @@ import ContainerLoader from "@/components/app/ContainerLoader";
 import { usePosts } from "@/lib/queries";
 
 export default function Posts() {
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<{
+    isOpen: boolean;
+    isWp?: boolean;
+  }>({
+    isOpen: false,
+    isWp: false,
+  });
+  const [showModal, setModal] = useState<{
+    isOpen: boolean;
+    isWp?: boolean;
+  }>({
+    isOpen: false,
+    isWp: false,
+  });
+
   const [creatingPost, setCreatingPost] = useState<boolean>(false);
   const [deletingPost, setDeletingPost] = useState<boolean>(false);
-  const [showModal, setShowModal] = useState<boolean>(false);
-
   const [deletingPostTitle, setDeletingPostTitle] = useState();
   const [deletingPostId, setDeletingPostId] = useState();
 
@@ -77,7 +89,7 @@ export default function Posts() {
       console.error(error);
     } finally {
       setDeletingPost(false);
-      setShowDeleteModal(false);
+      setShowDeleteModal({ isOpen: false });
     }
   }
 
@@ -92,7 +104,7 @@ export default function Posts() {
   const handleRemovePostClick = (postId: any, postTitle: any) => {
     setDeletingPostId(postId);
     setDeletingPostTitle(postTitle);
-    setShowDeleteModal(true);
+    setShowDeleteModal({ isOpen: true });
   };
 
   const makeFeatured = async (postId: any, isFeatured: any) => {
@@ -124,7 +136,7 @@ export default function Posts() {
         <div className="flex items-center justify-between">
           <h1 className="text-4xl">Published</h1>
           <div className="flex space-x-2">
-            <AddNewButton onClick={() => setShowModal(true)}>
+            <AddNewButton onClick={() => setModal({ isOpen: true })}>
               Add Post <span className="ml-2">＋</span>
             </AddNewButton>
           </div>
@@ -157,7 +169,7 @@ export default function Posts() {
         )}
       </Container>
 
-      <Modal showModal={showModal} setShowModal={setShowModal}>
+      <Modal showModal={showModal.isOpen} setModal={setModal}>
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -192,7 +204,7 @@ export default function Posts() {
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
               onClick={() => {
-                setShowModal(false);
+                setModal({ isOpen: false });
               }}
             >
               CANCEL
@@ -212,7 +224,7 @@ export default function Posts() {
           </div>
         </form>
       </Modal>
-      <Modal showModal={showDeleteModal} setShowModal={setShowDeleteModal}>
+      <Modal showModal={showDeleteModal.isOpen} setModal={setShowDeleteModal}>
         <form
           onSubmit={async (event) => {
             event.preventDefault();
@@ -234,6 +246,7 @@ export default function Posts() {
                 name="name"
                 placeholder="delete"
                 pattern="delete"
+                required
               />
             </div>
           </div>
@@ -241,7 +254,7 @@ export default function Posts() {
             <button
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-400 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
-              onClick={() => setShowDeleteModal(false)}
+              onClick={() => setShowDeleteModal({ isOpen: false })}
             >
               CANCEL
             </button>

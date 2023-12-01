@@ -11,16 +11,21 @@ const CategoryCard = ({
   slug,
   addPostClick,
   removePostClick,
+  site,
   isChild = false,
   isSubChild = false,
   isSubSubChild = false,
   isSubSubSubChild = false,
 }: any) => {
   if (!category) return <></>;
-  const { id, title, image, children, posts, translations } = category;
+  const { id, title, image, children, posts, translations, isWordpress } =
+    category;
 
   const categoryPostsUrl = `/site/${subdomain}/categories/${id}/posts`;
   const categoryEditUrl = `/site/${subdomain}/categories/${id}`;
+  const previewURL = isWordpress
+    ? `https://${site.customDomain}/wp-admin/edit-tags.php?taxonomy=category`
+    : `${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}${slug}`;
   const canDelete = !children?.length;
 
   return (
@@ -59,12 +64,14 @@ const CategoryCard = ({
             <p className="right-1 w-auto rounded bg-gray-100 px-1 text-sm line-clamp-1">
               {slug}
             </p>
-            <Link
-              href={categoryPostsUrl}
-              className="mt-auto text-base line-clamp-1 hover:underline"
-            >
-              Posts({posts.length})
-            </Link>
+            {!isWordpress && (
+              <Link
+                href={categoryPostsUrl}
+                className="mt-auto text-base line-clamp-1 hover:underline"
+              >
+                Posts({posts?.length})
+              </Link>
+            )}
             <div className="mt-auto flex w-full overflow-x-auto text-sm">
               {translations?.map((translation: CategoryTranslation) => (
                 <div
@@ -82,17 +89,19 @@ const CategoryCard = ({
             {canDelete && (
               <button
                 className="flex whitespace-nowrap rounded bg-red-600 px-3 py-1 tracking-wide text-white duration-200 hover:bg-red-500"
-                onClick={() => removePostClick(id, title)}
+                onClick={() => removePostClick(category)}
               >
                 Delete
               </button>
             )}
-            <Link
-              className="flex whitespace-nowrap rounded border bg-white px-3 py-1 tracking-wide text-black duration-200 hover:border-black"
-              href={categoryEditUrl}
-            >
-              Edit
-            </Link>
+            {!isWordpress && (
+              <Link
+                className="flex whitespace-nowrap rounded border bg-white px-3 py-1 tracking-wide text-black duration-200 hover:border-black"
+                href={categoryEditUrl}
+              >
+                Edit
+              </Link>
+            )}
             <Link
               className="flex whitespace-nowrap rounded border bg-white px-3 py-1 tracking-wide text-black duration-200 hover:border-black"
               href={categoryPostsUrl}
@@ -109,7 +118,7 @@ const CategoryCard = ({
         </div>
         <Link
           className="absolute top-4 right-4 flex items-center justify-center rounded bg-slate-400 px-1 tracking-wide text-white duration-200 hover:bg-slate-600"
-          href={`${process.env.NEXT_PUBLIC_DOMAIN_SCHEME}://${subdomain}.${process.env.NEXT_PUBLIC_DOMAIN_URL}${slug}`}
+          href={previewURL}
           rel="noreferrer"
           target="_blank"
         >

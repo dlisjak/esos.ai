@@ -523,6 +523,7 @@ export default function SiteSettings() {
                     name="name"
                     placeholder="delete"
                     pattern="delete"
+                    required
                   />
                 </div>
               </div>

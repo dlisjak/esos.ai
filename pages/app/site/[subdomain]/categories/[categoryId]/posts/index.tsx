@@ -13,9 +13,10 @@ import { toast } from "react-hot-toast";
 import AddNewButton from "@/components/app/AddNewButton";
 import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
-import { useCategory, usePrompts } from "@/lib/queries";
+import { useCategory, usePrompts, useSite } from "@/lib/queries";
 import ContainerLoader from "@/components/app/ContainerLoader";
 import { isJsonString } from "@/lib/json";
+import { Post } from "@prisma/client";
 
 const JSON_PLACEHOLDER = `{
 	"posts": [{
@@ -45,32 +46,54 @@ export default function CategoryPosts() {
   const [bulkCreateContent, setBulkCreateContent] = useState<boolean>(false);
   const [creatingPost, setCreatingPost] = useState<boolean>(false);
   const [deletingPost, setDeletingPost] = useState<boolean>(false);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [showDeletePostModal, setShowDeletePostModal] =
-    useState<boolean>(false);
-  const [showBulkCreateModal, setShowBulkCreateModal] =
-    useState<boolean>(false);
+  const [showModal, setShowModal] = useState<{
+    isOpen: boolean;
+    isWp?: boolean;
+  }>({
+    isOpen: false,
+    isWp: false,
+  });
+  const [showDeletePostModal, setShowDeletePostModal] = useState<{
+    isOpen: boolean;
+    isWp?: boolean;
+  }>({
+    isOpen: false,
+    isWp: false,
+  });
+  const [showBulkCreateModal, setShowBulkCreateModal] = useState<{
+    isOpen: boolean;
+    isWp?: boolean;
+  }>({
+    isOpen: false,
+    isWp: false,
+  });
   const [bulkCreatingContent, setBulkCreatingContent] =
     useState<boolean>(false);
 
   const [importContentPromptId, setImportContentPromptId] =
     useState<string>("");
 
-  const [deletingPostTitle, setDeletingPostTitle] = useState();
-  const [deletingPostId, setDeletingPostId] = useState();
+  const [deletingPostTitle, setDeletingPostTitle] = useState<string | null>();
+  const [deletingPostId, setDeletingPostId] = useState<string>("");
 
   const postsJSONRef = useRef<HTMLTextAreaElement | null>(null);
   const postTitleRef = useRef<HTMLInputElement | null>(null);
   const postSlugRef = useRef<HTMLInputElement | null>(null);
 
   const router = useRouter();
+  const { prompts } = usePrompts();
   const { subdomain, categoryId } = router.query;
 
-  const { category, isLoading, mutateCategory } = useCategory(categoryId);
-  const { prompts } = usePrompts();
+  const { site } = useSite(subdomain);
+
+  const { category, isLoading, mutateCategory } = useCategory(
+    categoryId,
+    site?.isWordpress
+  );
 
   async function createPost(subdomain: string | string[] | undefined) {
     if (!subdomain) return;
+
     setCreatingPost(true);
     if (!postTitleRef.current || !postSlugRef.current) return;
     const title = postTitleRef.current.value;
@@ -100,14 +123,17 @@ export default function CategoryPosts() {
     }
   }
 
-  async function deletePost(postId: any) {
+  async function deletePost(postId: string) {
     if (!postId) return;
     setDeletingPost(true);
 
     try {
-      const res = await fetch(`/api/post?postId=${postId}`, {
-        method: HttpMethod.DELETE,
-      });
+      const res = await fetch(
+        `/api/post?postId=${postId}&subdomain=${subdomain}&isWordpress=${site?.isWordpress}`,
+        {
+          method: HttpMethod.DELETE,
+        }
+      );
 
       if (res.ok) {
         toast.success(`Post Deleted`);
@@ -117,7 +143,7 @@ export default function CategoryPosts() {
       console.error(error);
     } finally {
       setDeletingPost(false);
-      setShowDeletePostModal(false);
+      setShowDeletePostModal({ isOpen: false });
     }
   }
 
@@ -129,10 +155,10 @@ export default function CategoryPosts() {
     postSlugRef.current.value = slug;
   };
 
-  const handleRemovePostClick = (postId: any, postTitle: any) => {
-    setDeletingPostId(postId);
-    setDeletingPostTitle(postTitle);
-    setShowDeletePostModal(true);
+  const handleRemovePostClick = (post: Post) => {
+    setDeletingPostId(post.id);
+    setDeletingPostTitle(post.title);
+    setShowDeletePostModal({ isOpen: true, isWp: site?.isWordpress });
   };
 
   const makeFeatured = async (postId: any, isFeatured: any) => {
@@ -198,7 +224,7 @@ export default function CategoryPosts() {
       return toast.error("Error. Please contact support.");
     } finally {
       setBulkCreatingContent(false);
-      setShowBulkCreateModal(false);
+      setShowBulkCreateModal({ isOpen: false });
     }
   };
 
@@ -213,7 +239,7 @@ export default function CategoryPosts() {
             </AddNewButton> */}
             <AddNewButton
               onClick={() => {
-                setShowModal(true);
+                setShowModal({ isOpen: true });
               }}
             >
               Add Post <span className="ml-2">＋</span>
@@ -227,12 +253,12 @@ export default function CategoryPosts() {
         ) : (
           <div className="grid gap-y-4">
             {category && category?.posts && category?.posts?.length > 0 ? (
-              category.posts?.map((post) => (
+              category.posts?.map((post: any) => (
                 <PostCard
                   post={post}
                   postEditUrl={`/site/${subdomain}/categories/${category.id}/posts/${post.id}`}
                   subdomain={subdomain}
-                  removePostClick={handleRemovePostClick}
+                  removePostClick={() => handleRemovePostClick(post)}
                   makeFeatured={makeFeatured}
                   key={post.id}
                 />
@@ -247,7 +273,7 @@ export default function CategoryPosts() {
           </div>
         )}
       </Container>
-      <Modal showModal={showModal} setShowModal={setShowModal}>
+      <Modal showModal={showModal.isOpen} setModal={setShowModal}>
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -282,7 +308,7 @@ export default function CategoryPosts() {
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
               onClick={() => {
-                setShowModal(false);
+                setShowModal({ isOpen: false });
               }}
             >
               CANCEL
@@ -303,8 +329,8 @@ export default function CategoryPosts() {
         </form>
       </Modal>
       <Modal
-        showModal={showBulkCreateModal}
-        setShowModal={setShowBulkCreateModal}
+        showModal={showBulkCreateModal.isOpen}
+        setModal={setShowBulkCreateModal}
       >
         <form
           onSubmit={(event) => {
@@ -399,7 +425,7 @@ export default function CategoryPosts() {
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
               onClick={() => {
-                setShowBulkCreateModal(false);
+                setShowBulkCreateModal({ isOpen: false });
               }}
             >
               CANCEL
@@ -420,8 +446,8 @@ export default function CategoryPosts() {
         </form>
       </Modal>
       <Modal
-        showModal={showDeletePostModal}
-        setShowModal={setShowDeletePostModal}
+        showModal={showDeletePostModal.isOpen}
+        setModal={setShowDeletePostModal}
       >
         <form
           onSubmit={async (event) => {
@@ -444,6 +470,7 @@ export default function CategoryPosts() {
                 name="name"
                 placeholder="delete"
                 pattern="delete"
+                required
               />
             </div>
           </div>
@@ -451,7 +478,7 @@ export default function CategoryPosts() {
             <button
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-400 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
-              onClick={() => setShowDeletePostModal(false)}
+              onClick={() => setShowDeletePostModal({ isOpen: false })}
             >
               CANCEL
             </button>

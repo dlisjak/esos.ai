@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import wp from "@/lib/wp";
 
 import { NextApiRequest, NextApiResponse } from "next";
 import type { Post, PostLink, PostTranslation } from "@prisma/client";
@@ -17,6 +18,26 @@ import {
 } from "../consts/credits";
 import { GPT_3, GPT_4 } from "../consts/gpt";
 
+export const convertPosts = (posts: any) => {
+  const newPosts = posts.map((post: any) => ({
+    id: post.id.toString(), // Convert to string
+    title: post.title ? post.title.rendered : null,
+    description: post.excerpt ? post.excerpt.rendered : null,
+    content: post.content ? post.content.rendered : null,
+    slug: post.slug,
+    createdAt: new Date(post.date), // Convert to Date object
+    updatedAt: new Date(post.modified), // Convert to Date object
+    published: post.status === "publish", // Check if the status is 'publish'
+    categoryId:
+      post.categories.length > 0 ? post.categories[0].toString() : null, // Assuming taking the first category
+    siteId: null, // This value is not provided in the original object
+    imageId: post.featured_media ? post.featured_media.toString() : null, // Convert to string if exists
+    isWordpress: true,
+  }));
+
+  return newPosts;
+};
+
 /**
  * Get Post
  *
@@ -32,7 +53,7 @@ export async function getPost(
   res: NextApiResponse,
   session: Session
 ): Promise<void | NextApiResponse<WithSitePost[] | (WithSitePost | null)>> {
-  const { postId, subdomain, categoryId, published } = req.query;
+  const { postId, subdomain, categoryId, published, isWordpress } = req.query;
 
   if (
     Array.isArray(postId) ||
@@ -44,16 +65,76 @@ export async function getPost(
     return res.status(400).end("Bad request. Query parameters are not valid.");
 
   try {
-    if (postId) {
-      const post = await prisma.post.findFirst({
+    if (isWordpress) {
+      const site = await prisma.site.findFirst({
         where: {
-          id: postId,
-          site: {
-            user: {
-              id: session.user.id,
+          userId: session.user.id,
+        },
+        select: {
+          isWordpress: true,
+          wpConfig: true,
+        },
+      });
+
+      if (!site?.isWordpress || !site?.wpConfig)
+        return res.status(400).end("Bad request. Site has invalid Config.");
+
+      const posts = await wp(
+        site.wpConfig.endpoint,
+        site.wpConfig.username,
+        site.wpConfig.password
+      )
+        .posts()
+        .param("status", published === "true" ? "publish" : "draft")
+        .order("desc")
+        .orderby("date");
+
+      const convertedPosts = convertPosts(posts);
+
+      return res.status(200).json(convertedPosts);
+    } else {
+      if (postId) {
+        const post = await prisma.post.findFirst({
+          where: {
+            id: postId,
+            site: {
+              user: {
+                id: session.user.id,
+              },
             },
           },
+          include: {
+            site: true,
+            category: true,
+            image: true,
+            translations: true,
+            links: {
+              orderBy: {
+                title: "asc",
+              },
+            },
+          },
+        });
+
+        return res.status(200).json(post);
+      }
+
+      const posts = await prisma.post.findMany({
+        where: {
+          site: {
+            subdomain: subdomain,
+          },
+          published: JSON.parse(published || "true"),
+          categoryId: categoryId,
         },
+        orderBy: [
+          {
+            isFeatured: "desc",
+          },
+          {
+            createdAt: "desc",
+          },
+        ],
         include: {
           site: true,
           category: true,
@@ -67,39 +148,8 @@ export async function getPost(
         },
       });
 
-      return res.status(200).json(post);
+      return res.status(200).json(posts);
     }
-
-    const posts = await prisma.post.findMany({
-      where: {
-        site: {
-          subdomain: subdomain,
-        },
-        published: JSON.parse(published || "true"),
-        categoryId: categoryId,
-      },
-      orderBy: [
-        {
-          isFeatured: "desc",
-        },
-        {
-          createdAt: "desc",
-        },
-      ],
-      include: {
-        site: true,
-        category: true,
-        image: true,
-        translations: true,
-        links: {
-          orderBy: {
-            title: "asc",
-          },
-        },
-      },
-    });
-
-    return res.status(200).json(posts);
   } catch (error) {
     console.error(error);
     return res.status(500).end(error);
@@ -123,7 +173,7 @@ export async function createPost(
 ): Promise<void | NextApiResponse<{
   postId: string;
 }>> {
-  const { subdomain } = req.query;
+  const { subdomain, isWordpress } = req.query;
   const { title, slug, categoryId } = req.body;
 
   if (!subdomain || typeof subdomain !== "string" || !session?.user?.id) {
@@ -133,36 +183,68 @@ export async function createPost(
   }
 
   try {
-    const response = await prisma.post.create({
-      data: {
-        title,
-        slug,
-        categoryId,
-        site: {
-          connect: {
-            subdomain: subdomain,
-          },
+    if (isWordpress) {
+      const site = await prisma.site.findFirst({
+        where: {
+          subdomain,
+          userId: session.user.id,
         },
-        links: {
-          create: {
-            title,
-            href: slug,
-          },
+        select: {
+          isWordpress: true,
+          wpConfig: true,
         },
-      },
-    });
+      });
 
-    await prisma.postTranslation.create({
-      data: {
-        lang: "EN",
+      if (!site?.isWordpress || !site?.wpConfig)
+        return res.status(400).end("Bad request. Site has invalid Config.");
+
+      const response = await wp(
+        site.wpConfig.endpoint,
+        site.wpConfig.username,
+        site.wpConfig.password
+      )
+        .posts()
+        .create({
+          title,
+          slug,
+          categories: categoryId,
+        });
+
+      return res.status(201).json({
         postId: response.id,
-        title,
-      },
-    });
+      });
+    } else {
+      const response = await prisma.post.create({
+        data: {
+          title,
+          slug,
+          categoryId,
+          site: {
+            connect: {
+              subdomain: subdomain,
+            },
+          },
+          links: {
+            create: {
+              title,
+              href: slug,
+            },
+          },
+        },
+      });
 
-    return res.status(201).json({
-      postId: response.id,
-    });
+      await prisma.postTranslation.create({
+        data: {
+          lang: "EN",
+          postId: response.id,
+          title,
+        },
+      });
+
+      return res.status(201).json({
+        postId: response.id,
+      });
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).end(error);
@@ -183,27 +265,59 @@ export async function deletePost(
   res: NextApiResponse,
   session: Session
 ): Promise<void | NextApiResponse> {
-  const { postId } = req.query;
+  const { postId, subdomain, isWordpress } = req.query;
 
-  if (!postId || typeof postId !== "string" || !session?.user?.id) {
+  if (
+    !postId ||
+    typeof postId !== "string" ||
+    typeof subdomain !== "string" ||
+    !session?.user?.id
+  ) {
     return res
       .status(400)
       .json({ error: "Missing or misconfigured site ID or session ID" });
   }
 
   try {
-    await prisma.post.delete({
-      where: {
-        id: postId,
-      },
-      include: {
-        site: {
-          select: { subdomain: true, customDomain: true },
+    if (isWordpress) {
+      const site = await prisma.site.findFirst({
+        where: {
+          subdomain,
+          userId: session.user.id,
         },
-      },
-    });
+        select: {
+          isWordpress: true,
+          wpConfig: true,
+        },
+      });
 
-    return res.status(200).end();
+      if (!site?.isWordpress || !site?.wpConfig)
+        return res.status(400).end("Bad request. Site has invalid Config.");
+
+      await wp(
+        site.wpConfig.endpoint,
+        site.wpConfig.username,
+        site.wpConfig.password
+      )
+        .posts()
+        .id(Number(postId))
+        .delete();
+
+      return res.status(200).end();
+    } else {
+      await prisma.post.delete({
+        where: {
+          id: postId,
+        },
+        include: {
+          site: {
+            select: { subdomain: true, customDomain: true },
+          },
+        },
+      });
+
+      return res.status(200).end();
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).end(error);
@@ -612,39 +726,64 @@ export async function getLatestPosts(
   res: NextApiResponse,
   session: Session
 ): Promise<void | NextApiResponse<WithSitePost[]>> {
-  const { subdomain, limit } = req.query;
+  const { subdomain, limit, isWordpress } = req.query;
 
   if (Array.isArray(limit) || Array.isArray(subdomain) || !session.user.id)
     return res.status(400).end("Bad request. Query parameters are not valid.");
 
   try {
-    const posts = await prisma.post.findMany({
-      take: limit ? Number(limit) : 5,
-      where: {
-        site: {
-          subdomain: subdomain,
+    if (isWordpress) {
+      const site = await prisma.site.findFirst({
+        where: {
+          userId: session.user.id,
         },
-      },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        published: true,
-        translations: {
-          select: {
-            id: true,
-            lang: true,
+        select: {
+          isWordpress: true,
+          wpConfig: true,
+        },
+      });
+
+      if (!site?.isWordpress || !site?.wpConfig)
+        return res.status(400).end("Bad request. Site has invalid Config.");
+
+      const posts = await wp(
+        site.wpConfig.endpoint,
+        site.wpConfig.username,
+        site.wpConfig.password
+      ).posts();
+
+      const convertedPosts = convertPosts(posts);
+
+      return res.status(200).json(convertedPosts);
+    } else {
+      const posts = await prisma.post.findMany({
+        take: limit ? Number(limit) : 5,
+        where: {
+          site: {
+            subdomain: subdomain,
           },
         },
-      },
-      orderBy: [
-        {
-          createdAt: "desc",
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          published: true,
+          translations: {
+            select: {
+              id: true,
+              lang: true,
+            },
+          },
         },
-      ],
-    });
+        orderBy: [
+          {
+            createdAt: "desc",
+          },
+        ],
+      });
 
-    return res.status(200).json(posts);
+      return res.status(200).json(posts);
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).end(error);

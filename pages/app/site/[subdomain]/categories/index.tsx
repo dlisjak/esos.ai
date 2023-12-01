@@ -14,8 +14,9 @@ import AddNewButton from "@/components/app/AddNewButton";
 import Header from "@/components/Layout/Header";
 import Container from "@/components/Layout/Container";
 import ContainerLoader from "@/components/app/ContainerLoader";
-import { useCategories, usePrompts, useUser } from "@/lib/queries";
+import { useCategories, usePrompts, useSite, useUser } from "@/lib/queries";
 import { isJsonString } from "@/lib/json";
+import { Category } from "@prisma/client";
 
 const JSON_PLACEHOLDER = `{
 	"categories": [{
@@ -73,8 +74,20 @@ export default function SiteCategories() {
   const [bulkCreateContent, setBulkCreateContent] = useState<boolean>(false);
   const [bulkCreatingContent, setBulkCreatingContent] =
     useState<boolean>(false);
-  const [showCategoryModal, setShowCategoryModal] = useState<boolean>(false);
-  const [showPostModal, setShowPostModal] = useState<boolean>(false);
+  const [showCategoryModal, setShowCategoryModal] = useState<{
+    isOpen: boolean;
+    isWp?: boolean;
+  }>({
+    isOpen: false,
+    isWp: false,
+  });
+  const [showPostModal, setShowPostModal] = useState<{
+    isOpen: boolean;
+    isWp?: boolean;
+  }>({
+    isOpen: false,
+    isWp: false,
+  });
   const [showImportCategoriesModal, setShowImportCategoriesModal] =
     useState<boolean>(false);
 
@@ -83,11 +96,20 @@ export default function SiteCategories() {
   const [creatingCategory, setCreatingCategory] = useState<boolean>(false);
   const [creatingPost, setCreatingPost] = useState<boolean>(false);
   const [deletingCategory, setDeletingCategory] = useState<boolean>(false);
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<{
+    isOpen: boolean;
+    isWp?: boolean;
+  }>({
+    isOpen: false,
+    isWp: false,
+  });
 
-  const [creatingPostCategoryId, setCreatingPostCategoryId] = useState();
-  const [deletingPostCategoryId, setDeletingPostCategoryId] = useState();
-  const [deletingPostCategoryTitle, setDeletingPostCategoryTitle] = useState();
+  const [creatingPostCategoryId, setCreatingPostCategoryId] =
+    useState<string>();
+  const [deletingPostCategoryId, setDeletingPostCategoryId] =
+    useState<string>();
+  const [deletingPostCategoryTitle, setDeletingPostCategoryTitle] =
+    useState<string>();
 
   const postTitleRef = useRef<HTMLInputElement | null>(null);
   const postSlugRef = useRef<HTMLInputElement | null>(null);
@@ -97,7 +119,12 @@ export default function SiteCategories() {
   const router = useRouter();
   const { subdomain } = router.query;
 
-  const { categories, isLoading, mutateCategories } = useCategories(subdomain);
+  const { site } = useSite(subdomain);
+
+  const { categories, isLoading, mutateCategories } = useCategories(
+    subdomain,
+    site?.isWordpress
+  );
   const { prompts } = usePrompts();
   const { user } = useUser();
 
@@ -135,20 +162,24 @@ export default function SiteCategories() {
     categoryId: string | string[] | undefined
   ) {
     if (!subdomain) return;
+
     setCreatingPost(true);
     if (!postTitleRef.current || !postSlugRef.current) return;
     const title = postTitleRef.current.value;
     const slug = postSlugRef.current.value;
-    const data = { title, slug };
+    const data = { title, slug, categoryId };
 
     try {
-      const res = await fetch(`/api/post?subdomain=${subdomain}`, {
-        method: HttpMethod.POST,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `/api/post?subdomain=${subdomain}&isWordpress=${site?.isWordpress}`,
+        {
+          method: HttpMethod.POST,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (res.ok) {
         const data = await res.json();
@@ -161,28 +192,33 @@ export default function SiteCategories() {
       console.error(error);
     } finally {
       setCreatingPost(false);
-      setShowPostModal(false);
+      setShowPostModal({ isOpen: false });
     }
   }
 
-  async function deleteCategory(categoryId: any) {
+  async function deleteCategory(categoryId: any, isWordpress: boolean = false) {
     if (!categoryId) return;
     setDeletingCategory(true);
 
     try {
-      const res = await fetch(`/api/category?categoryId=${categoryId}`, {
-        method: HttpMethod.DELETE,
-      });
+      const res = await fetch(
+        `/api/category?categoryId=${categoryId}&isWordpress=${isWordpress}&subdomain=${subdomain}`,
+        {
+          method: HttpMethod.DELETE,
+        }
+      );
 
       if (res.ok) {
         toast.success(`Category Deleted`);
         mutateCategories();
+      } else {
+        toast.error(`Category Could not be deleted!`);
       }
     } catch (error) {
       console.error(error);
     } finally {
       setDeletingCategory(false);
-      setShowDeleteModal(false);
+      setShowDeleteModal({ isOpen: false });
     }
   }
 
@@ -190,12 +226,12 @@ export default function SiteCategories() {
     const title = e.target.value;
     const slug = getSlug(title);
 
-    if (showCategoryModal) {
+    if (showCategoryModal?.isOpen) {
       if (!categorySlugRef?.current) return;
       categorySlugRef.current.value = slug;
     }
 
-    if (showPostModal) {
+    if (showPostModal?.isOpen) {
       if (!postSlugRef?.current) return;
       postSlugRef.current.value = slug;
     }
@@ -203,13 +239,15 @@ export default function SiteCategories() {
 
   const handleAddPostClick = (categoryId: any) => {
     setCreatingPostCategoryId(categoryId);
-    setShowPostModal(true);
+    setShowPostModal({ isOpen: true });
   };
 
-  const handleRemovePostClick = (categoryId: any, categoryTitle: any) => {
-    setDeletingPostCategoryId(categoryId);
-    setDeletingPostCategoryTitle(categoryTitle);
-    setShowDeleteModal(true);
+  const handleRemovePostClick = (
+    category: Category & { isWordpress: boolean }
+  ) => {
+    setDeletingPostCategoryId(category.id);
+    setDeletingPostCategoryTitle(category.title);
+    setShowDeleteModal({ isOpen: true, isWp: category.isWordpress });
   };
 
   async function bulkCreateCategories(
@@ -288,7 +326,9 @@ export default function SiteCategories() {
             >
               Import <span className="ml-2">＋</span>
             </AddNewButton> */}
-            <AddNewButton onClick={() => setShowCategoryModal(true)}>
+            <AddNewButton
+              onClick={() => setShowCategoryModal({ isOpen: true })}
+            >
               Add Category <span className="ml-2">＋</span>
             </AddNewButton>
           </div>
@@ -304,6 +344,7 @@ export default function SiteCategories() {
             subdomain={subdomain}
             addPostClick={handleAddPostClick}
             removePostClick={handleRemovePostClick}
+            site={site}
           />
         ) : (
           <div className="text-center">
@@ -313,7 +354,10 @@ export default function SiteCategories() {
           </div>
         )}
       </Container>
-      <Modal showModal={showCategoryModal} setShowModal={setShowCategoryModal}>
+      <Modal
+        showModal={showCategoryModal.isOpen}
+        setModal={setShowCategoryModal}
+      >
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -348,7 +392,7 @@ export default function SiteCategories() {
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
               onClick={() => {
-                setShowCategoryModal(false);
+                setShowCategoryModal({ isOpen: false });
               }}
             >
               CANCEL
@@ -370,7 +414,7 @@ export default function SiteCategories() {
       </Modal>
       <Modal
         showModal={showImportCategoriesModal}
-        setShowModal={setShowImportCategoriesModal}
+        setModal={setShowImportCategoriesModal}
       >
         <form
           onSubmit={(event) => {
@@ -446,7 +490,7 @@ export default function SiteCategories() {
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
               onClick={() => {
-                setShowCategoryModal(false);
+                setShowCategoryModal({ isOpen: false });
               }}
             >
               CANCEL
@@ -466,7 +510,7 @@ export default function SiteCategories() {
           </div>
         </form>
       </Modal>
-      <Modal showModal={showPostModal} setShowModal={setShowPostModal}>
+      <Modal showModal={showPostModal.isOpen} setModal={setShowPostModal}>
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -501,7 +545,7 @@ export default function SiteCategories() {
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-600 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
               onClick={() => {
-                setShowPostModal(false);
+                setShowPostModal({ isOpen: false });
               }}
             >
               CANCEL
@@ -521,11 +565,11 @@ export default function SiteCategories() {
           </div>
         </form>
       </Modal>
-      <Modal showModal={showDeleteModal} setShowModal={setShowDeleteModal}>
+      <Modal showModal={showDeleteModal.isOpen} setModal={setShowDeleteModal}>
         <form
           onSubmit={async (event) => {
             event.preventDefault();
-            await deleteCategory(deletingPostCategoryId);
+            await deleteCategory(deletingPostCategoryId, showDeleteModal.isWp);
           }}
           className="inline-block w-full max-w-xl overflow-hidden rounded bg-white pt-8 text-center align-middle shadow-xl transition-all"
         >
@@ -544,6 +588,7 @@ export default function SiteCategories() {
                 name="name"
                 placeholder="delete"
                 pattern="delete"
+                required
               />
             </div>
           </div>
@@ -551,7 +596,7 @@ export default function SiteCategories() {
             <button
               type="button"
               className="w-full rounded-bl border-t border-gray-300 px-5 py-5 text-sm text-gray-400 transition-all duration-150 ease-in-out hover:text-black focus:outline-none focus:ring-0"
-              onClick={() => setShowDeleteModal(false)}
+              onClick={() => setShowDeleteModal({ isOpen: false })}
             >
               CANCEL
             </button>

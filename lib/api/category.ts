@@ -2,6 +2,7 @@ import type { Session } from "next-auth";
 import { NextApiRequest, NextApiResponse } from "next";
 
 import prisma from "@/lib/prisma";
+import wp from "@/lib/wp";
 import type { Category, CategoryTranslation } from ".prisma/client";
 import { WithAllCategory } from "@/types/category";
 import translate from "deepl";
@@ -15,6 +16,39 @@ import {
 import { openai } from "../openai";
 import { GPT_4 } from "../consts/gpt";
 import { revalidateMainCategories } from "../revalidateImportCategories";
+import { convertPosts } from "./post";
+
+const convertCategories = (categories: any) => {
+  if (categories.length > 1) {
+    const newCategories = categories.map((category: any) => ({
+      id: String(category.id),
+      title: category.name,
+      slug: category.slug,
+      content: category.description || null,
+      siteId: null, // Assuming no corresponding field in category object
+      parentId: category.parent ? String(category.parent) : null,
+      createdAt: new Date(), // Assuming current date for creation
+      updatedAt: new Date(), // Assuming current date for last update
+      imageId: null, // Assuming no corresponding field in original object
+      isWordpress: true,
+    }));
+
+    return newCategories;
+  } else {
+    return {
+      id: String(categories.id),
+      title: categories.name,
+      slug: categories.slug,
+      content: categories.description || null,
+      siteId: null, // Assuming no corresponding field in categories object
+      parentId: categories.parent ? String(categories.parent) : null,
+      createdAt: new Date(), // Assuming current date for creation
+      updatedAt: new Date(), // Assuming current date for last update
+      imageId: null, // Assuming no corresponding field in original object
+      isWordpress: true,
+    };
+  }
+};
 
 /**
  * Get Category
@@ -34,7 +68,7 @@ export async function getCategory(
 ): Promise<void | NextApiResponse<
   Array<WithAllCategory[]> | (WithAllCategory | null)
 >> {
-  const { subdomain, siteId, categoryId } = req.query;
+  const { subdomain, siteId, categoryId, isWordpress } = req.query;
 
   if (
     Array.isArray(categoryId) ||
@@ -45,74 +79,124 @@ export async function getCategory(
     return res.status(400).end("Bad request. Query parameters are not valid.");
 
   try {
-    if (categoryId) {
-      const category = await prisma.category.findFirst({
+    if (isWordpress) {
+      const site = await prisma.site.findFirst({
         where: {
-          id: categoryId,
-          site: {
-            user: {
-              id: session.user.id,
+          userId: session.user.id,
+        },
+        select: {
+          isWordpress: true,
+          wpConfig: true,
+        },
+      });
+
+      if (!site?.isWordpress || !site?.wpConfig)
+        return res.status(400).end("Bad request. Site has invalid Config.");
+
+      if (categoryId) {
+        const category = await wp(
+          site.wpConfig.endpoint,
+          site.wpConfig.username,
+          site.wpConfig.password
+        )
+          .categories()
+          .id(Number(categoryId));
+
+        const categoryPosts = await wp(
+          site.wpConfig.endpoint,
+          site.wpConfig.username,
+          site.wpConfig.password
+        )
+          .posts()
+          .categories(categoryId);
+
+        const convertedCategory = convertCategories(category);
+        const convertedcategoryPosts = convertPosts(categoryPosts);
+
+        convertedCategory.posts = convertedcategoryPosts;
+
+        return res.status(200).json(convertedCategory);
+      } else {
+        const categories = await wp(
+          site.wpConfig.endpoint,
+          site.wpConfig.username,
+          site.wpConfig.password
+        ).categories();
+
+        const convertedCategories = convertCategories(categories);
+
+        return res.status(200).json(convertedCategories);
+      }
+    } else {
+      if (categoryId) {
+        const category = await prisma.category.findFirst({
+          where: {
+            id: categoryId,
+            site: {
+              user: {
+                id: session.user.id,
+              },
             },
           },
+          include: {
+            parent: true,
+            image: true,
+            translations: true,
+            posts: {
+              include: {
+                image: true,
+                category: true,
+                translations: true,
+              },
+              orderBy: [
+                {
+                  isFeatured: "desc",
+                },
+                {
+                  createdAt: "desc",
+                },
+              ],
+            },
+          },
+        });
+
+        return res.status(200).json(category);
+      }
+
+      const categories = await prisma.category.findMany({
+        where: {
+          site: {
+            subdomain,
+          },
+        },
+        orderBy: {
+          createdAt: "asc",
         },
         include: {
           parent: true,
           image: true,
           translations: true,
-          posts: {
+          children: {
             include: {
+              posts: true,
               image: true,
-              category: true,
               translations: true,
-            },
-            orderBy: [
-              {
-                isFeatured: "desc",
-              },
-              {
-                createdAt: "desc",
-              },
-            ],
-          },
-        },
-      });
-
-      return res.status(200).json(category);
-    }
-
-    const categories = await prisma.category.findMany({
-      where: {
-        site: {
-          subdomain,
-        },
-      },
-      orderBy: {
-        createdAt: "asc",
-      },
-      include: {
-        parent: true,
-        image: true,
-        translations: true,
-        children: {
-          include: {
-            posts: true,
-            image: true,
-            translations: true,
-            children: {
-              include: {
-                posts: true,
-                image: true,
-                translations: true,
-                children: {
-                  include: {
-                    posts: true,
-                    image: true,
-                    translations: true,
-                    children: {
-                      include: {
-                        posts: true,
-                        image: true,
-                        translations: true,
+              children: {
+                include: {
+                  posts: true,
+                  image: true,
+                  translations: true,
+                  children: {
+                    include: {
+                      posts: true,
+                      image: true,
+                      translations: true,
+                      children: {
+                        include: {
+                          posts: true,
+                          image: true,
+                          translations: true,
+                        },
                       },
                     },
                   },
@@ -120,12 +204,12 @@ export async function getCategory(
               },
             },
           },
+          posts: true,
         },
-        posts: true,
-      },
-    });
+      });
 
-    return res.status(200).json(categories);
+      return res.status(200).json(categories);
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).end(error);
@@ -210,40 +294,72 @@ export async function deleteCategory(
   res: NextApiResponse,
   session: Session
 ): Promise<void | NextApiResponse> {
-  const { categoryId } = req.query;
+  const { categoryId, isWordpress, subdomain } = req.query;
 
-  if (!categoryId || typeof categoryId !== "string" || !session?.user?.id) {
+  if (
+    !categoryId ||
+    typeof categoryId !== "string" ||
+    typeof subdomain !== "string" ||
+    !session?.user?.id
+  ) {
     return res
       .status(400)
       .json({ error: "Missing or misconfigured site ID or session ID" });
   }
 
-  const site = await prisma.site.findFirst({
-    where: {
-      user: {
-        id: session.user.id,
-      },
-      categories: {
-        some: {
+  try {
+    if (isWordpress) {
+      const site = await prisma.site.findFirst({
+        where: {
+          subdomain,
+          userId: session.user.id,
+        },
+        select: {
+          isWordpress: true,
+          wpConfig: true,
+        },
+      });
+
+      if (!site?.isWordpress || !site?.wpConfig)
+        return res.status(400).end("Bad request. Site has invalid Config.");
+
+      await wp(
+        site.wpConfig.endpoint,
+        site.wpConfig.username,
+        site.wpConfig.password
+      )
+        .categories()
+        .id(Number(categoryId))
+        .delete();
+
+      return res.status(200).end();
+    } else {
+      const site = await prisma.site.findFirst({
+        where: {
+          user: {
+            id: session.user.id,
+          },
+          categories: {
+            some: {
+              id: categoryId,
+            },
+          },
+        },
+      });
+
+      if (!site) return res.status(400).json({ error: "Cannot find site" });
+
+      await prisma.category.delete({
+        where: {
           id: categoryId,
         },
-      },
-    },
-  });
+        include: {
+          translations: true,
+        },
+      });
 
-  if (!site) return res.status(400).json({ error: "Cannot find site" });
-
-  try {
-    await prisma.category.delete({
-      where: {
-        id: categoryId,
-      },
-      include: {
-        translations: true,
-      },
-    });
-
-    return res.status(200).end();
+      return res.status(200).end();
+    }
   } catch (error) {
     console.error(error);
     return res.status(500).end(error);

@@ -60,6 +60,8 @@ export async function getSite(
           lang: true,
           customCss: true,
           customJs: true,
+          isWordpress: true,
+          wpConfig: true,
         },
       });
 
@@ -108,7 +110,8 @@ export async function createSite(
 ): Promise<void | NextApiResponse<{
   siteId: string;
 }>> {
-  const { name, subdomain, userId } = req.body;
+  const { name, subdomain, userId, customDomain, isWordpress, wpConfig } =
+    req.body;
 
   if (!session.user.id)
     return res.status(500).end("Server failed to get session user ID");
@@ -140,17 +143,38 @@ export async function createSite(
       .end("User reached max amount of sites. Please contact support");
 
   try {
-    const response = await prisma.site.create({
-      data: {
-        name: name,
-        subdomain: sub.length > 0 ? sub : cuid(),
-        user: {
-          connect: {
-            id: userId,
+    let response;
+
+    if (isWordpress) {
+      response = await prisma.site.create({
+        data: {
+          name,
+          customDomain,
+          isWordpress,
+          subdomain: sub.length > 0 ? sub : cuid(),
+          wpConfig: {
+            create: wpConfig,
+          },
+          user: {
+            connect: {
+              id: userId,
+            },
           },
         },
-      },
-    });
+      });
+    } else {
+      response = await prisma.site.create({
+        data: {
+          name: name,
+          subdomain: sub.length > 0 ? sub : cuid(),
+          user: {
+            connect: {
+              id: userId,
+            },
+          },
+        },
+      });
+    }
 
     if (fs.existsSync(path.join("public", "rewrites", "index.json"))) {
       const rewrites = JSON.parse(

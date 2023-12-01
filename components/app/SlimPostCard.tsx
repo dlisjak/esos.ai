@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { StatusIndicator } from "./PostCard";
 
-const SlimPostCard = ({ post, editUrl = "" }: any) => {
+const SlimPostCard = ({ post, editUrl = "", isWordpress = false }: any) => {
   if (!post) return <></>;
   const { published, title, slug, translations } = post;
 
@@ -29,7 +29,7 @@ const SlimPostCard = ({ post, editUrl = "" }: any) => {
       <div className="flex h-full flex-col items-end">
         <div className="relative flex justify-between"></div>
         <div className="ml-2 flex h-full items-end justify-between space-x-2">
-          {editUrl && (
+          {!isWordpress && editUrl && (
             <Link
               className="flex whitespace-nowrap rounded border bg-white px-3 py-1 tracking-wide text-black duration-200 hover:border-black"
               href={editUrl}

@@ -21,7 +21,8 @@ const SlimCategory = ({ category, subdomain, isChild, isSubChild }: any) => {
         />
         <div className="ml-4 flex flex-col items-start justify-center">
           <h3 className="text-xl font-semibold line-clamp-1">
-            {category.title} ({category.posts?.length})
+            {category.title}{" "}
+            {!category.isWordpress && <>({category.posts?.length})</>}
           </h3>
           <p className="right-1 flex w-auto rounded bg-gray-100 px-1 text-xs line-clamp-1">
             /{category.slug}
@@ -40,7 +41,7 @@ const SlimCategory = ({ category, subdomain, isChild, isSubChild }: any) => {
         <div className="flex h-full flex-col items-end">
           <div className="relative flex justify-between"></div>
           <div className="ml-2 flex h-full items-end justify-between space-x-2">
-            {viewUrl && (
+            {!category.isWordpress && viewUrl && (
               <Link
                 className="flex whitespace-nowrap rounded border bg-white px-3 py-1 tracking-wide text-black duration-200 hover:border-black"
                 href={viewUrl}
@@ -48,7 +49,7 @@ const SlimCategory = ({ category, subdomain, isChild, isSubChild }: any) => {
                 Posts
               </Link>
             )}
-            {editUrl && (
+            {!category.isWordpress && editUrl && (
               <Link
                 className="flex whitespace-nowrap rounded border bg-white px-3 py-1 tracking-wide text-black duration-200 hover:border-black"
                 href={editUrl}

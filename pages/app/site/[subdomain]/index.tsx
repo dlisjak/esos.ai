@@ -13,23 +13,30 @@ import {
   useLatestPosts,
   useFeaturedPosts,
   usePosts,
+  useSite,
 } from "@/lib/queries";
 
 export default function Dashboard() {
   const router = useRouter();
   const { subdomain } = router.query;
 
-  const { posts } = usePosts(subdomain, true);
+  const { site } = useSite(subdomain && subdomain);
 
-  const { categories, isLoading: isLoadingCategories } =
-    useCategories(subdomain);
+  const { posts } = usePosts(subdomain, true, site?.isWordpress);
+
+  const { categories, isLoading: isLoadingCategories } = useCategories(
+    subdomain,
+    site?.isWordpress
+  );
   const { posts: draftPosts, isLoading: isLoadingDraftPosts } = usePosts(
     subdomain,
-    false
+    false,
+    site?.isWordpress
   );
   const { latestPosts, isLoading: isLoadingLatestPosts } = useLatestPosts(
     subdomain,
-    5
+    5,
+    site?.isWordpress
   );
   const { featuredPosts, isLoading: isLoadingFeaturedPosts } =
     useFeaturedPosts(subdomain);
@@ -59,10 +66,11 @@ export default function Dashboard() {
               ) : (
                 <ul className="space-y-0 divide-y overflow-hidden rounded border">
                   {latestPosts &&
-                    latestPosts.map((post) => (
+                    latestPosts.map((post: any) => (
                       <SlimCard
                         post={post}
                         editUrl={`/site/${subdomain}/posts/${post.id}`}
+                        isWordpress={post?.isWordpress}
                         key={`latest--${post.id}`}
                       />
                     ))}
@@ -84,10 +92,11 @@ export default function Dashboard() {
               ) : (
                 <ul className="space-y-0 divide-y overflow-hidden rounded border">
                   {featuredPosts &&
-                    featuredPosts.map((post) => (
+                    featuredPosts.map((post: any) => (
                       <SlimCard
                         post={post}
                         editUrl={`/site/${subdomain}/posts/${post.id}`}
+                        isWordpress={post?.isWordpress}
                         key={`featured--${post.id}`}
                       />
                     ))}
@@ -109,10 +118,11 @@ export default function Dashboard() {
               ) : (
                 <ul className="space-y-0 divide-y overflow-hidden rounded border">
                   {draftPosts &&
-                    draftPosts.map((post) => (
+                    draftPosts?.map((post: any) => (
                       <SlimCard
                         post={post}
                         editUrl={`/site/${subdomain}/posts/${post.id}`}
+                        isWordpress={post?.isWordpress}
                         key={`draft--${post.id}`}
                       />
                     ))}

@@ -558,6 +558,7 @@ export default function CategoryPage() {
                     name="name"
                     placeholder="delete"
                     pattern="delete"
+                    required
                   />
                 </div>
               </div>
